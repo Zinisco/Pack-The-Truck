@@ -120,69 +120,6 @@ public partial class @InputSystem_Actions: IInputActionCollection2, IDisposable
                     ""initialStateCheck"": false
                 },
                 {
-                    ""name"": ""YawLeft"",
-                    ""type"": ""Button"",
-                    ""id"": ""51ecad8c-d4f2-4014-98ba-fb1ba423e498"",
-                    ""expectedControlType"": """",
-                    ""processors"": """",
-                    ""interactions"": """",
-                    ""initialStateCheck"": false
-                },
-                {
-                    ""name"": ""YawRight"",
-                    ""type"": ""Button"",
-                    ""id"": ""d5af7c32-5676-4e0c-8bad-1c9b65f74edf"",
-                    ""expectedControlType"": """",
-                    ""processors"": """",
-                    ""interactions"": """",
-                    ""initialStateCheck"": false
-                },
-                {
-                    ""name"": ""PitchUp"",
-                    ""type"": ""Button"",
-                    ""id"": ""9a0d922a-9dbc-498c-a596-24dc13e771b9"",
-                    ""expectedControlType"": """",
-                    ""processors"": """",
-                    ""interactions"": """",
-                    ""initialStateCheck"": false
-                },
-                {
-                    ""name"": ""PitchDown"",
-                    ""type"": ""Button"",
-                    ""id"": ""33c033a1-cfc8-46ed-ab46-712a99bfec32"",
-                    ""expectedControlType"": """",
-                    ""processors"": """",
-                    ""interactions"": """",
-                    ""initialStateCheck"": false
-                },
-                {
-                    ""name"": ""RollLeft"",
-                    ""type"": ""Button"",
-                    ""id"": ""c58c1fba-521a-4e36-91db-75febd97b4aa"",
-                    ""expectedControlType"": """",
-                    ""processors"": """",
-                    ""interactions"": """",
-                    ""initialStateCheck"": false
-                },
-                {
-                    ""name"": ""RollRight"",
-                    ""type"": ""Button"",
-                    ""id"": ""a0370d60-bc8e-4fb1-93a1-cf32f49cc9e2"",
-                    ""expectedControlType"": """",
-                    ""processors"": """",
-                    ""interactions"": """",
-                    ""initialStateCheck"": false
-                },
-                {
-                    ""name"": ""LayerDelta"",
-                    ""type"": ""Value"",
-                    ""id"": ""21ba6dfc-b6ac-466b-81af-f4ad49e3ce9c"",
-                    ""expectedControlType"": ""Delta"",
-                    ""processors"": """",
-                    ""interactions"": """",
-                    ""initialStateCheck"": true
-                },
-                {
                     ""name"": ""OrbitDelta"",
                     ""type"": ""Value"",
                     ""id"": ""98c484ea-e655-4c42-875b-7e484ac4ec87"",
@@ -219,63 +156,72 @@ public partial class @InputSystem_Actions: IInputActionCollection2, IDisposable
                     ""initialStateCheck"": false
                 },
                 {
-                    ""name"": ""ViewTop"",
-                    ""type"": ""Button"",
-                    ""id"": ""526266d1-244b-4da0-bb71-1c62c235a171"",
-                    ""expectedControlType"": """",
-                    ""processors"": """",
-                    ""interactions"": """",
-                    ""initialStateCheck"": false
-                },
-                {
-                    ""name"": ""ViewBottom"",
-                    ""type"": ""Button"",
-                    ""id"": ""41d4839e-a902-4b4b-a123-6ccb89ea1084"",
-                    ""expectedControlType"": """",
-                    ""processors"": """",
-                    ""interactions"": """",
-                    ""initialStateCheck"": false
-                },
-                {
-                    ""name"": ""ViewLeft"",
-                    ""type"": ""Button"",
-                    ""id"": ""d17abd4b-ba2f-4888-9f5f-d096e89c4d49"",
-                    ""expectedControlType"": """",
-                    ""processors"": """",
-                    ""interactions"": """",
-                    ""initialStateCheck"": false
-                },
-                {
-                    ""name"": ""ViewRight"",
-                    ""type"": ""Button"",
-                    ""id"": ""a99df8da-a1b8-4fc6-8825-e2dc55a1cfcd"",
-                    ""expectedControlType"": """",
-                    ""processors"": """",
-                    ""interactions"": """",
-                    ""initialStateCheck"": false
-                },
-                {
-                    ""name"": ""ViewFront"",
-                    ""type"": ""Button"",
-                    ""id"": ""457ea0f1-ac7c-47bc-8ae2-6bdb810dcb29"",
-                    ""expectedControlType"": """",
-                    ""processors"": """",
-                    ""interactions"": """",
-                    ""initialStateCheck"": false
-                },
-                {
-                    ""name"": ""ViewBack"",
-                    ""type"": ""Button"",
-                    ""id"": ""dab167ef-08a0-40c9-bfea-44418e4584ce"",
-                    ""expectedControlType"": """",
-                    ""processors"": """",
-                    ""interactions"": """",
-                    ""initialStateCheck"": false
-                },
-                {
                     ""name"": ""CancelPlacement"",
                     ""type"": ""Button"",
                     ""id"": ""34a4df28-2919-4041-ade1-764e621c65b1"",
+                    ""expectedControlType"": """",
+                    ""processors"": """",
+                    ""interactions"": """",
+                    ""initialStateCheck"": false
+                },
+                {
+                    ""name"": ""Zoom"",
+                    ""type"": ""Value"",
+                    ""id"": ""3eefec63-4d23-4029-9597-ab7889a71b56"",
+                    ""expectedControlType"": ""Vector2"",
+                    ""processors"": """",
+                    ""interactions"": """",
+                    ""initialStateCheck"": true
+                },
+                {
+                    ""name"": ""PanHold"",
+                    ""type"": ""Button"",
+                    ""id"": ""1a8874aa-23c4-41f2-a62c-0a2d0c7a4ab6"",
+                    ""expectedControlType"": """",
+                    ""processors"": """",
+                    ""interactions"": """",
+                    ""initialStateCheck"": false
+                },
+                {
+                    ""name"": ""PanDelta"",
+                    ""type"": ""Value"",
+                    ""id"": ""834bb789-c612-4a40-9be7-6be7a1701509"",
+                    ""expectedControlType"": ""Delta"",
+                    ""processors"": """",
+                    ""interactions"": """",
+                    ""initialStateCheck"": true
+                },
+                {
+                    ""name"": ""RotateX"",
+                    ""type"": ""Button"",
+                    ""id"": ""3261b080-baf2-4802-8169-98b1cb97aa37"",
+                    ""expectedControlType"": """",
+                    ""processors"": """",
+                    ""interactions"": """",
+                    ""initialStateCheck"": false
+                },
+                {
+                    ""name"": ""RotateY"",
+                    ""type"": ""Button"",
+                    ""id"": ""0f43cc71-92ee-4634-98ad-388ce1641e03"",
+                    ""expectedControlType"": """",
+                    ""processors"": """",
+                    ""interactions"": """",
+                    ""initialStateCheck"": false
+                },
+                {
+                    ""name"": ""RotateZ"",
+                    ""type"": ""Button"",
+                    ""id"": ""82503906-d2bd-465d-a81a-97c4a8d7584f"",
+                    ""expectedControlType"": """",
+                    ""processors"": """",
+                    ""interactions"": """",
+                    ""initialStateCheck"": false
+                },
+                {
+                    ""name"": ""RotationModifier"",
+                    ""type"": ""Button"",
+                    ""id"": ""88144e74-841b-427e-b3cb-3d3639512444"",
                     ""expectedControlType"": """",
                     ""processors"": """",
                     ""interactions"": """",
@@ -308,7 +254,7 @@ public partial class @InputSystem_Actions: IInputActionCollection2, IDisposable
                 {
                     ""name"": """",
                     ""id"": ""6dc7335c-f6b6-42a2-980f-e58ed8638652"",
-                    ""path"": ""<Keyboard>/x"",
+                    ""path"": ""<Keyboard>/backspace"",
                     ""interactions"": """",
                     ""processors"": """",
                     ""groups"": "";Keyboard&Mouse"",
@@ -318,78 +264,12 @@ public partial class @InputSystem_Actions: IInputActionCollection2, IDisposable
                 },
                 {
                     ""name"": """",
-                    ""id"": ""f69b02bd-802b-45ab-97b3-8ee8ee01a4ad"",
-                    ""path"": ""<Keyboard>/a"",
+                    ""id"": ""bb54af49-17dd-42ad-897a-bda448137d9e"",
+                    ""path"": ""<Keyboard>/u"",
                     ""interactions"": """",
                     ""processors"": """",
-                    ""groups"": "";Keyboard&Mouse"",
-                    ""action"": ""YawLeft"",
-                    ""isComposite"": false,
-                    ""isPartOfComposite"": false
-                },
-                {
-                    ""name"": """",
-                    ""id"": ""d5c288d3-b116-4e9d-9b2c-833fc5d8cf38"",
-                    ""path"": ""<Keyboard>/d"",
-                    ""interactions"": """",
-                    ""processors"": """",
-                    ""groups"": "";Keyboard&Mouse"",
-                    ""action"": ""YawRight"",
-                    ""isComposite"": false,
-                    ""isPartOfComposite"": false
-                },
-                {
-                    ""name"": """",
-                    ""id"": ""785a7014-d059-4eba-b78a-2ff83ee7adc8"",
-                    ""path"": ""<Keyboard>/r"",
-                    ""interactions"": """",
-                    ""processors"": """",
-                    ""groups"": "";Keyboard&Mouse"",
-                    ""action"": ""PitchUp"",
-                    ""isComposite"": false,
-                    ""isPartOfComposite"": false
-                },
-                {
-                    ""name"": """",
-                    ""id"": ""114b4470-ceab-4e81-a2bf-d7470b78b300"",
-                    ""path"": ""<Keyboard>/f"",
-                    ""interactions"": """",
-                    ""processors"": """",
-                    ""groups"": "";Keyboard&Mouse"",
-                    ""action"": ""PitchDown"",
-                    ""isComposite"": false,
-                    ""isPartOfComposite"": false
-                },
-                {
-                    ""name"": """",
-                    ""id"": ""34106df4-797c-4590-a5c0-4fb88a1cb1f1"",
-                    ""path"": ""<Keyboard>/s"",
-                    ""interactions"": """",
-                    ""processors"": """",
-                    ""groups"": "";Keyboard&Mouse"",
-                    ""action"": ""RollLeft"",
-                    ""isComposite"": false,
-                    ""isPartOfComposite"": false
-                },
-                {
-                    ""name"": """",
-                    ""id"": ""ed6cf934-e3b0-4d54-ae6e-e217a848e4ac"",
-                    ""path"": ""<Keyboard>/w"",
-                    ""interactions"": """",
-                    ""processors"": """",
-                    ""groups"": "";Keyboard&Mouse"",
-                    ""action"": ""RollRight"",
-                    ""isComposite"": false,
-                    ""isPartOfComposite"": false
-                },
-                {
-                    ""name"": """",
-                    ""id"": ""660955ab-a94d-44d4-9e03-150f80491474"",
-                    ""path"": ""<Mouse>/scroll"",
-                    ""interactions"": """",
-                    ""processors"": """",
-                    ""groups"": "";Keyboard&Mouse"",
-                    ""action"": ""LayerDelta"",
+                    ""groups"": """",
+                    ""action"": ""Undo"",
                     ""isComposite"": false,
                     ""isPartOfComposite"": false
                 },
@@ -461,78 +341,89 @@ public partial class @InputSystem_Actions: IInputActionCollection2, IDisposable
                 },
                 {
                     ""name"": """",
-                    ""id"": ""675d40db-f9f6-428e-b8a2-41c6c60991b9"",
-                    ""path"": ""<Keyboard>/1"",
-                    ""interactions"": """",
-                    ""processors"": """",
-                    ""groups"": "";Keyboard&Mouse"",
-                    ""action"": ""ViewTop"",
-                    ""isComposite"": false,
-                    ""isPartOfComposite"": false
-                },
-                {
-                    ""name"": """",
-                    ""id"": ""2e2bc2bd-d91c-4c08-9bb5-47892d41f698"",
-                    ""path"": ""<Keyboard>/2"",
-                    ""interactions"": """",
-                    ""processors"": """",
-                    ""groups"": "";Keyboard&Mouse"",
-                    ""action"": ""ViewBottom"",
-                    ""isComposite"": false,
-                    ""isPartOfComposite"": false
-                },
-                {
-                    ""name"": """",
-                    ""id"": ""4e0bc3d9-5f03-4e5b-9707-c6aaf70c1f41"",
-                    ""path"": ""<Keyboard>/3"",
-                    ""interactions"": """",
-                    ""processors"": """",
-                    ""groups"": "";Keyboard&Mouse"",
-                    ""action"": ""ViewLeft"",
-                    ""isComposite"": false,
-                    ""isPartOfComposite"": false
-                },
-                {
-                    ""name"": """",
-                    ""id"": ""3e892b2b-bd51-4106-a5c7-ac8354d0db9f"",
-                    ""path"": ""<Keyboard>/4"",
-                    ""interactions"": """",
-                    ""processors"": """",
-                    ""groups"": "";Keyboard&Mouse"",
-                    ""action"": ""ViewRight"",
-                    ""isComposite"": false,
-                    ""isPartOfComposite"": false
-                },
-                {
-                    ""name"": """",
-                    ""id"": ""c0692856-72c4-4e52-92f6-d43ac884ef18"",
-                    ""path"": ""<Keyboard>/5"",
-                    ""interactions"": """",
-                    ""processors"": """",
-                    ""groups"": "";Keyboard&Mouse"",
-                    ""action"": ""ViewFront"",
-                    ""isComposite"": false,
-                    ""isPartOfComposite"": false
-                },
-                {
-                    ""name"": """",
-                    ""id"": ""0f2d822b-a73d-4403-b826-7fc5502eae2d"",
-                    ""path"": ""<Keyboard>/6"",
-                    ""interactions"": """",
-                    ""processors"": """",
-                    ""groups"": "";Keyboard&Mouse"",
-                    ""action"": ""ViewBack"",
-                    ""isComposite"": false,
-                    ""isPartOfComposite"": false
-                },
-                {
-                    ""name"": """",
                     ""id"": ""e260e559-7277-46e2-baa5-0e506fa19318"",
                     ""path"": ""<Keyboard>/escape"",
                     ""interactions"": """",
                     ""processors"": """",
                     ""groups"": "";Keyboard&Mouse"",
                     ""action"": ""CancelPlacement"",
+                    ""isComposite"": false,
+                    ""isPartOfComposite"": false
+                },
+                {
+                    ""name"": """",
+                    ""id"": ""55a4226c-bec4-4a06-85dd-adc806da7a8d"",
+                    ""path"": ""<Mouse>/scroll"",
+                    ""interactions"": """",
+                    ""processors"": """",
+                    ""groups"": "";Keyboard&Mouse"",
+                    ""action"": ""Zoom"",
+                    ""isComposite"": false,
+                    ""isPartOfComposite"": false
+                },
+                {
+                    ""name"": """",
+                    ""id"": ""f942790e-b511-4032-9695-18883c40dcae"",
+                    ""path"": ""<Mouse>/leftButton"",
+                    ""interactions"": """",
+                    ""processors"": """",
+                    ""groups"": "";Keyboard&Mouse"",
+                    ""action"": ""PanHold"",
+                    ""isComposite"": false,
+                    ""isPartOfComposite"": false
+                },
+                {
+                    ""name"": """",
+                    ""id"": ""28b66820-4286-4f36-b50f-19e4a1bbf76b"",
+                    ""path"": ""<Mouse>/delta"",
+                    ""interactions"": """",
+                    ""processors"": """",
+                    ""groups"": "";Keyboard&Mouse"",
+                    ""action"": ""PanDelta"",
+                    ""isComposite"": false,
+                    ""isPartOfComposite"": false
+                },
+                {
+                    ""name"": """",
+                    ""id"": ""dffdeb5d-6ded-4fcb-8586-470983b5dc00"",
+                    ""path"": ""<Keyboard>/x"",
+                    ""interactions"": """",
+                    ""processors"": """",
+                    ""groups"": "";Keyboard&Mouse"",
+                    ""action"": ""RotateX"",
+                    ""isComposite"": false,
+                    ""isPartOfComposite"": false
+                },
+                {
+                    ""name"": """",
+                    ""id"": ""559c02a6-aea9-4af4-8309-d989b02117ef"",
+                    ""path"": ""<Keyboard>/c"",
+                    ""interactions"": """",
+                    ""processors"": """",
+                    ""groups"": "";Keyboard&Mouse"",
+                    ""action"": ""RotateY"",
+                    ""isComposite"": false,
+                    ""isPartOfComposite"": false
+                },
+                {
+                    ""name"": """",
+                    ""id"": ""438dbe89-5416-465c-ab55-e26ef78ab25f"",
+                    ""path"": ""<Keyboard>/z"",
+                    ""interactions"": """",
+                    ""processors"": """",
+                    ""groups"": "";Keyboard&Mouse"",
+                    ""action"": ""RotateZ"",
+                    ""isComposite"": false,
+                    ""isPartOfComposite"": false
+                },
+                {
+                    ""name"": """",
+                    ""id"": ""4c0a68ee-adc6-4cc8-a926-99f7718eac88"",
+                    ""path"": ""<Keyboard>/shift"",
+                    ""interactions"": """",
+                    ""processors"": """",
+                    ""groups"": "";Keyboard&Mouse"",
+                    ""action"": ""RotationModifier"",
                     ""isComposite"": false,
                     ""isPartOfComposite"": false
                 }
@@ -1123,24 +1014,18 @@ public partial class @InputSystem_Actions: IInputActionCollection2, IDisposable
         m_Player_Point = m_Player.FindAction("Point", throwIfNotFound: true);
         m_Player_Click = m_Player.FindAction("Click", throwIfNotFound: true);
         m_Player_Undo = m_Player.FindAction("Undo", throwIfNotFound: true);
-        m_Player_YawLeft = m_Player.FindAction("YawLeft", throwIfNotFound: true);
-        m_Player_YawRight = m_Player.FindAction("YawRight", throwIfNotFound: true);
-        m_Player_PitchUp = m_Player.FindAction("PitchUp", throwIfNotFound: true);
-        m_Player_PitchDown = m_Player.FindAction("PitchDown", throwIfNotFound: true);
-        m_Player_RollLeft = m_Player.FindAction("RollLeft", throwIfNotFound: true);
-        m_Player_RollRight = m_Player.FindAction("RollRight", throwIfNotFound: true);
-        m_Player_LayerDelta = m_Player.FindAction("LayerDelta", throwIfNotFound: true);
         m_Player_OrbitDelta = m_Player.FindAction("OrbitDelta", throwIfNotFound: true);
         m_Player_OrbitHold = m_Player.FindAction("OrbitHold", throwIfNotFound: true);
         m_Player_ZoomIn = m_Player.FindAction("ZoomIn", throwIfNotFound: true);
         m_Player_ZoomOut = m_Player.FindAction("ZoomOut", throwIfNotFound: true);
-        m_Player_ViewTop = m_Player.FindAction("ViewTop", throwIfNotFound: true);
-        m_Player_ViewBottom = m_Player.FindAction("ViewBottom", throwIfNotFound: true);
-        m_Player_ViewLeft = m_Player.FindAction("ViewLeft", throwIfNotFound: true);
-        m_Player_ViewRight = m_Player.FindAction("ViewRight", throwIfNotFound: true);
-        m_Player_ViewFront = m_Player.FindAction("ViewFront", throwIfNotFound: true);
-        m_Player_ViewBack = m_Player.FindAction("ViewBack", throwIfNotFound: true);
         m_Player_CancelPlacement = m_Player.FindAction("CancelPlacement", throwIfNotFound: true);
+        m_Player_Zoom = m_Player.FindAction("Zoom", throwIfNotFound: true);
+        m_Player_PanHold = m_Player.FindAction("PanHold", throwIfNotFound: true);
+        m_Player_PanDelta = m_Player.FindAction("PanDelta", throwIfNotFound: true);
+        m_Player_RotateX = m_Player.FindAction("RotateX", throwIfNotFound: true);
+        m_Player_RotateY = m_Player.FindAction("RotateY", throwIfNotFound: true);
+        m_Player_RotateZ = m_Player.FindAction("RotateZ", throwIfNotFound: true);
+        m_Player_RotationModifier = m_Player.FindAction("RotationModifier", throwIfNotFound: true);
         // UI
         m_UI = asset.FindActionMap("UI", throwIfNotFound: true);
         m_UI_Navigate = m_UI.FindAction("Navigate", throwIfNotFound: true);
@@ -1237,24 +1122,18 @@ public partial class @InputSystem_Actions: IInputActionCollection2, IDisposable
     private readonly InputAction m_Player_Point;
     private readonly InputAction m_Player_Click;
     private readonly InputAction m_Player_Undo;
-    private readonly InputAction m_Player_YawLeft;
-    private readonly InputAction m_Player_YawRight;
-    private readonly InputAction m_Player_PitchUp;
-    private readonly InputAction m_Player_PitchDown;
-    private readonly InputAction m_Player_RollLeft;
-    private readonly InputAction m_Player_RollRight;
-    private readonly InputAction m_Player_LayerDelta;
     private readonly InputAction m_Player_OrbitDelta;
     private readonly InputAction m_Player_OrbitHold;
     private readonly InputAction m_Player_ZoomIn;
     private readonly InputAction m_Player_ZoomOut;
-    private readonly InputAction m_Player_ViewTop;
-    private readonly InputAction m_Player_ViewBottom;
-    private readonly InputAction m_Player_ViewLeft;
-    private readonly InputAction m_Player_ViewRight;
-    private readonly InputAction m_Player_ViewFront;
-    private readonly InputAction m_Player_ViewBack;
     private readonly InputAction m_Player_CancelPlacement;
+    private readonly InputAction m_Player_Zoom;
+    private readonly InputAction m_Player_PanHold;
+    private readonly InputAction m_Player_PanDelta;
+    private readonly InputAction m_Player_RotateX;
+    private readonly InputAction m_Player_RotateY;
+    private readonly InputAction m_Player_RotateZ;
+    private readonly InputAction m_Player_RotationModifier;
     /// <summary>
     /// Provides access to input actions defined in input action map "Player".
     /// </summary>
@@ -1279,34 +1158,6 @@ public partial class @InputSystem_Actions: IInputActionCollection2, IDisposable
         /// </summary>
         public InputAction @Undo => m_Wrapper.m_Player_Undo;
         /// <summary>
-        /// Provides access to the underlying input action "Player/YawLeft".
-        /// </summary>
-        public InputAction @YawLeft => m_Wrapper.m_Player_YawLeft;
-        /// <summary>
-        /// Provides access to the underlying input action "Player/YawRight".
-        /// </summary>
-        public InputAction @YawRight => m_Wrapper.m_Player_YawRight;
-        /// <summary>
-        /// Provides access to the underlying input action "Player/PitchUp".
-        /// </summary>
-        public InputAction @PitchUp => m_Wrapper.m_Player_PitchUp;
-        /// <summary>
-        /// Provides access to the underlying input action "Player/PitchDown".
-        /// </summary>
-        public InputAction @PitchDown => m_Wrapper.m_Player_PitchDown;
-        /// <summary>
-        /// Provides access to the underlying input action "Player/RollLeft".
-        /// </summary>
-        public InputAction @RollLeft => m_Wrapper.m_Player_RollLeft;
-        /// <summary>
-        /// Provides access to the underlying input action "Player/RollRight".
-        /// </summary>
-        public InputAction @RollRight => m_Wrapper.m_Player_RollRight;
-        /// <summary>
-        /// Provides access to the underlying input action "Player/LayerDelta".
-        /// </summary>
-        public InputAction @LayerDelta => m_Wrapper.m_Player_LayerDelta;
-        /// <summary>
         /// Provides access to the underlying input action "Player/OrbitDelta".
         /// </summary>
         public InputAction @OrbitDelta => m_Wrapper.m_Player_OrbitDelta;
@@ -1323,33 +1174,37 @@ public partial class @InputSystem_Actions: IInputActionCollection2, IDisposable
         /// </summary>
         public InputAction @ZoomOut => m_Wrapper.m_Player_ZoomOut;
         /// <summary>
-        /// Provides access to the underlying input action "Player/ViewTop".
-        /// </summary>
-        public InputAction @ViewTop => m_Wrapper.m_Player_ViewTop;
-        /// <summary>
-        /// Provides access to the underlying input action "Player/ViewBottom".
-        /// </summary>
-        public InputAction @ViewBottom => m_Wrapper.m_Player_ViewBottom;
-        /// <summary>
-        /// Provides access to the underlying input action "Player/ViewLeft".
-        /// </summary>
-        public InputAction @ViewLeft => m_Wrapper.m_Player_ViewLeft;
-        /// <summary>
-        /// Provides access to the underlying input action "Player/ViewRight".
-        /// </summary>
-        public InputAction @ViewRight => m_Wrapper.m_Player_ViewRight;
-        /// <summary>
-        /// Provides access to the underlying input action "Player/ViewFront".
-        /// </summary>
-        public InputAction @ViewFront => m_Wrapper.m_Player_ViewFront;
-        /// <summary>
-        /// Provides access to the underlying input action "Player/ViewBack".
-        /// </summary>
-        public InputAction @ViewBack => m_Wrapper.m_Player_ViewBack;
-        /// <summary>
         /// Provides access to the underlying input action "Player/CancelPlacement".
         /// </summary>
         public InputAction @CancelPlacement => m_Wrapper.m_Player_CancelPlacement;
+        /// <summary>
+        /// Provides access to the underlying input action "Player/Zoom".
+        /// </summary>
+        public InputAction @Zoom => m_Wrapper.m_Player_Zoom;
+        /// <summary>
+        /// Provides access to the underlying input action "Player/PanHold".
+        /// </summary>
+        public InputAction @PanHold => m_Wrapper.m_Player_PanHold;
+        /// <summary>
+        /// Provides access to the underlying input action "Player/PanDelta".
+        /// </summary>
+        public InputAction @PanDelta => m_Wrapper.m_Player_PanDelta;
+        /// <summary>
+        /// Provides access to the underlying input action "Player/RotateX".
+        /// </summary>
+        public InputAction @RotateX => m_Wrapper.m_Player_RotateX;
+        /// <summary>
+        /// Provides access to the underlying input action "Player/RotateY".
+        /// </summary>
+        public InputAction @RotateY => m_Wrapper.m_Player_RotateY;
+        /// <summary>
+        /// Provides access to the underlying input action "Player/RotateZ".
+        /// </summary>
+        public InputAction @RotateZ => m_Wrapper.m_Player_RotateZ;
+        /// <summary>
+        /// Provides access to the underlying input action "Player/RotationModifier".
+        /// </summary>
+        public InputAction @RotationModifier => m_Wrapper.m_Player_RotationModifier;
         /// <summary>
         /// Provides access to the underlying input action map instance.
         /// </summary>
@@ -1385,27 +1240,6 @@ public partial class @InputSystem_Actions: IInputActionCollection2, IDisposable
             @Undo.started += instance.OnUndo;
             @Undo.performed += instance.OnUndo;
             @Undo.canceled += instance.OnUndo;
-            @YawLeft.started += instance.OnYawLeft;
-            @YawLeft.performed += instance.OnYawLeft;
-            @YawLeft.canceled += instance.OnYawLeft;
-            @YawRight.started += instance.OnYawRight;
-            @YawRight.performed += instance.OnYawRight;
-            @YawRight.canceled += instance.OnYawRight;
-            @PitchUp.started += instance.OnPitchUp;
-            @PitchUp.performed += instance.OnPitchUp;
-            @PitchUp.canceled += instance.OnPitchUp;
-            @PitchDown.started += instance.OnPitchDown;
-            @PitchDown.performed += instance.OnPitchDown;
-            @PitchDown.canceled += instance.OnPitchDown;
-            @RollLeft.started += instance.OnRollLeft;
-            @RollLeft.performed += instance.OnRollLeft;
-            @RollLeft.canceled += instance.OnRollLeft;
-            @RollRight.started += instance.OnRollRight;
-            @RollRight.performed += instance.OnRollRight;
-            @RollRight.canceled += instance.OnRollRight;
-            @LayerDelta.started += instance.OnLayerDelta;
-            @LayerDelta.performed += instance.OnLayerDelta;
-            @LayerDelta.canceled += instance.OnLayerDelta;
             @OrbitDelta.started += instance.OnOrbitDelta;
             @OrbitDelta.performed += instance.OnOrbitDelta;
             @OrbitDelta.canceled += instance.OnOrbitDelta;
@@ -1418,27 +1252,30 @@ public partial class @InputSystem_Actions: IInputActionCollection2, IDisposable
             @ZoomOut.started += instance.OnZoomOut;
             @ZoomOut.performed += instance.OnZoomOut;
             @ZoomOut.canceled += instance.OnZoomOut;
-            @ViewTop.started += instance.OnViewTop;
-            @ViewTop.performed += instance.OnViewTop;
-            @ViewTop.canceled += instance.OnViewTop;
-            @ViewBottom.started += instance.OnViewBottom;
-            @ViewBottom.performed += instance.OnViewBottom;
-            @ViewBottom.canceled += instance.OnViewBottom;
-            @ViewLeft.started += instance.OnViewLeft;
-            @ViewLeft.performed += instance.OnViewLeft;
-            @ViewLeft.canceled += instance.OnViewLeft;
-            @ViewRight.started += instance.OnViewRight;
-            @ViewRight.performed += instance.OnViewRight;
-            @ViewRight.canceled += instance.OnViewRight;
-            @ViewFront.started += instance.OnViewFront;
-            @ViewFront.performed += instance.OnViewFront;
-            @ViewFront.canceled += instance.OnViewFront;
-            @ViewBack.started += instance.OnViewBack;
-            @ViewBack.performed += instance.OnViewBack;
-            @ViewBack.canceled += instance.OnViewBack;
             @CancelPlacement.started += instance.OnCancelPlacement;
             @CancelPlacement.performed += instance.OnCancelPlacement;
             @CancelPlacement.canceled += instance.OnCancelPlacement;
+            @Zoom.started += instance.OnZoom;
+            @Zoom.performed += instance.OnZoom;
+            @Zoom.canceled += instance.OnZoom;
+            @PanHold.started += instance.OnPanHold;
+            @PanHold.performed += instance.OnPanHold;
+            @PanHold.canceled += instance.OnPanHold;
+            @PanDelta.started += instance.OnPanDelta;
+            @PanDelta.performed += instance.OnPanDelta;
+            @PanDelta.canceled += instance.OnPanDelta;
+            @RotateX.started += instance.OnRotateX;
+            @RotateX.performed += instance.OnRotateX;
+            @RotateX.canceled += instance.OnRotateX;
+            @RotateY.started += instance.OnRotateY;
+            @RotateY.performed += instance.OnRotateY;
+            @RotateY.canceled += instance.OnRotateY;
+            @RotateZ.started += instance.OnRotateZ;
+            @RotateZ.performed += instance.OnRotateZ;
+            @RotateZ.canceled += instance.OnRotateZ;
+            @RotationModifier.started += instance.OnRotationModifier;
+            @RotationModifier.performed += instance.OnRotationModifier;
+            @RotationModifier.canceled += instance.OnRotationModifier;
         }
 
         /// <summary>
@@ -1459,27 +1296,6 @@ public partial class @InputSystem_Actions: IInputActionCollection2, IDisposable
             @Undo.started -= instance.OnUndo;
             @Undo.performed -= instance.OnUndo;
             @Undo.canceled -= instance.OnUndo;
-            @YawLeft.started -= instance.OnYawLeft;
-            @YawLeft.performed -= instance.OnYawLeft;
-            @YawLeft.canceled -= instance.OnYawLeft;
-            @YawRight.started -= instance.OnYawRight;
-            @YawRight.performed -= instance.OnYawRight;
-            @YawRight.canceled -= instance.OnYawRight;
-            @PitchUp.started -= instance.OnPitchUp;
-            @PitchUp.performed -= instance.OnPitchUp;
-            @PitchUp.canceled -= instance.OnPitchUp;
-            @PitchDown.started -= instance.OnPitchDown;
-            @PitchDown.performed -= instance.OnPitchDown;
-            @PitchDown.canceled -= instance.OnPitchDown;
-            @RollLeft.started -= instance.OnRollLeft;
-            @RollLeft.performed -= instance.OnRollLeft;
-            @RollLeft.canceled -= instance.OnRollLeft;
-            @RollRight.started -= instance.OnRollRight;
-            @RollRight.performed -= instance.OnRollRight;
-            @RollRight.canceled -= instance.OnRollRight;
-            @LayerDelta.started -= instance.OnLayerDelta;
-            @LayerDelta.performed -= instance.OnLayerDelta;
-            @LayerDelta.canceled -= instance.OnLayerDelta;
             @OrbitDelta.started -= instance.OnOrbitDelta;
             @OrbitDelta.performed -= instance.OnOrbitDelta;
             @OrbitDelta.canceled -= instance.OnOrbitDelta;
@@ -1492,27 +1308,30 @@ public partial class @InputSystem_Actions: IInputActionCollection2, IDisposable
             @ZoomOut.started -= instance.OnZoomOut;
             @ZoomOut.performed -= instance.OnZoomOut;
             @ZoomOut.canceled -= instance.OnZoomOut;
-            @ViewTop.started -= instance.OnViewTop;
-            @ViewTop.performed -= instance.OnViewTop;
-            @ViewTop.canceled -= instance.OnViewTop;
-            @ViewBottom.started -= instance.OnViewBottom;
-            @ViewBottom.performed -= instance.OnViewBottom;
-            @ViewBottom.canceled -= instance.OnViewBottom;
-            @ViewLeft.started -= instance.OnViewLeft;
-            @ViewLeft.performed -= instance.OnViewLeft;
-            @ViewLeft.canceled -= instance.OnViewLeft;
-            @ViewRight.started -= instance.OnViewRight;
-            @ViewRight.performed -= instance.OnViewRight;
-            @ViewRight.canceled -= instance.OnViewRight;
-            @ViewFront.started -= instance.OnViewFront;
-            @ViewFront.performed -= instance.OnViewFront;
-            @ViewFront.canceled -= instance.OnViewFront;
-            @ViewBack.started -= instance.OnViewBack;
-            @ViewBack.performed -= instance.OnViewBack;
-            @ViewBack.canceled -= instance.OnViewBack;
             @CancelPlacement.started -= instance.OnCancelPlacement;
             @CancelPlacement.performed -= instance.OnCancelPlacement;
             @CancelPlacement.canceled -= instance.OnCancelPlacement;
+            @Zoom.started -= instance.OnZoom;
+            @Zoom.performed -= instance.OnZoom;
+            @Zoom.canceled -= instance.OnZoom;
+            @PanHold.started -= instance.OnPanHold;
+            @PanHold.performed -= instance.OnPanHold;
+            @PanHold.canceled -= instance.OnPanHold;
+            @PanDelta.started -= instance.OnPanDelta;
+            @PanDelta.performed -= instance.OnPanDelta;
+            @PanDelta.canceled -= instance.OnPanDelta;
+            @RotateX.started -= instance.OnRotateX;
+            @RotateX.performed -= instance.OnRotateX;
+            @RotateX.canceled -= instance.OnRotateX;
+            @RotateY.started -= instance.OnRotateY;
+            @RotateY.performed -= instance.OnRotateY;
+            @RotateY.canceled -= instance.OnRotateY;
+            @RotateZ.started -= instance.OnRotateZ;
+            @RotateZ.performed -= instance.OnRotateZ;
+            @RotateZ.canceled -= instance.OnRotateZ;
+            @RotationModifier.started -= instance.OnRotationModifier;
+            @RotationModifier.performed -= instance.OnRotationModifier;
+            @RotationModifier.canceled -= instance.OnRotationModifier;
         }
 
         /// <summary>
@@ -1835,55 +1654,6 @@ public partial class @InputSystem_Actions: IInputActionCollection2, IDisposable
         /// <seealso cref="UnityEngine.InputSystem.InputAction.canceled" />
         void OnUndo(InputAction.CallbackContext context);
         /// <summary>
-        /// Method invoked when associated input action "YawLeft" is either <see cref="UnityEngine.InputSystem.InputAction.started" />, <see cref="UnityEngine.InputSystem.InputAction.performed" /> or <see cref="UnityEngine.InputSystem.InputAction.canceled" />.
-        /// </summary>
-        /// <seealso cref="UnityEngine.InputSystem.InputAction.started" />
-        /// <seealso cref="UnityEngine.InputSystem.InputAction.performed" />
-        /// <seealso cref="UnityEngine.InputSystem.InputAction.canceled" />
-        void OnYawLeft(InputAction.CallbackContext context);
-        /// <summary>
-        /// Method invoked when associated input action "YawRight" is either <see cref="UnityEngine.InputSystem.InputAction.started" />, <see cref="UnityEngine.InputSystem.InputAction.performed" /> or <see cref="UnityEngine.InputSystem.InputAction.canceled" />.
-        /// </summary>
-        /// <seealso cref="UnityEngine.InputSystem.InputAction.started" />
-        /// <seealso cref="UnityEngine.InputSystem.InputAction.performed" />
-        /// <seealso cref="UnityEngine.InputSystem.InputAction.canceled" />
-        void OnYawRight(InputAction.CallbackContext context);
-        /// <summary>
-        /// Method invoked when associated input action "PitchUp" is either <see cref="UnityEngine.InputSystem.InputAction.started" />, <see cref="UnityEngine.InputSystem.InputAction.performed" /> or <see cref="UnityEngine.InputSystem.InputAction.canceled" />.
-        /// </summary>
-        /// <seealso cref="UnityEngine.InputSystem.InputAction.started" />
-        /// <seealso cref="UnityEngine.InputSystem.InputAction.performed" />
-        /// <seealso cref="UnityEngine.InputSystem.InputAction.canceled" />
-        void OnPitchUp(InputAction.CallbackContext context);
-        /// <summary>
-        /// Method invoked when associated input action "PitchDown" is either <see cref="UnityEngine.InputSystem.InputAction.started" />, <see cref="UnityEngine.InputSystem.InputAction.performed" /> or <see cref="UnityEngine.InputSystem.InputAction.canceled" />.
-        /// </summary>
-        /// <seealso cref="UnityEngine.InputSystem.InputAction.started" />
-        /// <seealso cref="UnityEngine.InputSystem.InputAction.performed" />
-        /// <seealso cref="UnityEngine.InputSystem.InputAction.canceled" />
-        void OnPitchDown(InputAction.CallbackContext context);
-        /// <summary>
-        /// Method invoked when associated input action "RollLeft" is either <see cref="UnityEngine.InputSystem.InputAction.started" />, <see cref="UnityEngine.InputSystem.InputAction.performed" /> or <see cref="UnityEngine.InputSystem.InputAction.canceled" />.
-        /// </summary>
-        /// <seealso cref="UnityEngine.InputSystem.InputAction.started" />
-        /// <seealso cref="UnityEngine.InputSystem.InputAction.performed" />
-        /// <seealso cref="UnityEngine.InputSystem.InputAction.canceled" />
-        void OnRollLeft(InputAction.CallbackContext context);
-        /// <summary>
-        /// Method invoked when associated input action "RollRight" is either <see cref="UnityEngine.InputSystem.InputAction.started" />, <see cref="UnityEngine.InputSystem.InputAction.performed" /> or <see cref="UnityEngine.InputSystem.InputAction.canceled" />.
-        /// </summary>
-        /// <seealso cref="UnityEngine.InputSystem.InputAction.started" />
-        /// <seealso cref="UnityEngine.InputSystem.InputAction.performed" />
-        /// <seealso cref="UnityEngine.InputSystem.InputAction.canceled" />
-        void OnRollRight(InputAction.CallbackContext context);
-        /// <summary>
-        /// Method invoked when associated input action "LayerDelta" is either <see cref="UnityEngine.InputSystem.InputAction.started" />, <see cref="UnityEngine.InputSystem.InputAction.performed" /> or <see cref="UnityEngine.InputSystem.InputAction.canceled" />.
-        /// </summary>
-        /// <seealso cref="UnityEngine.InputSystem.InputAction.started" />
-        /// <seealso cref="UnityEngine.InputSystem.InputAction.performed" />
-        /// <seealso cref="UnityEngine.InputSystem.InputAction.canceled" />
-        void OnLayerDelta(InputAction.CallbackContext context);
-        /// <summary>
         /// Method invoked when associated input action "OrbitDelta" is either <see cref="UnityEngine.InputSystem.InputAction.started" />, <see cref="UnityEngine.InputSystem.InputAction.performed" /> or <see cref="UnityEngine.InputSystem.InputAction.canceled" />.
         /// </summary>
         /// <seealso cref="UnityEngine.InputSystem.InputAction.started" />
@@ -1912,54 +1682,61 @@ public partial class @InputSystem_Actions: IInputActionCollection2, IDisposable
         /// <seealso cref="UnityEngine.InputSystem.InputAction.canceled" />
         void OnZoomOut(InputAction.CallbackContext context);
         /// <summary>
-        /// Method invoked when associated input action "ViewTop" is either <see cref="UnityEngine.InputSystem.InputAction.started" />, <see cref="UnityEngine.InputSystem.InputAction.performed" /> or <see cref="UnityEngine.InputSystem.InputAction.canceled" />.
-        /// </summary>
-        /// <seealso cref="UnityEngine.InputSystem.InputAction.started" />
-        /// <seealso cref="UnityEngine.InputSystem.InputAction.performed" />
-        /// <seealso cref="UnityEngine.InputSystem.InputAction.canceled" />
-        void OnViewTop(InputAction.CallbackContext context);
-        /// <summary>
-        /// Method invoked when associated input action "ViewBottom" is either <see cref="UnityEngine.InputSystem.InputAction.started" />, <see cref="UnityEngine.InputSystem.InputAction.performed" /> or <see cref="UnityEngine.InputSystem.InputAction.canceled" />.
-        /// </summary>
-        /// <seealso cref="UnityEngine.InputSystem.InputAction.started" />
-        /// <seealso cref="UnityEngine.InputSystem.InputAction.performed" />
-        /// <seealso cref="UnityEngine.InputSystem.InputAction.canceled" />
-        void OnViewBottom(InputAction.CallbackContext context);
-        /// <summary>
-        /// Method invoked when associated input action "ViewLeft" is either <see cref="UnityEngine.InputSystem.InputAction.started" />, <see cref="UnityEngine.InputSystem.InputAction.performed" /> or <see cref="UnityEngine.InputSystem.InputAction.canceled" />.
-        /// </summary>
-        /// <seealso cref="UnityEngine.InputSystem.InputAction.started" />
-        /// <seealso cref="UnityEngine.InputSystem.InputAction.performed" />
-        /// <seealso cref="UnityEngine.InputSystem.InputAction.canceled" />
-        void OnViewLeft(InputAction.CallbackContext context);
-        /// <summary>
-        /// Method invoked when associated input action "ViewRight" is either <see cref="UnityEngine.InputSystem.InputAction.started" />, <see cref="UnityEngine.InputSystem.InputAction.performed" /> or <see cref="UnityEngine.InputSystem.InputAction.canceled" />.
-        /// </summary>
-        /// <seealso cref="UnityEngine.InputSystem.InputAction.started" />
-        /// <seealso cref="UnityEngine.InputSystem.InputAction.performed" />
-        /// <seealso cref="UnityEngine.InputSystem.InputAction.canceled" />
-        void OnViewRight(InputAction.CallbackContext context);
-        /// <summary>
-        /// Method invoked when associated input action "ViewFront" is either <see cref="UnityEngine.InputSystem.InputAction.started" />, <see cref="UnityEngine.InputSystem.InputAction.performed" /> or <see cref="UnityEngine.InputSystem.InputAction.canceled" />.
-        /// </summary>
-        /// <seealso cref="UnityEngine.InputSystem.InputAction.started" />
-        /// <seealso cref="UnityEngine.InputSystem.InputAction.performed" />
-        /// <seealso cref="UnityEngine.InputSystem.InputAction.canceled" />
-        void OnViewFront(InputAction.CallbackContext context);
-        /// <summary>
-        /// Method invoked when associated input action "ViewBack" is either <see cref="UnityEngine.InputSystem.InputAction.started" />, <see cref="UnityEngine.InputSystem.InputAction.performed" /> or <see cref="UnityEngine.InputSystem.InputAction.canceled" />.
-        /// </summary>
-        /// <seealso cref="UnityEngine.InputSystem.InputAction.started" />
-        /// <seealso cref="UnityEngine.InputSystem.InputAction.performed" />
-        /// <seealso cref="UnityEngine.InputSystem.InputAction.canceled" />
-        void OnViewBack(InputAction.CallbackContext context);
-        /// <summary>
         /// Method invoked when associated input action "CancelPlacement" is either <see cref="UnityEngine.InputSystem.InputAction.started" />, <see cref="UnityEngine.InputSystem.InputAction.performed" /> or <see cref="UnityEngine.InputSystem.InputAction.canceled" />.
         /// </summary>
         /// <seealso cref="UnityEngine.InputSystem.InputAction.started" />
         /// <seealso cref="UnityEngine.InputSystem.InputAction.performed" />
         /// <seealso cref="UnityEngine.InputSystem.InputAction.canceled" />
         void OnCancelPlacement(InputAction.CallbackContext context);
+        /// <summary>
+        /// Method invoked when associated input action "Zoom" is either <see cref="UnityEngine.InputSystem.InputAction.started" />, <see cref="UnityEngine.InputSystem.InputAction.performed" /> or <see cref="UnityEngine.InputSystem.InputAction.canceled" />.
+        /// </summary>
+        /// <seealso cref="UnityEngine.InputSystem.InputAction.started" />
+        /// <seealso cref="UnityEngine.InputSystem.InputAction.performed" />
+        /// <seealso cref="UnityEngine.InputSystem.InputAction.canceled" />
+        void OnZoom(InputAction.CallbackContext context);
+        /// <summary>
+        /// Method invoked when associated input action "PanHold" is either <see cref="UnityEngine.InputSystem.InputAction.started" />, <see cref="UnityEngine.InputSystem.InputAction.performed" /> or <see cref="UnityEngine.InputSystem.InputAction.canceled" />.
+        /// </summary>
+        /// <seealso cref="UnityEngine.InputSystem.InputAction.started" />
+        /// <seealso cref="UnityEngine.InputSystem.InputAction.performed" />
+        /// <seealso cref="UnityEngine.InputSystem.InputAction.canceled" />
+        void OnPanHold(InputAction.CallbackContext context);
+        /// <summary>
+        /// Method invoked when associated input action "PanDelta" is either <see cref="UnityEngine.InputSystem.InputAction.started" />, <see cref="UnityEngine.InputSystem.InputAction.performed" /> or <see cref="UnityEngine.InputSystem.InputAction.canceled" />.
+        /// </summary>
+        /// <seealso cref="UnityEngine.InputSystem.InputAction.started" />
+        /// <seealso cref="UnityEngine.InputSystem.InputAction.performed" />
+        /// <seealso cref="UnityEngine.InputSystem.InputAction.canceled" />
+        void OnPanDelta(InputAction.CallbackContext context);
+        /// <summary>
+        /// Method invoked when associated input action "RotateX" is either <see cref="UnityEngine.InputSystem.InputAction.started" />, <see cref="UnityEngine.InputSystem.InputAction.performed" /> or <see cref="UnityEngine.InputSystem.InputAction.canceled" />.
+        /// </summary>
+        /// <seealso cref="UnityEngine.InputSystem.InputAction.started" />
+        /// <seealso cref="UnityEngine.InputSystem.InputAction.performed" />
+        /// <seealso cref="UnityEngine.InputSystem.InputAction.canceled" />
+        void OnRotateX(InputAction.CallbackContext context);
+        /// <summary>
+        /// Method invoked when associated input action "RotateY" is either <see cref="UnityEngine.InputSystem.InputAction.started" />, <see cref="UnityEngine.InputSystem.InputAction.performed" /> or <see cref="UnityEngine.InputSystem.InputAction.canceled" />.
+        /// </summary>
+        /// <seealso cref="UnityEngine.InputSystem.InputAction.started" />
+        /// <seealso cref="UnityEngine.InputSystem.InputAction.performed" />
+        /// <seealso cref="UnityEngine.InputSystem.InputAction.canceled" />
+        void OnRotateY(InputAction.CallbackContext context);
+        /// <summary>
+        /// Method invoked when associated input action "RotateZ" is either <see cref="UnityEngine.InputSystem.InputAction.started" />, <see cref="UnityEngine.InputSystem.InputAction.performed" /> or <see cref="UnityEngine.InputSystem.InputAction.canceled" />.
+        /// </summary>
+        /// <seealso cref="UnityEngine.InputSystem.InputAction.started" />
+        /// <seealso cref="UnityEngine.InputSystem.InputAction.performed" />
+        /// <seealso cref="UnityEngine.InputSystem.InputAction.canceled" />
+        void OnRotateZ(InputAction.CallbackContext context);
+        /// <summary>
+        /// Method invoked when associated input action "RotationModifier" is either <see cref="UnityEngine.InputSystem.InputAction.started" />, <see cref="UnityEngine.InputSystem.InputAction.performed" /> or <see cref="UnityEngine.InputSystem.InputAction.canceled" />.
+        /// </summary>
+        /// <seealso cref="UnityEngine.InputSystem.InputAction.started" />
+        /// <seealso cref="UnityEngine.InputSystem.InputAction.performed" />
+        /// <seealso cref="UnityEngine.InputSystem.InputAction.canceled" />
+        void OnRotationModifier(InputAction.CallbackContext context);
     }
     /// <summary>
     /// Interface to implement callback methods for all input action callbacks associated with input actions defined by "UI" which allows adding and removing callbacks.
