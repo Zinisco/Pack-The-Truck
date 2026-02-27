@@ -355,4 +355,10 @@ public class GridManager : MonoBehaviour
         Vector3 local = new Vector3(sx * 0.5f, y, sz * 0.5f);
         return origin.TransformPoint(local);
     }
+
+    public bool IsOccupied(Vector3Int c)
+    {
+        if (!IsInside(c)) return false;
+        return _occ[c.x, c.y, c.z];
+    }
 }

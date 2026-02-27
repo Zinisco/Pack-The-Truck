@@ -44,6 +44,11 @@ public class PlacementController : MonoBehaviour
     public float popUpScale = 1.08f;       // peak multiplier
     public float popDownScale = 0.98f;     // slight settle (optional)
 
+    [Header("Support Debug")]
+    public bool debugDrawSupport = true;
+    public bool debugDrawUnsupported = true;
+    public float debugLineHeight = 0.35f;
+
     InputSystem_Actions _input;
     InputSystem_Actions.PlayerActions _player;
 
@@ -117,9 +122,17 @@ public class PlacementController : MonoBehaviour
             UpdateAnchorFromPointer();
         }
 
-        bool canPlace =
-            ComputeWorldCells(currentDef, _anchorCell, _rot, _tmpWorldCells) &&
-            grid.CanPlaceCells(_tmpWorldCells);
+        bool computed = ComputeWorldCells(currentDef, _anchorCell, _rot, _tmpWorldCells);
+        bool hasSpace = computed && grid.CanPlaceCells(_tmpWorldCells);
+
+        bool hasSupport = false;
+        Vector3Int supportedCell = default, supportBelow = default;
+        if (computed) hasSupport = HasAnySupportBelow(_tmpWorldCells, out supportedCell, out supportBelow);
+
+        bool canPlace = computed && hasSpace && hasSupport;
+
+        if (computed && debugDrawSupport)
+            DebugDrawSupport(_tmpWorldCells, hasSupport, supportedCell, supportBelow);
 
         DebugDrawCells(_tmpWorldCells);
         UpdateGhostTransform();
@@ -392,6 +405,7 @@ public class PlacementController : MonoBehaviour
 
         if (!ComputeWorldCells(currentDef, _anchorCell, _rot, _tmpWorldCells)) return;
         if (!grid.CanPlaceCells(_tmpWorldCells)) return;
+        if (!HasAnySupportBelow(_tmpWorldCells, out _, out _)) return;
 
         int id = (_heldPickup.placedId != 0) ? _heldPickup.placedId : _nextPlacedId++;
 
@@ -606,6 +620,57 @@ public class PlacementController : MonoBehaviour
         t.localScale = baseScale;
     }
 
+    bool HasAnySupportBelow(IReadOnlyList<Vector3Int> cells, out Vector3Int supportedCell, out Vector3Int supportBelow)
+    {
+        supportedCell = default;
+        supportBelow = default;
+
+        if (cells == null || cells.Count == 0) return false;
+
+        // Find lowest Y in the piece
+        int minY = int.MaxValue;
+        for (int i = 0; i < cells.Count; i++)
+            if (cells[i].y < minY) minY = cells[i].y;
+
+        // Touching floor => supported (we'll pick any cell on the bottom and mark below as floor)
+        if (minY == 0)
+        {
+            for (int i = 0; i < cells.Count; i++)
+            {
+                if (cells[i].y == 0)
+                {
+                    supportedCell = cells[i];
+                    supportBelow = cells[i] + Vector3Int.down; // y = -1 indicates "floor"
+                    return true;
+                }
+            }
+            return true;
+        }
+
+        // Otherwise: need at least one occupied cell beneath (not part of self)
+        for (int i = 0; i < cells.Count; i++)
+        {
+            Vector3Int below = cells[i] + Vector3Int.down;
+
+            // Don't count internal self-support
+            bool belowIsSelf = false;
+            for (int j = 0; j < cells.Count; j++)
+            {
+                if (cells[j] == below) { belowIsSelf = true; break; }
+            }
+            if (belowIsSelf) continue;
+
+            if (grid.IsOccupied(below))
+            {
+                supportedCell = cells[i];
+                supportBelow = below;
+                return true;
+            }
+        }
+
+        return false;
+    }
+
     void DebugDrawCells(List<Vector3Int> cells)
     {
         if (cells == null) return;
@@ -616,6 +681,70 @@ public class PlacementController : MonoBehaviour
             Debug.DrawLine(w + Vector3.up * 0.25f, w - Vector3.up * 0.25f, Color.yellow, 0f);
             Debug.DrawLine(w + Vector3.right * 0.25f, w - Vector3.right * 0.25f, Color.yellow, 0f);
             Debug.DrawLine(w + Vector3.forward * 0.25f, w - Vector3.forward * 0.25f, Color.yellow, 0f);
+        }
+    }
+
+    void DebugDrawSupport(IReadOnlyList<Vector3Int> cells, bool hasSupport, Vector3Int supportedCell, Vector3Int supportBelow)
+    {
+        if (cells == null || cells.Count == 0) return;
+
+        // Find bottom layer of the piece
+        int minY = int.MaxValue;
+        for (int i = 0; i < cells.Count; i++)
+            if (cells[i].y < minY) minY = cells[i].y;
+
+        // If supported: draw ONE clear "beam" from supported cell -> below support (or floor)
+        if (hasSupport)
+        {
+            Vector3 a = grid.CellToWorldCenter(supportedCell) + Vector3.up * debugLineHeight;
+
+            // If we’re on the floor, supportBelow.y will be -1 (we set it that way)
+            Vector3 b;
+            if (supportBelow.y < 0)
+            {
+                // draw down to the floor plane under the cell center
+                b = a + Vector3.down * (grid.cellSize * 0.9f);
+            }
+            else
+            {
+                b = grid.CellToWorldCenter(supportBelow) - Vector3.up * debugLineHeight;
+            }
+
+            Debug.DrawLine(a, b, Color.green, 0f);
+
+            // small cross at contact point
+            Debug.DrawLine(b + Vector3.right * 0.15f, b - Vector3.right * 0.15f, Color.green, 0f);
+            Debug.DrawLine(b + Vector3.forward * 0.15f, b - Vector3.forward * 0.15f, Color.green, 0f);
+            return;
+        }
+
+        // If NOT supported and above floor: optionally draw red "dangling" lines from bottom cells
+        if (!debugDrawUnsupported) return;
+        if (minY == 0) return; // shouldn't happen, but safe
+
+        for (int i = 0; i < cells.Count; i++)
+        {
+            if (cells[i].y != minY) continue;
+
+            // start slightly above the cell center
+            Vector3 top = grid.CellToWorldCenter(cells[i]) + grid.origin.up * debugLineHeight;
+
+            // shoot to the FLOOR PLANE (y = 0), at the CENTER of this cell’s x/z
+            Vector3 floor =
+                grid.origin.TransformPoint(new Vector3(
+                    (cells[i].x + 0.5f) * grid.cellSize,
+                    0f,
+                    (cells[i].z + 0.5f) * grid.cellSize
+                ));
+
+            // end slightly above the floor so it’s visible and not z-fighting
+            Vector3 bottom = floor + grid.origin.up * 0.02f;
+
+            Debug.DrawLine(top, bottom, Color.red, 0f);
+
+            // optional: little cross on the floor contact
+            Debug.DrawLine(bottom + grid.origin.right * 0.15f, bottom - grid.origin.right * 0.15f, Color.red, 0f);
+            Debug.DrawLine(bottom + grid.origin.forward * 0.15f, bottom - grid.origin.forward * 0.15f, Color.red, 0f);
         }
     }
 }
