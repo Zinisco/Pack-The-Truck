@@ -1,3 +1,4 @@
+using System.Collections;
 using System.Collections.Generic;
 using UnityEngine;
 using UnityEngine.InputSystem;
@@ -32,6 +33,17 @@ public class PlacementController : MonoBehaviour
     [Range(0, 20)] public int activeLayerY = 0;
     public float scrollToLayerThreshold = 0.25f; // scroll is a Vector2; we use y
 
+    [Header("Place Feedback")]
+    public AudioSource sfxSource;          // assign in inspector (recommended)
+    public AudioClip placeClip;
+    [Range(0f, 1f)] public float placeVolume = 0.9f;
+    public Vector2 placePitchRange = new Vector2(0.95f, 1.05f);
+
+    [Header("Pop Animation")]
+    public float popDuration = 0.12f;      // total time
+    public float popUpScale = 1.08f;       // peak multiplier
+    public float popDownScale = 0.98f;     // slight settle (optional)
+
     InputSystem_Actions _input;
     InputSystem_Actions.PlayerActions _player;
 
@@ -41,6 +53,8 @@ public class PlacementController : MonoBehaviour
     Quaternion _rot = Quaternion.identity;
     Vector3Int _anchorCell;
     Vector3 _ghostVisualCenterLocal;   // local-space point that represents the visual "center"
+    Vector3 _heldVisualCenterLocal;
+    bool _holdingExistingPlaced;
 
     int _nextPlacedId = 1;
 
@@ -107,6 +121,7 @@ public class PlacementController : MonoBehaviour
             ComputeWorldCells(currentDef, _anchorCell, _rot, _tmpWorldCells) &&
             grid.CanPlaceCells(_tmpWorldCells);
 
+        DebugDrawCells(_tmpWorldCells);
         UpdateGhostTransform();
         SetGhostMaterial(canPlace ? validMat : invalidMat);
     }
@@ -279,8 +294,16 @@ public class PlacementController : MonoBehaviour
     static bool ComputeWorldCells(PieceDefinition def, Vector3Int anchor, Quaternion rotLocal, List<Vector3Int> outCells)
     {
         outCells.Clear();
-        if (def == null || def.occupiedCellsLocal == null) return false;
+        if (def == null || def.occupiedCellsLocal == null || def.occupiedCellsLocal.Length == 0)
+            return false;
 
+        // 1) Rotate all local offsets
+        // 2) Round to ints
+        // 3) Track min so we can shift the whole shape to be non-negative
+        int minX = int.MaxValue, minY = int.MaxValue, minZ = int.MaxValue;
+
+        // temp store rotated offsets
+        // (small allocations avoided by using outCells as a temp, then rewriting)
         for (int i = 0; i < def.occupiedCellsLocal.Length; i++)
         {
             Vector3Int local = def.occupiedCellsLocal[i];
@@ -292,8 +315,18 @@ public class PlacementController : MonoBehaviour
                 Mathf.RoundToInt(rotated.z)
             );
 
-            outCells.Add(anchor + r);
+            outCells.Add(r);
+
+            if (r.x < minX) minX = r.x;
+            if (r.y < minY) minY = r.y;
+            if (r.z < minZ) minZ = r.z;
         }
+
+        // Shift so the minimum becomes 0,0,0 (prevents negative offsets after rotation)
+        var shift = new Vector3Int(-minX, -minY, -minZ);
+
+        for (int i = 0; i < outCells.Count; i++)
+            outCells[i] = anchor + (outCells[i] + shift);
 
         return true;
     }
@@ -320,48 +353,75 @@ public class PlacementController : MonoBehaviour
         var pickup = hit.collider.GetComponentInParent<PickupPiece>();
         if (!pickup || !pickup.def) return;
 
-        // Enter placement mode
-        _heldPickup = pickup;
-        SetCurrentPiece(pickup.def);      // sets currentDef + resets rot + rebuilds ghost
+        // If this object was already placed, free its cells so we can move it.
+        _holdingExistingPlaced = (pickup.placedId != 0);
+        if (_holdingExistingPlaced)
+        {
+            grid.Remove(pickup.placedId);
+            _placedVisualById.Remove(pickup.placedId);
+            RemoveFromUndoStack(pickup.placedId);
+        }
 
-        grid.placementMode = true;        // toggles grid draw
+        // Hold THIS actual object (we will move it on place)
+        _heldPickup = pickup;
+
+        // Use its current rotation as the starting placement rotation
+        // Convert from world rotation into grid-local rotation:
+        _rot = Quaternion.Inverse(grid.origin.rotation) * _heldPickup.transform.rotation;
+
+        // Cache held object's visual center in LOCAL space so placement aligns perfectly
+        if (TryGetRendererBounds(_heldPickup.gameObject, out var heldWorldBounds))
+            _heldVisualCenterLocal = _heldPickup.transform.InverseTransformPoint(heldWorldBounds.center);
+        else
+            _heldVisualCenterLocal = Vector3.zero;
+
+        // Enter placement mode using its definition (ghost uses prefab, object is the real one)
+        currentDef = pickup.def;
+        RebuildGhost();
+
+        grid.placementMode = true;
         _isPlacing = true;
 
-        // Optional: hide the world object while placing
         if (pickup.hideOnPickup)
             pickup.gameObject.SetActive(false);
     }
 
     void TryPlaceHeld()
     {
-        if (!currentDef) return;
+        if (!currentDef || _heldPickup == null) return;
 
         if (!ComputeWorldCells(currentDef, _anchorCell, _rot, _tmpWorldCells)) return;
         if (!grid.CanPlaceCells(_tmpWorldCells)) return;
 
-        int id = _nextPlacedId++;
+        int id = (_heldPickup.placedId != 0) ? _heldPickup.placedId : _nextPlacedId++;
 
-        var placed = Instantiate(currentDef.visualPrefab);
-        placed.name = $"Placed_{currentDef.pieceName}_{id}";
+        GameObject placed = _heldPickup.gameObject;
+
+        _heldPickup.def = currentDef;
+        _heldPickup.placedId = id;
+
         placed.transform.rotation = grid.origin.rotation * _rot;
 
         Vector3 targetCenterWorld = ComputeWorldBoundsCenter(_tmpWorldCells);
-
-        // compute visual center local for this instance
-        Vector3 visualCenterLocal = Vector3.zero;
-        if (TryGetRendererBounds(placed, out var wb))
-            visualCenterLocal = placed.transform.InverseTransformPoint(wb.center);
-
-        placed.transform.position = targetCenterWorld - (placed.transform.rotation * visualCenterLocal);
+        placed.transform.position = targetCenterWorld - (placed.transform.rotation * _heldVisualCenterLocal);
 
         grid.Place(id, _tmpWorldCells);
+
         _placedVisualById[id] = placed;
         _undoStack.Push(id);
 
-        ExitPlacementMode(destroyPickup: true);
+        // Make sure it's visible before anim/sfx
+        if (!placed.activeSelf)
+            placed.SetActive(true);
+
+        // Juice
+        PlayPlaceSfx();
+        StartCoroutine(PopScale(placed));
+
+        ExitPlacementMode();
     }
 
-    void ExitPlacementMode(bool destroyPickup)
+    void ExitPlacementMode()
     {
         _isPlacing = false;
         grid.placementMode = false;
@@ -372,16 +432,14 @@ public class PlacementController : MonoBehaviour
 
         if (_heldPickup)
         {
-            if (destroyPickup)
-                Destroy(_heldPickup.gameObject);   // remove the original scene couch
-            else
-                _heldPickup.gameObject.SetActive(true);
-
+            // Make sure the real object comes back
+            _heldPickup.gameObject.SetActive(true);
             _heldPickup = null;
         }
 
         currentDef = null;
         _rot = Quaternion.identity;
+        _holdingExistingPlaced = false;
     }
 
     void OnUndo(InputAction.CallbackContext _)
@@ -401,12 +459,40 @@ public class PlacementController : MonoBehaviour
     void OnCancelPlacemet(InputAction.CallbackContext _)
     {
         if (!_isPlacing) return;
-        ExitPlacementMode(destroyPickup: true);
+        ExitPlacementMode();
     }
 
-    void RotateYaw(int degrees) => _rot = Quaternion.Euler(0, degrees, 0) * _rot;
-    void RotatePitch(int degrees) => _rot = Quaternion.Euler(degrees, 0, 0) * _rot;
-    void RotateRoll(int degrees) => _rot = Quaternion.Euler(0, 0, degrees) * _rot;
+    void RotateYaw(int degrees)
+    {
+        // yaw around the piece's LOCAL up
+        _rot = _rot * Quaternion.AngleAxis(degrees, Vector3.up);
+        _rot = Normalize(_rot);
+    }
+
+    void RotatePitch(int degrees)
+    {
+        // pitch around the piece's LOCAL right
+        _rot = _rot * Quaternion.AngleAxis(degrees, Vector3.right);
+        _rot = Normalize(_rot);
+    }
+
+    void RotateRoll(int degrees)
+    {
+        // roll around the piece's LOCAL forward
+        _rot = _rot * Quaternion.AngleAxis(degrees, Vector3.forward);
+        _rot = Normalize(_rot);
+    }
+
+    static Quaternion Normalize(Quaternion q)
+    {
+        float mag = Mathf.Sqrt(q.x * q.x + q.y * q.y + q.z * q.z + q.w * q.w);
+        if (mag > 0.00001f)
+        {
+            float inv = 1f / mag;
+            q.x *= inv; q.y *= inv; q.z *= inv; q.w *= inv;
+        }
+        return q;
+    }
 
     public void SetCurrentPiece(PieceDefinition def)
     {
@@ -444,5 +530,92 @@ public class PlacementController : MonoBehaviour
         }
 
         return has;
+    }
+
+    static void SetLayerRecursively(GameObject go, int layer)
+    {
+        go.layer = layer;
+        foreach (Transform t in go.transform)
+            SetLayerRecursively(t.gameObject, layer);
+    }
+
+    void RemoveFromUndoStack(int id)
+    {
+        if (_undoStack.Count == 0) return;
+
+        // rebuild stack without the id (preserving order)
+        var temp = new Stack<int>();
+        while (_undoStack.Count > 0)
+        {
+            int v = _undoStack.Pop();
+            if (v != id) temp.Push(v);
+        }
+        while (temp.Count > 0)
+            _undoStack.Push(temp.Pop());
+    }
+
+    void PlayPlaceSfx()
+    {
+        if (!sfxSource) return;
+
+        // Prefer the piece's override, otherwise fall back to the controller default
+        AudioClip clip = (currentDef && currentDef.placeClipOverride) ? currentDef.placeClipOverride : placeClip;
+        if (!clip) return;
+
+        float vol = (currentDef != null) ? (placeVolume * currentDef.placeVolume) : placeVolume;
+
+        Vector2 pr = (currentDef != null) ? currentDef.placePitchRange : placePitchRange;
+        float p = Random.Range(pr.x, pr.y);
+
+        sfxSource.pitch = p;
+        sfxSource.PlayOneShot(clip, vol);
+    }
+
+    IEnumerator PopScale(GameObject go)
+    {
+        if (!go) yield break;
+
+        Transform t = go.transform;
+
+        // Preserve whatever scale your prefab already uses
+        Vector3 baseScale = t.localScale;
+
+        float half = Mathf.Max(0.0001f, popDuration * 0.5f);
+
+        // up -> peak
+        float t01 = 0f;
+        while (t01 < 1f)
+        {
+            t01 += Time.deltaTime / half;
+            float s = Mathf.Lerp(1f, popUpScale, t01);
+            t.localScale = baseScale * s;
+            yield return null;
+        }
+
+        // down -> settle (or 1f)
+        t01 = 0f;
+        while (t01 < 1f)
+        {
+            t01 += Time.deltaTime / half;
+            float s = Mathf.Lerp(popUpScale, popDownScale, t01);
+            t.localScale = baseScale * s;
+            yield return null;
+        }
+
+        // snap back to exact base scale
+        t.localScale = baseScale;
+    }
+
+    void DebugDrawCells(List<Vector3Int> cells)
+    {
+        if (cells == null) return;
+
+        for (int i = 0; i < cells.Count; i++)
+        {
+            Vector3 w = grid.CellToWorldCenter(cells[i]);
+            Debug.DrawLine(w + Vector3.up * 0.25f, w - Vector3.up * 0.25f, Color.yellow, 0f);
+            Debug.DrawLine(w + Vector3.right * 0.25f, w - Vector3.right * 0.25f, Color.yellow, 0f);
+            Debug.DrawLine(w + Vector3.forward * 0.25f, w - Vector3.forward * 0.25f, Color.yellow, 0f);
+        }
     }
 }

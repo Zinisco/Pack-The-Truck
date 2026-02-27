@@ -10,10 +10,14 @@ MonoBehaviour:
   m_Enabled: 1
   m_EditorHideFlags: 0
   m_Script: {fileID: 11500000, guid: 2f1866d2f95eae4449df8373d6ee5c19, type: 3}
-  m_Name: Couch
-  m_EditorClassIdentifier: 
-  pieceName: Couch
-  visualPrefab: {fileID: 3761596909913433700, guid: 2d66c09f2b0ed9e47b30e2d99073f77b, type: 3}
+  m_Name: Chair
+  m_EditorClassIdentifier: Assembly-CSharp::PieceDefinition
+  pieceName: Chair
+  visualPrefab: {fileID: 4672026241499092116, guid: 29f3fd8c634173345b05f7a67b5d7b43, type: 3}
   occupiedCellsLocal:
   - {x: 0, y: 0, z: 0}
   - {x: 1, y: 0, z: 0}
+  - {x: 0, y: 1, z: 0}
+  placeClipOverride: {fileID: 8300000, guid: 13f52ee0088ca1e4b9818dcd6796a0bd, type: 3}
+  placeVolume: 1
+  placePitchRange: {x: 0.95, y: 1.05}

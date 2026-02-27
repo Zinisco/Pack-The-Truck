@@ -1,0 +1,23 @@
+%YAML 1.1
+%TAG !u! tag:unity3d.com,2011:
+--- !u!114 &11400000
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 0}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 2f1866d2f95eae4449df8373d6ee5c19, type: 3}
+  m_Name: Couch
+  m_EditorClassIdentifier: 
+  pieceName: Couch
+  visualPrefab: {fileID: 2019488260309655738, guid: 3805078f1be45044dbd7eed69af4a3b9, type: 3}
+  occupiedCellsLocal:
+  - {x: 0, y: 0, z: 0}
+  - {x: 1, y: 0, z: 0}
+  - {x: -1, y: 0, z: 0}
+  placeClipOverride: {fileID: 8300000, guid: 13f52ee0088ca1e4b9818dcd6796a0bd, type: 3}
+  placeVolume: 1
+  placePitchRange: {x: 0.95, y: 1.05}
