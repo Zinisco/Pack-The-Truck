@@ -60,7 +60,9 @@ public class PlacementController : MonoBehaviour
     Vector3 _ghostVisualCenterLocal;   // local-space point that represents the visual "center"
     Vector3 _heldVisualCenterLocal;
     bool _holdingExistingPlaced;
+    string _placementWarning;
 
+    int _yaw90, _pitch90, _roll90;
     int _nextPlacedId = 1;
 
     // Undo stack holds placed ids. Dict stores the spawned visual per id.
@@ -82,12 +84,12 @@ public class PlacementController : MonoBehaviour
         _player.Click.performed += OnClick;
         _player.Undo.performed += OnUndo;
 
-        _player.YawLeft.performed += _ => RotateYaw(-90);
-        _player.YawRight.performed += _ => RotateYaw(90);
-        _player.PitchUp.performed += _ => RotatePitch(-90);
-        _player.PitchDown.performed += _ => RotatePitch(90);
-        _player.RollLeft.performed += _ => RotateRoll(-90);
-        _player.RollRight.performed += _ => RotateRoll(90);
+        _player.YawLeft.started += _ => RotateYaw(-90);
+        _player.YawRight.started += _ => RotateYaw(90);
+        _player.PitchUp.started += _ => RotatePitch(-90);
+        _player.PitchDown.started += _ => RotatePitch(90);
+        _player.RollLeft.started += _ => RotateRoll(-90);
+        _player.RollRight.started += _ => RotateRoll(90);
 
         RebuildGhost();
     }
@@ -129,7 +131,30 @@ public class PlacementController : MonoBehaviour
         Vector3Int supportedCell = default, supportBelow = default;
         if (computed) hasSupport = HasAnySupportBelow(_tmpWorldCells, out supportedCell, out supportBelow);
 
-        bool canPlace = computed && hasSpace && hasSupport;
+        bool fragileOk = computed && PassesFragileTopRule(currentDef, _tmpWorldCells);
+
+        bool standingOk = !currentDef.mustBeStanding || (computed && IsStandingFootprint(_tmpWorldCells));
+
+        bool uprightOk = PassesUprightRule(currentDef, _rot);
+
+        bool canPlace = computed && hasSpace && hasSupport && fragileOk && standingOk && uprightOk;
+
+        // reason text
+        _placementWarning = null;
+        if (!computed) _placementWarning = "Invalid shape / rotation.";
+        else if (!hasSpace) _placementWarning = "Blocked: space is occupied.";
+        else if (!hasSupport) _placementWarning = "Needs support below.";
+        else if (!fragileOk) _placementWarning = "Fragile: nothing can be directly on top.";
+        else if (!standingOk) _placementWarning = "Must be standing upright (1󫎽).";
+        else if (!uprightOk) _placementWarning = "Can't place upside down.";
+
+        // simple reason text (pick the first failure)
+        _placementWarning = null;
+        if (!computed) _placementWarning = "Invalid shape / rotation.";
+        else if (!hasSpace) _placementWarning = "Blocked: space is occupied.";
+        else if (!hasSupport) _placementWarning = "Needs support below.";
+        else if (!fragileOk) _placementWarning = "Fragile: nothing can be directly on top.";
+        else if (!standingOk) _placementWarning = "Must be standing upright (1󫎽).";
 
         if (computed && debugDrawSupport)
             DebugDrawSupport(_tmpWorldCells, hasSupport, supportedCell, supportBelow);
@@ -310,36 +335,25 @@ public class PlacementController : MonoBehaviour
         if (def == null || def.occupiedCellsLocal == null || def.occupiedCellsLocal.Length == 0)
             return false;
 
-        // 1) Rotate all local offsets
-        // 2) Round to ints
-        // 3) Track min so we can shift the whole shape to be non-negative
-        int minX = int.MaxValue, minY = int.MaxValue, minZ = int.MaxValue;
+        Vector3Int pivot = def.pivotLocal;
 
-        // temp store rotated offsets
-        // (small allocations avoided by using outCells as a temp, then rewriting)
         for (int i = 0; i < def.occupiedCellsLocal.Length; i++)
         {
             Vector3Int local = def.occupiedCellsLocal[i];
 
-            Vector3 rotated = rotLocal * (Vector3)local;
-            var r = new Vector3Int(
-                Mathf.RoundToInt(rotated.x),
-                Mathf.RoundToInt(rotated.y),
-                Mathf.RoundToInt(rotated.z)
+            // rotate around pivot
+            Vector3 rel = (Vector3)(local - pivot);
+            Vector3 rotatedRel = rotLocal * rel;
+
+            Vector3Int r = new Vector3Int(
+                Mathf.RoundToInt(rotatedRel.x),
+                Mathf.RoundToInt(rotatedRel.y),
+                Mathf.RoundToInt(rotatedRel.z)
             );
 
-            outCells.Add(r);
-
-            if (r.x < minX) minX = r.x;
-            if (r.y < minY) minY = r.y;
-            if (r.z < minZ) minZ = r.z;
+            // place pivot at anchor
+            outCells.Add(anchor + r);
         }
-
-        // Shift so the minimum becomes 0,0,0 (prevents negative offsets after rotation)
-        var shift = new Vector3Int(-minX, -minY, -minZ);
-
-        for (int i = 0; i < outCells.Count; i++)
-            outCells[i] = anchor + (outCells[i] + shift);
 
         return true;
     }
@@ -406,6 +420,9 @@ public class PlacementController : MonoBehaviour
         if (!ComputeWorldCells(currentDef, _anchorCell, _rot, _tmpWorldCells)) return;
         if (!grid.CanPlaceCells(_tmpWorldCells)) return;
         if (!HasAnySupportBelow(_tmpWorldCells, out _, out _)) return;
+        if (!PassesFragileTopRule(currentDef, _tmpWorldCells)) return;
+        if (currentDef.mustBeStanding && !IsStandingFootprint(_tmpWorldCells)) return;
+        if (!PassesUprightRule(currentDef, _rot)) return;
 
         int id = (_heldPickup.placedId != 0) ? _heldPickup.placedId : _nextPlacedId++;
 
@@ -476,25 +493,17 @@ public class PlacementController : MonoBehaviour
         ExitPlacementMode();
     }
 
-    void RotateYaw(int degrees)
-    {
-        // yaw around the piece's LOCAL up
-        _rot = _rot * Quaternion.AngleAxis(degrees, Vector3.up);
-        _rot = Normalize(_rot);
-    }
+    void RotateYaw(int degrees) { _yaw90 = (_yaw90 + degrees / 90) % 4; RebuildRot(); }
+    void RotatePitch(int degrees) { _pitch90 = (_pitch90 + degrees / 90) % 4; RebuildRot(); }
+    void RotateRoll(int degrees) { _roll90 = (_roll90 + degrees / 90) % 4; RebuildRot(); }
 
-    void RotatePitch(int degrees)
+    void RebuildRot()
     {
-        // pitch around the piece's LOCAL right
-        _rot = _rot * Quaternion.AngleAxis(degrees, Vector3.right);
-        _rot = Normalize(_rot);
-    }
-
-    void RotateRoll(int degrees)
-    {
-        // roll around the piece's LOCAL forward
-        _rot = _rot * Quaternion.AngleAxis(degrees, Vector3.forward);
-        _rot = Normalize(_rot);
+        // local-axis style composition
+        _rot = Quaternion.identity;
+        _rot *= Quaternion.AngleAxis(_yaw90 * 90f, Vector3.up);
+        _rot *= Quaternion.AngleAxis(_pitch90 * 90f, Vector3.right);
+        _rot *= Quaternion.AngleAxis(_roll90 * 90f, Vector3.forward);
     }
 
     static Quaternion Normalize(Quaternion q)
@@ -671,6 +680,44 @@ public class PlacementController : MonoBehaviour
         return false;
     }
 
+    bool PassesFragileTopRule(PieceDefinition def, IReadOnlyList<Vector3Int> cells)
+    {
+        if (def == null || !def.fragileTop) return true;
+
+        // No cell may exist directly above any lamp cell (same X/Z, Y+1).
+        for (int i = 0; i < cells.Count; i++)
+        {
+            Vector3Int above = cells[i] + Vector3Int.up;
+            if (grid.IsInside(above) && grid.IsOccupied(above))
+                return false;
+        }
+        return true;
+    }
+
+    bool IsStandingFootprint(IReadOnlyList<Vector3Int> cells)
+    {
+        if (cells == null || cells.Count == 0) return false;
+
+        int minX = int.MaxValue, maxX = int.MinValue;
+        int minY = int.MaxValue, maxY = int.MinValue;
+        int minZ = int.MaxValue, maxZ = int.MinValue;
+
+        for (int i = 0; i < cells.Count; i++)
+        {
+            var c = cells[i];
+            if (c.x < minX) minX = c.x; if (c.x > maxX) maxX = c.x;
+            if (c.y < minY) minY = c.y; if (c.y > maxY) maxY = c.y;
+            if (c.z < minZ) minZ = c.z; if (c.z > maxZ) maxZ = c.z;
+        }
+
+        int sizeX = (maxX - minX) + 1;
+        int sizeY = (maxY - minY) + 1;
+        int sizeZ = (maxZ - minZ) + 1;
+
+        // "Standing" means 1x2x1 footprint in grid-space
+        return sizeX == 1 && sizeY == 2 && sizeZ == 1;
+    }
+
     void DebugDrawCells(List<Vector3Int> cells)
     {
         if (cells == null) return;
@@ -746,5 +793,25 @@ public class PlacementController : MonoBehaviour
             Debug.DrawLine(bottom + grid.origin.right * 0.15f, bottom - grid.origin.right * 0.15f, Color.red, 0f);
             Debug.DrawLine(bottom + grid.origin.forward * 0.15f, bottom - grid.origin.forward * 0.15f, Color.red, 0f);
         }
+    }
+
+    bool PassesUprightRule(PieceDefinition def, Quaternion rotLocal)
+    {
+        if (!def || !def.forbidUpsideDown) return true;
+
+        // "local up" of the piece, expressed in grid-local space
+        Vector3 up = rotLocal * Vector3.up;
+
+        // if up points more downward than upward, it's inverted
+        return Vector3.Dot(up, Vector3.up) > 0.0f;
+    }
+
+    void OnGUI()
+    {
+        if (!_isPlacing) return;
+        if (string.IsNullOrEmpty(_placementWarning)) return;
+
+        GUI.color = Color.yellow;
+        GUI.Label(new Rect(12, 12, 600, 24), _placementWarning);
     }
 }

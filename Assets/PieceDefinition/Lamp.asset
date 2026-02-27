@@ -10,18 +10,17 @@ MonoBehaviour:
   m_Enabled: 1
   m_EditorHideFlags: 0
   m_Script: {fileID: 11500000, guid: 2f1866d2f95eae4449df8373d6ee5c19, type: 3}
-  m_Name: Couch
-  m_EditorClassIdentifier: 
-  pieceName: Couch
-  visualPrefab: {fileID: 2019488260309655738, guid: 3805078f1be45044dbd7eed69af4a3b9, type: 3}
+  m_Name: Lamp
+  m_EditorClassIdentifier: Assembly-CSharp::PieceDefinition
+  pieceName: Lamp
+  visualPrefab: {fileID: 500267812972902865, guid: 5e755d772d65532469b10fefbfb62aa0, type: 3}
   occupiedCellsLocal:
   - {x: 0, y: 0, z: 0}
-  - {x: 1, y: 0, z: 0}
-  - {x: -1, y: 0, z: 0}
+  - {x: 0, y: 1, z: 0}
   pivotLocal: {x: 0, y: 0, z: 0}
-  fragileTop: 0
-  mustBeStanding: 0
-  forbidUpsideDown: 0
-  placeClipOverride: {fileID: 8300000, guid: e94311be1d08c02468160fe3ad4c680d, type: 3}
-  placeVolume: 1
+  fragileTop: 1
+  mustBeStanding: 1
+  forbidUpsideDown: 1
+  placeClipOverride: {fileID: 8300000, guid: cf7eb47b6982b6e459833ec5944d4631, type: 3}
+  placeVolume: 0.5
   placePitchRange: {x: 0.95, y: 1.05}
