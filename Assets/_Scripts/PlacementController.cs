@@ -1,5 +1,6 @@
 using System.Collections;
 using System.Collections.Generic;
+using UnityEditor;
 using UnityEngine;
 using UnityEngine.InputSystem;
 
@@ -19,10 +20,6 @@ public class PlacementController : MonoBehaviour
 
     [Header("Placement Move Mode")]
     public PlacementMoveMode moveMode = PlacementMoveMode.Mouse;
-
-    [Header("Confirm / Undo")]
-    public Key confirmKey = Key.Space;
-    public Key undoKey = Key.Backspace;
 
     [Header("Layer")]
     [Range(0, 20)] public int activeLayerY = 0;
@@ -96,6 +93,7 @@ public class PlacementController : MonoBehaviour
         _player.LayerUp.performed += OnLayerUp;
         _player.LayerDown.performed += OnLayerDown;
         _player.LayerScroll.performed += OnLayerScroll;
+        _player.Undo.performed += OnUndo;
 
         RebuildGhost();
     }
@@ -108,6 +106,7 @@ public class PlacementController : MonoBehaviour
         _player.LayerUp.performed -= OnLayerUp;
         _player.LayerDown.performed -= OnLayerDown;
         _player.LayerScroll.performed -= OnLayerScroll;
+        _player.Undo.performed -= OnUndo;
 
         _player.Disable();
     }
@@ -115,20 +114,8 @@ public class PlacementController : MonoBehaviour
     void Update()
     {
         if (!cam || !grid) return;
-
-        // Undo anytime
-        if (Keyboard.current != null && Keyboard.current[undoKey].wasPressedThisFrame)
-            DoUndo();
-
         if (!_isPlacing) return;
         if (!currentDef) return;
-
-        // Cancel placement
-        if (Keyboard.current != null && Keyboard.current.escapeKey.wasPressedThisFrame)
-        {
-            ExitPlacementMode();
-            return;
-        }
 
         if (moveMode == PlacementMoveMode.Mouse)
         {
@@ -404,6 +391,12 @@ public class PlacementController : MonoBehaviour
     {
         if (!_isPlacing) return;
         ExitPlacementMode();
+    }
+
+    void OnUndo(InputAction.CallbackContext _)
+    {
+        // Undo anytime (placing or not)
+        DoUndo();
     }
 
     void DoUndo()
