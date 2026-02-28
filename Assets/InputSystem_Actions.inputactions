@@ -79,15 +79,6 @@
                     "initialStateCheck": false
                 },
                 {
-                    "name": "Zoom",
-                    "type": "Value",
-                    "id": "3eefec63-4d23-4029-9597-ab7889a71b56",
-                    "expectedControlType": "Vector2",
-                    "processors": "",
-                    "interactions": "",
-                    "initialStateCheck": true
-                },
-                {
                     "name": "PanHold",
                     "type": "Button",
                     "id": "1a8874aa-23c4-41f2-a62c-0a2d0c7a4ab6",
@@ -137,6 +128,42 @@
                     "type": "Button",
                     "id": "88144e74-841b-427e-b3cb-3d3639512444",
                     "expectedControlType": "",
+                    "processors": "",
+                    "interactions": "",
+                    "initialStateCheck": false
+                },
+                {
+                    "name": "ConfirmPlacement",
+                    "type": "Button",
+                    "id": "1639b677-f353-4714-94c6-9c3445d8bf81",
+                    "expectedControlType": "",
+                    "processors": "",
+                    "interactions": "",
+                    "initialStateCheck": false
+                },
+                {
+                    "name": "LayerUp",
+                    "type": "Button",
+                    "id": "fa3b56f3-2e4f-4846-a4a1-f3c1e8c93a43",
+                    "expectedControlType": "",
+                    "processors": "",
+                    "interactions": "",
+                    "initialStateCheck": false
+                },
+                {
+                    "name": "LayerDown",
+                    "type": "Button",
+                    "id": "c60ad1da-6831-4458-a467-f452526a5870",
+                    "expectedControlType": "",
+                    "processors": "",
+                    "interactions": "",
+                    "initialStateCheck": false
+                },
+                {
+                    "name": "LayerScroll",
+                    "type": "PassThrough",
+                    "id": "c9f44dc0-3734-44c8-81ab-af23e96d3349",
+                    "expectedControlType": "Vector2",
                     "processors": "",
                     "interactions": "",
                     "initialStateCheck": false
@@ -266,17 +293,6 @@
                 },
                 {
                     "name": "",
-                    "id": "55a4226c-bec4-4a06-85dd-adc806da7a8d",
-                    "path": "<Mouse>/scroll",
-                    "interactions": "",
-                    "processors": "",
-                    "groups": ";Keyboard&Mouse",
-                    "action": "Zoom",
-                    "isComposite": false,
-                    "isPartOfComposite": false
-                },
-                {
-                    "name": "",
                     "id": "f942790e-b511-4032-9695-18883c40dcae",
                     "path": "<Mouse>/leftButton",
                     "interactions": "",
@@ -349,6 +365,39 @@
                     "processors": "",
                     "groups": ";Keyboard&Mouse",
                     "action": "RotationModifier",
+                    "isComposite": false,
+                    "isPartOfComposite": false
+                },
+                {
+                    "name": "",
+                    "id": "55a733a0-35e8-460b-b723-91d4caa3296c",
+                    "path": "<Mouse>/leftButton",
+                    "interactions": "",
+                    "processors": "",
+                    "groups": ";Keyboard&Mouse",
+                    "action": "ConfirmPlacement",
+                    "isComposite": false,
+                    "isPartOfComposite": false
+                },
+                {
+                    "name": "",
+                    "id": "58c7f940-6ed1-4715-b3bb-db3bff3c1670",
+                    "path": "<Keyboard>/space",
+                    "interactions": "",
+                    "processors": "",
+                    "groups": "",
+                    "action": "ConfirmPlacement",
+                    "isComposite": false,
+                    "isPartOfComposite": false
+                },
+                {
+                    "name": "",
+                    "id": "1ea977a6-2dc7-408d-9a0e-b230bff31def",
+                    "path": "<Mouse>/scroll",
+                    "interactions": "",
+                    "processors": "",
+                    "groups": ";Keyboard&Mouse",
+                    "action": "LayerScroll",
                     "isComposite": false,
                     "isPartOfComposite": false
                 }

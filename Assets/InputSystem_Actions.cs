@@ -165,15 +165,6 @@ public partial class @InputSystem_Actions: IInputActionCollection2, IDisposable
                     ""initialStateCheck"": false
                 },
                 {
-                    ""name"": ""Zoom"",
-                    ""type"": ""Value"",
-                    ""id"": ""3eefec63-4d23-4029-9597-ab7889a71b56"",
-                    ""expectedControlType"": ""Vector2"",
-                    ""processors"": """",
-                    ""interactions"": """",
-                    ""initialStateCheck"": true
-                },
-                {
                     ""name"": ""PanHold"",
                     ""type"": ""Button"",
                     ""id"": ""1a8874aa-23c4-41f2-a62c-0a2d0c7a4ab6"",
@@ -223,6 +214,42 @@ public partial class @InputSystem_Actions: IInputActionCollection2, IDisposable
                     ""type"": ""Button"",
                     ""id"": ""88144e74-841b-427e-b3cb-3d3639512444"",
                     ""expectedControlType"": """",
+                    ""processors"": """",
+                    ""interactions"": """",
+                    ""initialStateCheck"": false
+                },
+                {
+                    ""name"": ""ConfirmPlacement"",
+                    ""type"": ""Button"",
+                    ""id"": ""1639b677-f353-4714-94c6-9c3445d8bf81"",
+                    ""expectedControlType"": """",
+                    ""processors"": """",
+                    ""interactions"": """",
+                    ""initialStateCheck"": false
+                },
+                {
+                    ""name"": ""LayerUp"",
+                    ""type"": ""Button"",
+                    ""id"": ""fa3b56f3-2e4f-4846-a4a1-f3c1e8c93a43"",
+                    ""expectedControlType"": """",
+                    ""processors"": """",
+                    ""interactions"": """",
+                    ""initialStateCheck"": false
+                },
+                {
+                    ""name"": ""LayerDown"",
+                    ""type"": ""Button"",
+                    ""id"": ""c60ad1da-6831-4458-a467-f452526a5870"",
+                    ""expectedControlType"": """",
+                    ""processors"": """",
+                    ""interactions"": """",
+                    ""initialStateCheck"": false
+                },
+                {
+                    ""name"": ""LayerScroll"",
+                    ""type"": ""PassThrough"",
+                    ""id"": ""c9f44dc0-3734-44c8-81ab-af23e96d3349"",
+                    ""expectedControlType"": ""Vector2"",
                     ""processors"": """",
                     ""interactions"": """",
                     ""initialStateCheck"": false
@@ -352,17 +379,6 @@ public partial class @InputSystem_Actions: IInputActionCollection2, IDisposable
                 },
                 {
                     ""name"": """",
-                    ""id"": ""55a4226c-bec4-4a06-85dd-adc806da7a8d"",
-                    ""path"": ""<Mouse>/scroll"",
-                    ""interactions"": """",
-                    ""processors"": """",
-                    ""groups"": "";Keyboard&Mouse"",
-                    ""action"": ""Zoom"",
-                    ""isComposite"": false,
-                    ""isPartOfComposite"": false
-                },
-                {
-                    ""name"": """",
                     ""id"": ""f942790e-b511-4032-9695-18883c40dcae"",
                     ""path"": ""<Mouse>/leftButton"",
                     ""interactions"": """",
@@ -435,6 +451,39 @@ public partial class @InputSystem_Actions: IInputActionCollection2, IDisposable
                     ""processors"": """",
                     ""groups"": "";Keyboard&Mouse"",
                     ""action"": ""RotationModifier"",
+                    ""isComposite"": false,
+                    ""isPartOfComposite"": false
+                },
+                {
+                    ""name"": """",
+                    ""id"": ""55a733a0-35e8-460b-b723-91d4caa3296c"",
+                    ""path"": ""<Mouse>/leftButton"",
+                    ""interactions"": """",
+                    ""processors"": """",
+                    ""groups"": "";Keyboard&Mouse"",
+                    ""action"": ""ConfirmPlacement"",
+                    ""isComposite"": false,
+                    ""isPartOfComposite"": false
+                },
+                {
+                    ""name"": """",
+                    ""id"": ""58c7f940-6ed1-4715-b3bb-db3bff3c1670"",
+                    ""path"": ""<Keyboard>/space"",
+                    ""interactions"": """",
+                    ""processors"": """",
+                    ""groups"": """",
+                    ""action"": ""ConfirmPlacement"",
+                    ""isComposite"": false,
+                    ""isPartOfComposite"": false
+                },
+                {
+                    ""name"": """",
+                    ""id"": ""1ea977a6-2dc7-408d-9a0e-b230bff31def"",
+                    ""path"": ""<Mouse>/scroll"",
+                    ""interactions"": """",
+                    ""processors"": """",
+                    ""groups"": "";Keyboard&Mouse"",
+                    ""action"": ""LayerScroll"",
                     ""isComposite"": false,
                     ""isPartOfComposite"": false
                 }
@@ -1030,13 +1079,16 @@ public partial class @InputSystem_Actions: IInputActionCollection2, IDisposable
         m_Player_ZoomIn = m_Player.FindAction("ZoomIn", throwIfNotFound: true);
         m_Player_ZoomOut = m_Player.FindAction("ZoomOut", throwIfNotFound: true);
         m_Player_CancelPlacement = m_Player.FindAction("CancelPlacement", throwIfNotFound: true);
-        m_Player_Zoom = m_Player.FindAction("Zoom", throwIfNotFound: true);
         m_Player_PanHold = m_Player.FindAction("PanHold", throwIfNotFound: true);
         m_Player_PanDelta = m_Player.FindAction("PanDelta", throwIfNotFound: true);
         m_Player_RotateX = m_Player.FindAction("RotateX", throwIfNotFound: true);
         m_Player_RotateY = m_Player.FindAction("RotateY", throwIfNotFound: true);
         m_Player_RotateZ = m_Player.FindAction("RotateZ", throwIfNotFound: true);
         m_Player_RotationModifier = m_Player.FindAction("RotationModifier", throwIfNotFound: true);
+        m_Player_ConfirmPlacement = m_Player.FindAction("ConfirmPlacement", throwIfNotFound: true);
+        m_Player_LayerUp = m_Player.FindAction("LayerUp", throwIfNotFound: true);
+        m_Player_LayerDown = m_Player.FindAction("LayerDown", throwIfNotFound: true);
+        m_Player_LayerScroll = m_Player.FindAction("LayerScroll", throwIfNotFound: true);
         // UI
         m_UI = asset.FindActionMap("UI", throwIfNotFound: true);
         m_UI_Navigate = m_UI.FindAction("Navigate", throwIfNotFound: true);
@@ -1138,13 +1190,16 @@ public partial class @InputSystem_Actions: IInputActionCollection2, IDisposable
     private readonly InputAction m_Player_ZoomIn;
     private readonly InputAction m_Player_ZoomOut;
     private readonly InputAction m_Player_CancelPlacement;
-    private readonly InputAction m_Player_Zoom;
     private readonly InputAction m_Player_PanHold;
     private readonly InputAction m_Player_PanDelta;
     private readonly InputAction m_Player_RotateX;
     private readonly InputAction m_Player_RotateY;
     private readonly InputAction m_Player_RotateZ;
     private readonly InputAction m_Player_RotationModifier;
+    private readonly InputAction m_Player_ConfirmPlacement;
+    private readonly InputAction m_Player_LayerUp;
+    private readonly InputAction m_Player_LayerDown;
+    private readonly InputAction m_Player_LayerScroll;
     /// <summary>
     /// Provides access to input actions defined in input action map "Player".
     /// </summary>
@@ -1189,10 +1244,6 @@ public partial class @InputSystem_Actions: IInputActionCollection2, IDisposable
         /// </summary>
         public InputAction @CancelPlacement => m_Wrapper.m_Player_CancelPlacement;
         /// <summary>
-        /// Provides access to the underlying input action "Player/Zoom".
-        /// </summary>
-        public InputAction @Zoom => m_Wrapper.m_Player_Zoom;
-        /// <summary>
         /// Provides access to the underlying input action "Player/PanHold".
         /// </summary>
         public InputAction @PanHold => m_Wrapper.m_Player_PanHold;
@@ -1216,6 +1267,22 @@ public partial class @InputSystem_Actions: IInputActionCollection2, IDisposable
         /// Provides access to the underlying input action "Player/RotationModifier".
         /// </summary>
         public InputAction @RotationModifier => m_Wrapper.m_Player_RotationModifier;
+        /// <summary>
+        /// Provides access to the underlying input action "Player/ConfirmPlacement".
+        /// </summary>
+        public InputAction @ConfirmPlacement => m_Wrapper.m_Player_ConfirmPlacement;
+        /// <summary>
+        /// Provides access to the underlying input action "Player/LayerUp".
+        /// </summary>
+        public InputAction @LayerUp => m_Wrapper.m_Player_LayerUp;
+        /// <summary>
+        /// Provides access to the underlying input action "Player/LayerDown".
+        /// </summary>
+        public InputAction @LayerDown => m_Wrapper.m_Player_LayerDown;
+        /// <summary>
+        /// Provides access to the underlying input action "Player/LayerScroll".
+        /// </summary>
+        public InputAction @LayerScroll => m_Wrapper.m_Player_LayerScroll;
         /// <summary>
         /// Provides access to the underlying input action map instance.
         /// </summary>
@@ -1266,9 +1333,6 @@ public partial class @InputSystem_Actions: IInputActionCollection2, IDisposable
             @CancelPlacement.started += instance.OnCancelPlacement;
             @CancelPlacement.performed += instance.OnCancelPlacement;
             @CancelPlacement.canceled += instance.OnCancelPlacement;
-            @Zoom.started += instance.OnZoom;
-            @Zoom.performed += instance.OnZoom;
-            @Zoom.canceled += instance.OnZoom;
             @PanHold.started += instance.OnPanHold;
             @PanHold.performed += instance.OnPanHold;
             @PanHold.canceled += instance.OnPanHold;
@@ -1287,6 +1351,18 @@ public partial class @InputSystem_Actions: IInputActionCollection2, IDisposable
             @RotationModifier.started += instance.OnRotationModifier;
             @RotationModifier.performed += instance.OnRotationModifier;
             @RotationModifier.canceled += instance.OnRotationModifier;
+            @ConfirmPlacement.started += instance.OnConfirmPlacement;
+            @ConfirmPlacement.performed += instance.OnConfirmPlacement;
+            @ConfirmPlacement.canceled += instance.OnConfirmPlacement;
+            @LayerUp.started += instance.OnLayerUp;
+            @LayerUp.performed += instance.OnLayerUp;
+            @LayerUp.canceled += instance.OnLayerUp;
+            @LayerDown.started += instance.OnLayerDown;
+            @LayerDown.performed += instance.OnLayerDown;
+            @LayerDown.canceled += instance.OnLayerDown;
+            @LayerScroll.started += instance.OnLayerScroll;
+            @LayerScroll.performed += instance.OnLayerScroll;
+            @LayerScroll.canceled += instance.OnLayerScroll;
         }
 
         /// <summary>
@@ -1322,9 +1398,6 @@ public partial class @InputSystem_Actions: IInputActionCollection2, IDisposable
             @CancelPlacement.started -= instance.OnCancelPlacement;
             @CancelPlacement.performed -= instance.OnCancelPlacement;
             @CancelPlacement.canceled -= instance.OnCancelPlacement;
-            @Zoom.started -= instance.OnZoom;
-            @Zoom.performed -= instance.OnZoom;
-            @Zoom.canceled -= instance.OnZoom;
             @PanHold.started -= instance.OnPanHold;
             @PanHold.performed -= instance.OnPanHold;
             @PanHold.canceled -= instance.OnPanHold;
@@ -1343,6 +1416,18 @@ public partial class @InputSystem_Actions: IInputActionCollection2, IDisposable
             @RotationModifier.started -= instance.OnRotationModifier;
             @RotationModifier.performed -= instance.OnRotationModifier;
             @RotationModifier.canceled -= instance.OnRotationModifier;
+            @ConfirmPlacement.started -= instance.OnConfirmPlacement;
+            @ConfirmPlacement.performed -= instance.OnConfirmPlacement;
+            @ConfirmPlacement.canceled -= instance.OnConfirmPlacement;
+            @LayerUp.started -= instance.OnLayerUp;
+            @LayerUp.performed -= instance.OnLayerUp;
+            @LayerUp.canceled -= instance.OnLayerUp;
+            @LayerDown.started -= instance.OnLayerDown;
+            @LayerDown.performed -= instance.OnLayerDown;
+            @LayerDown.canceled -= instance.OnLayerDown;
+            @LayerScroll.started -= instance.OnLayerScroll;
+            @LayerScroll.performed -= instance.OnLayerScroll;
+            @LayerScroll.canceled -= instance.OnLayerScroll;
         }
 
         /// <summary>
@@ -1700,13 +1785,6 @@ public partial class @InputSystem_Actions: IInputActionCollection2, IDisposable
         /// <seealso cref="UnityEngine.InputSystem.InputAction.canceled" />
         void OnCancelPlacement(InputAction.CallbackContext context);
         /// <summary>
-        /// Method invoked when associated input action "Zoom" is either <see cref="UnityEngine.InputSystem.InputAction.started" />, <see cref="UnityEngine.InputSystem.InputAction.performed" /> or <see cref="UnityEngine.InputSystem.InputAction.canceled" />.
-        /// </summary>
-        /// <seealso cref="UnityEngine.InputSystem.InputAction.started" />
-        /// <seealso cref="UnityEngine.InputSystem.InputAction.performed" />
-        /// <seealso cref="UnityEngine.InputSystem.InputAction.canceled" />
-        void OnZoom(InputAction.CallbackContext context);
-        /// <summary>
         /// Method invoked when associated input action "PanHold" is either <see cref="UnityEngine.InputSystem.InputAction.started" />, <see cref="UnityEngine.InputSystem.InputAction.performed" /> or <see cref="UnityEngine.InputSystem.InputAction.canceled" />.
         /// </summary>
         /// <seealso cref="UnityEngine.InputSystem.InputAction.started" />
@@ -1748,6 +1826,34 @@ public partial class @InputSystem_Actions: IInputActionCollection2, IDisposable
         /// <seealso cref="UnityEngine.InputSystem.InputAction.performed" />
         /// <seealso cref="UnityEngine.InputSystem.InputAction.canceled" />
         void OnRotationModifier(InputAction.CallbackContext context);
+        /// <summary>
+        /// Method invoked when associated input action "ConfirmPlacement" is either <see cref="UnityEngine.InputSystem.InputAction.started" />, <see cref="UnityEngine.InputSystem.InputAction.performed" /> or <see cref="UnityEngine.InputSystem.InputAction.canceled" />.
+        /// </summary>
+        /// <seealso cref="UnityEngine.InputSystem.InputAction.started" />
+        /// <seealso cref="UnityEngine.InputSystem.InputAction.performed" />
+        /// <seealso cref="UnityEngine.InputSystem.InputAction.canceled" />
+        void OnConfirmPlacement(InputAction.CallbackContext context);
+        /// <summary>
+        /// Method invoked when associated input action "LayerUp" is either <see cref="UnityEngine.InputSystem.InputAction.started" />, <see cref="UnityEngine.InputSystem.InputAction.performed" /> or <see cref="UnityEngine.InputSystem.InputAction.canceled" />.
+        /// </summary>
+        /// <seealso cref="UnityEngine.InputSystem.InputAction.started" />
+        /// <seealso cref="UnityEngine.InputSystem.InputAction.performed" />
+        /// <seealso cref="UnityEngine.InputSystem.InputAction.canceled" />
+        void OnLayerUp(InputAction.CallbackContext context);
+        /// <summary>
+        /// Method invoked when associated input action "LayerDown" is either <see cref="UnityEngine.InputSystem.InputAction.started" />, <see cref="UnityEngine.InputSystem.InputAction.performed" /> or <see cref="UnityEngine.InputSystem.InputAction.canceled" />.
+        /// </summary>
+        /// <seealso cref="UnityEngine.InputSystem.InputAction.started" />
+        /// <seealso cref="UnityEngine.InputSystem.InputAction.performed" />
+        /// <seealso cref="UnityEngine.InputSystem.InputAction.canceled" />
+        void OnLayerDown(InputAction.CallbackContext context);
+        /// <summary>
+        /// Method invoked when associated input action "LayerScroll" is either <see cref="UnityEngine.InputSystem.InputAction.started" />, <see cref="UnityEngine.InputSystem.InputAction.performed" /> or <see cref="UnityEngine.InputSystem.InputAction.canceled" />.
+        /// </summary>
+        /// <seealso cref="UnityEngine.InputSystem.InputAction.started" />
+        /// <seealso cref="UnityEngine.InputSystem.InputAction.performed" />
+        /// <seealso cref="UnityEngine.InputSystem.InputAction.canceled" />
+        void OnLayerScroll(InputAction.CallbackContext context);
     }
     /// <summary>
     /// Interface to implement callback methods for all input action callbacks associated with input actions defined by "UI" which allows adding and removing callbacks.

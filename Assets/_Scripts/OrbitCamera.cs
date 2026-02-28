@@ -4,10 +4,10 @@ using UnityEngine.InputSystem;
 public class OrbitCamera : MonoBehaviour
 {
     [Header("Refs")]
-    public Transform pivot;          // look target / orbit center
-    public Transform camRig;         // parent of the camera
-    public Camera orbitCam;          // actual camera
-    public GridManager grid;         // optional
+    public Transform pivot;
+    public Transform camRig;
+    public Camera orbitCam;
+    public GridManager grid;
 
     [Header("Orbit")]
     public float yaw = 45f;
@@ -22,17 +22,16 @@ public class OrbitCamera : MonoBehaviour
     public float minDistance = 4f;
     public float maxDistance = 22f;
 
-    [Header("Scroll Zoom")]
-    public float scrollZoomStep = 1.2f;
-    public float scrollDeadZone = 0.01f;
+    [Header("Button Zoom")]
+    public float zoomStep = 1.2f;         // per press
+    public float zoomRepeatDelay = 0.06f; // hold repeat
     public float zoomSmoothTime = 0.12f;
 
     [Header("Pan (LMB drag)")]
     public bool enablePan = true;
-    public float panSpeed = 0.012f;         // tuned for mouse delta
-    public float panSmooth = 18f;           // bigger = snappier
-    public bool panOnlyWhenPlacing = true;  // prevents interfering with pickup when not placing
-    public PlacementController placement;   // assign (optional but recommended)
+    public float panSpeed = 0.012f;
+    public float panSmooth = 18f;
+    public PlacementController placement;
 
     InputSystem_Actions _input;
     InputSystem_Actions.PlayerActions _player;
@@ -43,8 +42,10 @@ public class OrbitCamera : MonoBehaviour
     float _targetDistance;
     float _zoomVel;
 
-    Vector3 _panOffset;         // world offset added to pivot position
+    Vector3 _panOffset;
     Vector3 _panOffsetTarget;
+
+    float _nextZoomTime;
 
     void Awake()
     {
@@ -73,13 +74,8 @@ public class OrbitCamera : MonoBehaviour
 
         if (grid) grid.cameraTransform = orbitCam.transform;
 
-        // Base pivot position
         Vector3 basePivot = pivot.position;
-        if (grid)
-        {
-            // Orbit around grid floor center (your current behavior)
-            basePivot = grid.GetWorldFloorCenter();
-        }
+        if (grid) basePivot = grid.GetWorldFloorCenter();
 
         // RMB orbit
         if (_player.OrbitHold.IsPressed())
@@ -90,10 +86,9 @@ public class OrbitCamera : MonoBehaviour
             _targetPitch = Mathf.Clamp(_targetPitch, pitchMin, pitchMax);
         }
 
-        // LMB pan (use PanHold + PanDelta)
+        // LMB pan (disabled while placing)
         bool allowPan = enablePan;
-        if (allowPan && panOnlyWhenPlacing)
-            allowPan = (placement != null && placement.IsPlacing);
+        if (placement != null && placement.IsPlacing) allowPan = false;
 
         if (allowPan && _player.PanHold.IsPressed())
         {
@@ -105,19 +100,18 @@ public class OrbitCamera : MonoBehaviour
             _panOffsetTarget += (-right * d.x - forward * d.y) * panSpeed;
         }
 
-        // Scroll zoom (use Zoom action)
-        Vector2 scroll = _player.Zoom.ReadValue<Vector2>();
-
-        // Unity scroll delta is usually in "pixels-ish" with 120 per notch on many mice.
-        float notches = scroll.y / 120f;
-
-        if (Mathf.Abs(notches) > scrollDeadZone)
+        // Zoom with ZoomIn / ZoomOut buttons (no scroll)
+        if (Time.unscaledTime >= _nextZoomTime)
         {
-            _targetDistance = Mathf.Clamp(
-                _targetDistance - notches * scrollZoomStep,
-                minDistance,
-                maxDistance
-            );
+            bool zin = _player.ZoomIn.IsPressed() || _player.ZoomIn.WasPressedThisFrame();
+            bool zout = _player.ZoomOut.IsPressed() || _player.ZoomOut.WasPressedThisFrame();
+
+            if (zin || zout)
+            {
+                float dir = zin ? -1f : 1f;
+                _targetDistance = Mathf.Clamp(_targetDistance + dir * zoomStep, minDistance, maxDistance);
+                _nextZoomTime = Time.unscaledTime + zoomRepeatDelay;
+            }
         }
 
         // Smooth orbit

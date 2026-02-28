@@ -5,6 +5,8 @@ using UnityEngine.InputSystem;
 
 public class PlacementController : MonoBehaviour
 {
+    public enum PlacementMoveMode { Mouse, GridStep }
+
     [Header("Refs")]
     public Camera cam;
     public GridManager grid;
@@ -15,14 +17,17 @@ public class PlacementController : MonoBehaviour
     [Header("Movement")]
     public float keyRepeatDelay = 0.18f;
 
-    [Header("Layer")]
-    [Range(0, 20)] public int activeLayerY = 0;
-    public Key layerUpKey = Key.R;
-    public Key layerDownKey = Key.F;
+    [Header("Placement Move Mode")]
+    public PlacementMoveMode moveMode = PlacementMoveMode.Mouse;
 
     [Header("Confirm / Undo")]
     public Key confirmKey = Key.Space;
     public Key undoKey = Key.Backspace;
+
+    [Header("Layer")]
+    [Range(0, 20)] public int activeLayerY = 0;
+    [SerializeField] float scrollLayerCooldown = 0.03f; // prevents “free spin” scrolling
+    float _nextScrollTime = 0f;
 
     [Header("Ghost Visuals")]
     public Material validMat;
@@ -85,8 +90,12 @@ public class PlacementController : MonoBehaviour
     void OnEnable()
     {
         _player.Enable();
-        _player.Click.performed += OnClick;            // ONLY for pickup now
+        _player.Click.performed += OnClick;
         _player.CancelPlacement.performed += OnCancelPlacement;
+        _player.ConfirmPlacement.performed += OnConfirmPlacement;
+        _player.LayerUp.performed += OnLayerUp;
+        _player.LayerDown.performed += OnLayerDown;
+        _player.LayerScroll.performed += OnLayerScroll;
 
         RebuildGhost();
     }
@@ -95,6 +104,11 @@ public class PlacementController : MonoBehaviour
     {
         _player.Click.performed -= OnClick;
         _player.CancelPlacement.performed -= OnCancelPlacement;
+        _player.ConfirmPlacement.performed -= OnConfirmPlacement;
+        _player.LayerUp.performed -= OnLayerUp;
+        _player.LayerDown.performed -= OnLayerDown;
+        _player.LayerScroll.performed -= OnLayerScroll;
+
         _player.Disable();
     }
 
@@ -116,18 +130,15 @@ public class PlacementController : MonoBehaviour
             return;
         }
 
-        // Confirm placement (Space)
-        if (Keyboard.current != null && Keyboard.current[confirmKey].wasPressedThisFrame)
+        if (moveMode == PlacementMoveMode.Mouse)
         {
-            if (TryPlaceHeld())
-                return; // stop Update() this frame
+            UpdateAnchorFromMouse();
         }
-
-        // Layer up/down
-        HandleLayerKeys();
-
-        // Move
-        StepMoveXZ(GetWASD());
+        else
+        {
+            // Future controller grid-step mode
+            StepMoveXZ(GetWASD());
+        }
 
         // Rotate (keyboard only)
         HandleRotationInputActions();
@@ -162,21 +173,22 @@ public class PlacementController : MonoBehaviour
         SetGhostMaterial(canPlace ? validMat : invalidMat);
     }
 
-    void HandleLayerKeys()
-    {
-        if (Keyboard.current == null) return;
-
-        if (Keyboard.current[layerUpKey].wasPressedThisFrame)
-            SetLayer(activeLayerY + 1);
-
-        if (Keyboard.current[layerDownKey].wasPressedThisFrame)
-            SetLayer(activeLayerY - 1);
-    }
-
     void SetLayer(int y)
     {
         activeLayerY = Mathf.Clamp(y, 0, grid.size.y - 1);
         _anchorCell.y = activeLayerY;
+    }
+
+    void OnLayerUp(InputAction.CallbackContext _)
+    {
+        if (!_isPlacing) return;
+        SetLayer(activeLayerY + 1);
+    }
+
+    void OnLayerDown(InputAction.CallbackContext _)
+    {
+        if (!_isPlacing) return;
+        SetLayer(activeLayerY - 1);
     }
 
     void HandleRotationKeys()
@@ -277,6 +289,17 @@ public class PlacementController : MonoBehaviour
         // When placing, Spacebar confirms placement.
         if (_isPlacing) return;
         TryPickupFromScene();
+    }
+
+    void OnConfirmPlacement(InputAction.CallbackContext _)
+    {
+        // Only confirm if we're currently placing something
+        if (!_isPlacing) return;
+
+        // Optional: prevent confirms if no held pickup/def (safety)
+        if (currentDef == null || _heldPickup == null) return;
+
+        TryPlaceHeld();
     }
 
     void TryPickupFromScene()
@@ -394,6 +417,56 @@ public class PlacementController : MonoBehaviour
             Destroy(go);
 
         _placedVisualById.Remove(id);
+    }
+
+    void OnLayerScroll(InputAction.CallbackContext ctx)
+    {
+        if (!_isPlacing) return;
+        if (Time.time < _nextScrollTime) return;
+
+        Vector2 scroll = ctx.ReadValue<Vector2>();
+
+        // Mouse wheel is usually in Y (up/down)
+        float dy = scroll.y;
+        if (Mathf.Abs(dy) < 0.01f) return;
+
+        // Some mice report +/-120 per notch, some smaller.
+        // Convert to “steps” robustly.
+        int steps = Mathf.RoundToInt(dy / 120f);
+        if (steps == 0) steps = (dy > 0f) ? 1 : -1;
+
+        // Optional: clamp how many layers one event can jump
+        steps = Mathf.Clamp(steps, -3, 3);
+
+        SetLayer(activeLayerY + steps);
+
+        _nextScrollTime = Time.time + scrollLayerCooldown;
+    }
+
+    void UpdateAnchorFromMouse()
+    {
+        Vector2 screen = _player.Point.ReadValue<Vector2>();
+        Ray ray = cam.ScreenPointToRay(screen);
+
+        // Fixed plane (layer 0 / floor) so XZ doesn't change when you change layers
+        float baseYWorld = grid.CellToWorldCenter(new Vector3Int(0, 0, 0)).y;
+        Plane plane = new Plane(Vector3.up, new Vector3(0f, baseYWorld, 0f));
+
+        if (!plane.Raycast(ray, out float enter))
+            return;
+
+        Vector3 hit = ray.GetPoint(enter);
+
+        Vector3Int cell = grid.WorldToCell(hit);
+
+        // Clamp XZ
+        cell.x = Mathf.Clamp(cell.x, 0, grid.size.x - 1);
+        cell.z = Mathf.Clamp(cell.z, 0, grid.size.z - 1);
+
+        // Elevator: only Y changes with layer
+        cell.y = Mathf.Clamp(activeLayerY, 0, grid.size.y - 1);
+
+        _anchorCell = cell;
     }
 
     // --- Ghost ---
