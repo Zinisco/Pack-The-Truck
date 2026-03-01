@@ -43,24 +43,6 @@
                     "initialStateCheck": false
                 },
                 {
-                    "name": "ZoomIn",
-                    "type": "Button",
-                    "id": "93bbdad0-c3be-459c-b1f4-e7a418f07015",
-                    "expectedControlType": "",
-                    "processors": "",
-                    "interactions": "",
-                    "initialStateCheck": false
-                },
-                {
-                    "name": "ZoomOut",
-                    "type": "Button",
-                    "id": "d05ef084-35a1-4270-9109-048963a968f5",
-                    "expectedControlType": "",
-                    "processors": "",
-                    "interactions": "",
-                    "initialStateCheck": false
-                },
-                {
                     "name": "CancelPlacement",
                     "type": "Button",
                     "id": "34a4df28-2919-4041-ade1-764e621c65b1",
@@ -194,6 +176,24 @@
                     "processors": "",
                     "interactions": "",
                     "initialStateCheck": false
+                },
+                {
+                    "name": "RotateYawPlus",
+                    "type": "Button",
+                    "id": "72b99b40-9df4-450b-b6c2-f87ee0a16f54",
+                    "expectedControlType": "",
+                    "processors": "",
+                    "interactions": "",
+                    "initialStateCheck": false
+                },
+                {
+                    "name": "RotateYawMinus",
+                    "type": "Button",
+                    "id": "fee7ad1d-b583-4e20-ae05-85c310dd9780",
+                    "expectedControlType": "",
+                    "processors": "",
+                    "interactions": "",
+                    "initialStateCheck": false
                 }
             ],
             "bindings": [
@@ -254,72 +254,6 @@
                 },
                 {
                     "name": "",
-                    "id": "c6cacec1-989f-44e3-8b61-2f8e97f190b1",
-                    "path": "<Keyboard>/equals",
-                    "interactions": "",
-                    "processors": "",
-                    "groups": ";Keyboard&Mouse",
-                    "action": "ZoomIn",
-                    "isComposite": false,
-                    "isPartOfComposite": false
-                },
-                {
-                    "name": "",
-                    "id": "fca8fc49-cffb-4549-bfc7-651c68164034",
-                    "path": "<Keyboard>/numpadPlus",
-                    "interactions": "",
-                    "processors": "",
-                    "groups": ";Keyboard&Mouse",
-                    "action": "ZoomIn",
-                    "isComposite": false,
-                    "isPartOfComposite": false
-                },
-                {
-                    "name": "",
-                    "id": "ed0d06b3-0812-49f2-8494-0c8cf35a5de0",
-                    "path": "<Gamepad>/rightTrigger",
-                    "interactions": "",
-                    "processors": "",
-                    "groups": ";Gamepad",
-                    "action": "ZoomIn",
-                    "isComposite": false,
-                    "isPartOfComposite": false
-                },
-                {
-                    "name": "",
-                    "id": "7feefd93-aa21-4f3d-8529-d474050a3249",
-                    "path": "<Keyboard>/minus",
-                    "interactions": "",
-                    "processors": "",
-                    "groups": ";Keyboard&Mouse",
-                    "action": "ZoomOut",
-                    "isComposite": false,
-                    "isPartOfComposite": false
-                },
-                {
-                    "name": "",
-                    "id": "bddf7f72-db75-4d8b-b51a-a968f681c0f8",
-                    "path": "<Keyboard>/numpadMinus",
-                    "interactions": "",
-                    "processors": "",
-                    "groups": ";Keyboard&Mouse",
-                    "action": "ZoomOut",
-                    "isComposite": false,
-                    "isPartOfComposite": false
-                },
-                {
-                    "name": "",
-                    "id": "fe976008-7894-42a0-b9d8-640f2242c048",
-                    "path": "<Gamepad>/leftTrigger",
-                    "interactions": "",
-                    "processors": "",
-                    "groups": ";Gamepad",
-                    "action": "ZoomOut",
-                    "isComposite": false,
-                    "isPartOfComposite": false
-                },
-                {
-                    "name": "",
                     "id": "e260e559-7277-46e2-baa5-0e506fa19318",
                     "path": "<Keyboard>/escape",
                     "interactions": "",
@@ -375,6 +309,17 @@
                 },
                 {
                     "name": "",
+                    "id": "5874c66a-5dc1-4e94-9ed8-0c55958bc6ca",
+                    "path": "<Gamepad>/buttonWest",
+                    "interactions": "",
+                    "processors": "",
+                    "groups": ";Gamepad",
+                    "action": "RotateX",
+                    "isComposite": false,
+                    "isPartOfComposite": false
+                },
+                {
+                    "name": "",
                     "id": "559c02a6-aea9-4af4-8309-d989b02117ef",
                     "path": "<Keyboard>/d",
                     "interactions": "",
@@ -386,11 +331,33 @@
                 },
                 {
                     "name": "",
+                    "id": "703257ae-630e-46e2-86b1-d8d7f0f80ec5",
+                    "path": "<Gamepad>/rightTrigger",
+                    "interactions": "",
+                    "processors": "",
+                    "groups": ";Gamepad",
+                    "action": "RotateY",
+                    "isComposite": false,
+                    "isPartOfComposite": false
+                },
+                {
+                    "name": "",
                     "id": "438dbe89-5416-465c-ab55-e26ef78ab25f",
                     "path": "<Keyboard>/a",
                     "interactions": "",
                     "processors": "",
                     "groups": ";Keyboard&Mouse",
+                    "action": "RotateZ",
+                    "isComposite": false,
+                    "isPartOfComposite": false
+                },
+                {
+                    "name": "",
+                    "id": "249f01de-44d4-4d2a-ad2c-b71c1e60856c",
+                    "path": "<Gamepad>/buttonNorth",
+                    "interactions": "",
+                    "processors": "",
+                    "groups": ";Gamepad",
                     "action": "RotateZ",
                     "isComposite": false,
                     "isPartOfComposite": false
@@ -524,6 +491,28 @@
                     "processors": "",
                     "groups": ";Keyboard&Mouse",
                     "action": "CyclePrev",
+                    "isComposite": false,
+                    "isPartOfComposite": false
+                },
+                {
+                    "name": "",
+                    "id": "9d4cc84d-dfed-4b00-92c3-f801cc27978c",
+                    "path": "<Gamepad>/rightTrigger",
+                    "interactions": "",
+                    "processors": "",
+                    "groups": ";Gamepad",
+                    "action": "RotateYawPlus",
+                    "isComposite": false,
+                    "isPartOfComposite": false
+                },
+                {
+                    "name": "",
+                    "id": "36c65cd5-1d63-4e79-815c-1a70b041ed04",
+                    "path": "<Gamepad>/leftTrigger",
+                    "interactions": "",
+                    "processors": "",
+                    "groups": ";Gamepad",
+                    "action": "RotateYawMinus",
                     "isComposite": false,
                     "isPartOfComposite": false
                 }

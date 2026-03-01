@@ -199,6 +199,17 @@ public class PlacementController : MonoBehaviour
         // Rotate (keyboard only)
         HandleRotationInputActions();
 
+        // Snap yaw
+        if (_player.RotateYawPlus.WasPressedThisFrame())
+        {
+            RotateYaw(+90f);
+        }
+
+        if (_player.RotateYawMinus.WasPressedThisFrame())
+        {
+            RotateYaw(-90f);
+        }
+
         // --- VALIDATION ---
         bool computed = ComputeWorldCells(currentDef, _anchorCell, _rot, _tmpWorldCells);
         bool hasSpace = computed && grid.CanPlaceCells(_tmpWorldCells);
@@ -267,6 +278,13 @@ public class PlacementController : MonoBehaviour
         Cycle(+1);
     }
 
+    void RotateYaw(float delta)
+    {
+        // Yaw in *grid-local* space (same space as _rot)
+        _rot = Quaternion.AngleAxis(delta, Vector3.up) * _rot;
+        _rot = Normalize(_rot);
+    }
+
     static void SetLayerRecursive(GameObject go, int layer)
     {
         go.layer = layer;
@@ -307,19 +325,18 @@ public class PlacementController : MonoBehaviour
 
     void HandleRotationInputActions()
     {
-        // Only rotate while placing
         if (!_isPlacing || currentDef == null) return;
 
-        // Modifier held? (Shift in your bindings)
-        bool negative = _player.RotationModifier.IsPressed();
+        bool usingGamepad = (InputHub.Instance != null && InputHub.Instance.ActiveScheme == ControlSchemeMode.Gamepad);
 
+        bool negative = _player.RotationModifier.IsPressed();
         float degrees = negative ? -90f : 90f;
 
-        // Use InputActions instead of Keyboard.current.xKey, etc.
         if (_player.RotateX.WasPressedThisFrame())
             RotateLocal(Vector3.right, degrees);
 
-        if (_player.RotateY.WasPressedThisFrame())
+        // Only allow RotateY from keyboard/mouse scheme
+        if (!usingGamepad && _player.RotateY.WasPressedThisFrame())
             RotateLocal(Vector3.up, degrees);
 
         if (_player.RotateZ.WasPressedThisFrame())
@@ -400,6 +417,7 @@ public class PlacementController : MonoBehaviour
 
         // mimic your TryPickupFromScene body, but using pickup = _selected
         var pickup = _selected;
+        SnapAnchorToPickup(pickup);
 
         _holdingExistingPlaced = (pickup.placedId != 0);
 
@@ -505,6 +523,8 @@ public class PlacementController : MonoBehaviour
         }
 
         _heldPickup = pickup;
+
+        SnapAnchorToPickup(pickup);
 
         _rot = Quaternion.Inverse(grid.origin.rotation) * _heldPickup.transform.rotation;
 
@@ -837,6 +857,24 @@ public class PlacementController : MonoBehaviour
 
         sfxSource.pitch = p;
         sfxSource.PlayOneShot(clip, vol);
+    }
+
+    void SnapAnchorToPickup(PickupPiece pickup)
+    {
+        Vector3 worldPoint = pickup.transform.position;
+        if (TryGetRendererBounds(pickup.gameObject, out var b))
+            worldPoint = b.center;
+
+        Vector3Int cell = grid.WorldToCell(worldPoint);
+
+        // Clamp XZ only
+        cell.x = Mathf.Clamp(cell.x, 0, grid.size.x - 1);
+        cell.z = Mathf.Clamp(cell.z, 0, grid.size.z - 1);
+
+        // KEEP current layer
+        cell.y = Mathf.Clamp(activeLayerY, 0, grid.size.y - 1);
+
+        _anchorCell = cell;
     }
 
     IEnumerator PopScale(GameObject go)

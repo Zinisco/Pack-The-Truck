@@ -15,33 +15,22 @@ public class OrbitCamera : MonoBehaviour
     public float pitchMin = -80f;
     public float pitchMax = 80f;
 
-    [Tooltip("Mouse delta orbit speed (your old orbitSpeed)")]
+    [Tooltip("Mouse delta orbit speed")]
     public float mouseOrbitSpeed = 0.12f;
 
     [Tooltip("Right stick orbit speed")]
-    public float stickOrbitSpeed = 120f; // degrees/sec-ish feel, tweak
+    public float stickOrbitSpeed = 120f;
 
     public float rotateSmooth = 12f;
 
-    [Header("Zoom (distance)")]
+    [Header("Distance (static for now)")]
     public float distance = 7f;
-    public float minDistance = 4f;
-    public float maxDistance = 22f;
-
-    [Header("Button Zoom")]
-    public float zoomStep = 1.2f;
-    public float zoomRepeatDelay = 0.06f;
-    public float zoomSmoothTime = 0.12f;
 
     InputSystem_Actions _input;
     InputSystem_Actions.PlayerActions _player;
 
     float _targetYaw;
     float _targetPitch;
-
-    float _targetDistance;
-    float _zoomVel;
-    float _nextZoomTime;
 
     void Start()
     {
@@ -52,9 +41,6 @@ public class OrbitCamera : MonoBehaviour
 
         _targetYaw = yaw;
         _targetPitch = Mathf.Clamp(pitch, pitchMin, pitchMax);
-
-        distance = Mathf.Clamp(distance, minDistance, maxDistance);
-        _targetDistance = distance;
 
         if (orbitCam) orbitCam.orthographic = false;
     }
@@ -88,24 +74,9 @@ public class OrbitCamera : MonoBehaviour
 
         _targetPitch = Mathf.Clamp(_targetPitch, pitchMin, pitchMax);
 
-        // --- ZOOM (buttons) ---
-        if (Time.unscaledTime >= _nextZoomTime)
-        {
-            bool zin = _player.ZoomIn.IsPressed() || _player.ZoomIn.WasPressedThisFrame();
-            bool zout = _player.ZoomOut.IsPressed() || _player.ZoomOut.WasPressedThisFrame();
-
-            if (zin || zout)
-            {
-                float dir = zin ? -1f : 1f;
-                _targetDistance = Mathf.Clamp(_targetDistance + dir * zoomStep, minDistance, maxDistance);
-                _nextZoomTime = Time.unscaledTime + zoomRepeatDelay;
-            }
-        }
-
-        // Smooth orbit + zoom
+        // Smooth orbit
         yaw = Mathf.LerpAngle(yaw, _targetYaw, Time.deltaTime * rotateSmooth);
         pitch = Mathf.Lerp(pitch, _targetPitch, Time.deltaTime * rotateSmooth);
-        distance = Mathf.SmoothDamp(distance, _targetDistance, ref _zoomVel, zoomSmoothTime);
 
         // Apply
         pivot.position = basePivot;

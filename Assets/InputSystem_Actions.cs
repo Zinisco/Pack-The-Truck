@@ -129,24 +129,6 @@ public partial class @InputSystem_Actions: IInputActionCollection2, IDisposable
                     ""initialStateCheck"": false
                 },
                 {
-                    ""name"": ""ZoomIn"",
-                    ""type"": ""Button"",
-                    ""id"": ""93bbdad0-c3be-459c-b1f4-e7a418f07015"",
-                    ""expectedControlType"": """",
-                    ""processors"": """",
-                    ""interactions"": """",
-                    ""initialStateCheck"": false
-                },
-                {
-                    ""name"": ""ZoomOut"",
-                    ""type"": ""Button"",
-                    ""id"": ""d05ef084-35a1-4270-9109-048963a968f5"",
-                    ""expectedControlType"": """",
-                    ""processors"": """",
-                    ""interactions"": """",
-                    ""initialStateCheck"": false
-                },
-                {
                     ""name"": ""CancelPlacement"",
                     ""type"": ""Button"",
                     ""id"": ""34a4df28-2919-4041-ade1-764e621c65b1"",
@@ -280,6 +262,24 @@ public partial class @InputSystem_Actions: IInputActionCollection2, IDisposable
                     ""processors"": """",
                     ""interactions"": """",
                     ""initialStateCheck"": false
+                },
+                {
+                    ""name"": ""RotateYawPlus"",
+                    ""type"": ""Button"",
+                    ""id"": ""72b99b40-9df4-450b-b6c2-f87ee0a16f54"",
+                    ""expectedControlType"": """",
+                    ""processors"": """",
+                    ""interactions"": """",
+                    ""initialStateCheck"": false
+                },
+                {
+                    ""name"": ""RotateYawMinus"",
+                    ""type"": ""Button"",
+                    ""id"": ""fee7ad1d-b583-4e20-ae05-85c310dd9780"",
+                    ""expectedControlType"": """",
+                    ""processors"": """",
+                    ""interactions"": """",
+                    ""initialStateCheck"": false
                 }
             ],
             ""bindings"": [
@@ -340,72 +340,6 @@ public partial class @InputSystem_Actions: IInputActionCollection2, IDisposable
                 },
                 {
                     ""name"": """",
-                    ""id"": ""c6cacec1-989f-44e3-8b61-2f8e97f190b1"",
-                    ""path"": ""<Keyboard>/equals"",
-                    ""interactions"": """",
-                    ""processors"": """",
-                    ""groups"": "";Keyboard&Mouse"",
-                    ""action"": ""ZoomIn"",
-                    ""isComposite"": false,
-                    ""isPartOfComposite"": false
-                },
-                {
-                    ""name"": """",
-                    ""id"": ""fca8fc49-cffb-4549-bfc7-651c68164034"",
-                    ""path"": ""<Keyboard>/numpadPlus"",
-                    ""interactions"": """",
-                    ""processors"": """",
-                    ""groups"": "";Keyboard&Mouse"",
-                    ""action"": ""ZoomIn"",
-                    ""isComposite"": false,
-                    ""isPartOfComposite"": false
-                },
-                {
-                    ""name"": """",
-                    ""id"": ""ed0d06b3-0812-49f2-8494-0c8cf35a5de0"",
-                    ""path"": ""<Gamepad>/rightTrigger"",
-                    ""interactions"": """",
-                    ""processors"": """",
-                    ""groups"": "";Gamepad"",
-                    ""action"": ""ZoomIn"",
-                    ""isComposite"": false,
-                    ""isPartOfComposite"": false
-                },
-                {
-                    ""name"": """",
-                    ""id"": ""7feefd93-aa21-4f3d-8529-d474050a3249"",
-                    ""path"": ""<Keyboard>/minus"",
-                    ""interactions"": """",
-                    ""processors"": """",
-                    ""groups"": "";Keyboard&Mouse"",
-                    ""action"": ""ZoomOut"",
-                    ""isComposite"": false,
-                    ""isPartOfComposite"": false
-                },
-                {
-                    ""name"": """",
-                    ""id"": ""bddf7f72-db75-4d8b-b51a-a968f681c0f8"",
-                    ""path"": ""<Keyboard>/numpadMinus"",
-                    ""interactions"": """",
-                    ""processors"": """",
-                    ""groups"": "";Keyboard&Mouse"",
-                    ""action"": ""ZoomOut"",
-                    ""isComposite"": false,
-                    ""isPartOfComposite"": false
-                },
-                {
-                    ""name"": """",
-                    ""id"": ""fe976008-7894-42a0-b9d8-640f2242c048"",
-                    ""path"": ""<Gamepad>/leftTrigger"",
-                    ""interactions"": """",
-                    ""processors"": """",
-                    ""groups"": "";Gamepad"",
-                    ""action"": ""ZoomOut"",
-                    ""isComposite"": false,
-                    ""isPartOfComposite"": false
-                },
-                {
-                    ""name"": """",
                     ""id"": ""e260e559-7277-46e2-baa5-0e506fa19318"",
                     ""path"": ""<Keyboard>/escape"",
                     ""interactions"": """",
@@ -461,6 +395,17 @@ public partial class @InputSystem_Actions: IInputActionCollection2, IDisposable
                 },
                 {
                     ""name"": """",
+                    ""id"": ""5874c66a-5dc1-4e94-9ed8-0c55958bc6ca"",
+                    ""path"": ""<Gamepad>/buttonWest"",
+                    ""interactions"": """",
+                    ""processors"": """",
+                    ""groups"": "";Gamepad"",
+                    ""action"": ""RotateX"",
+                    ""isComposite"": false,
+                    ""isPartOfComposite"": false
+                },
+                {
+                    ""name"": """",
                     ""id"": ""559c02a6-aea9-4af4-8309-d989b02117ef"",
                     ""path"": ""<Keyboard>/d"",
                     ""interactions"": """",
@@ -472,11 +417,33 @@ public partial class @InputSystem_Actions: IInputActionCollection2, IDisposable
                 },
                 {
                     ""name"": """",
+                    ""id"": ""703257ae-630e-46e2-86b1-d8d7f0f80ec5"",
+                    ""path"": ""<Gamepad>/rightTrigger"",
+                    ""interactions"": """",
+                    ""processors"": """",
+                    ""groups"": "";Gamepad"",
+                    ""action"": ""RotateY"",
+                    ""isComposite"": false,
+                    ""isPartOfComposite"": false
+                },
+                {
+                    ""name"": """",
                     ""id"": ""438dbe89-5416-465c-ab55-e26ef78ab25f"",
                     ""path"": ""<Keyboard>/a"",
                     ""interactions"": """",
                     ""processors"": """",
                     ""groups"": "";Keyboard&Mouse"",
+                    ""action"": ""RotateZ"",
+                    ""isComposite"": false,
+                    ""isPartOfComposite"": false
+                },
+                {
+                    ""name"": """",
+                    ""id"": ""249f01de-44d4-4d2a-ad2c-b71c1e60856c"",
+                    ""path"": ""<Gamepad>/buttonNorth"",
+                    ""interactions"": """",
+                    ""processors"": """",
+                    ""groups"": "";Gamepad"",
                     ""action"": ""RotateZ"",
                     ""isComposite"": false,
                     ""isPartOfComposite"": false
@@ -610,6 +577,28 @@ public partial class @InputSystem_Actions: IInputActionCollection2, IDisposable
                     ""processors"": """",
                     ""groups"": "";Keyboard&Mouse"",
                     ""action"": ""CyclePrev"",
+                    ""isComposite"": false,
+                    ""isPartOfComposite"": false
+                },
+                {
+                    ""name"": """",
+                    ""id"": ""9d4cc84d-dfed-4b00-92c3-f801cc27978c"",
+                    ""path"": ""<Gamepad>/rightTrigger"",
+                    ""interactions"": """",
+                    ""processors"": """",
+                    ""groups"": "";Gamepad"",
+                    ""action"": ""RotateYawPlus"",
+                    ""isComposite"": false,
+                    ""isPartOfComposite"": false
+                },
+                {
+                    ""name"": """",
+                    ""id"": ""36c65cd5-1d63-4e79-815c-1a70b041ed04"",
+                    ""path"": ""<Gamepad>/leftTrigger"",
+                    ""interactions"": """",
+                    ""processors"": """",
+                    ""groups"": "";Gamepad"",
+                    ""action"": ""RotateYawMinus"",
                     ""isComposite"": false,
                     ""isPartOfComposite"": false
                 }
@@ -1201,8 +1190,6 @@ public partial class @InputSystem_Actions: IInputActionCollection2, IDisposable
         m_Player_Click = m_Player.FindAction("Click", throwIfNotFound: true);
         m_Player_OrbitDelta = m_Player.FindAction("OrbitDelta", throwIfNotFound: true);
         m_Player_OrbitHold = m_Player.FindAction("OrbitHold", throwIfNotFound: true);
-        m_Player_ZoomIn = m_Player.FindAction("ZoomIn", throwIfNotFound: true);
-        m_Player_ZoomOut = m_Player.FindAction("ZoomOut", throwIfNotFound: true);
         m_Player_CancelPlacement = m_Player.FindAction("CancelPlacement", throwIfNotFound: true);
         m_Player_PanHold = m_Player.FindAction("PanHold", throwIfNotFound: true);
         m_Player_PanDelta = m_Player.FindAction("PanDelta", throwIfNotFound: true);
@@ -1218,6 +1205,8 @@ public partial class @InputSystem_Actions: IInputActionCollection2, IDisposable
         m_Player_PieceMove = m_Player.FindAction("PieceMove", throwIfNotFound: true);
         m_Player_CycleNext = m_Player.FindAction("CycleNext", throwIfNotFound: true);
         m_Player_CyclePrev = m_Player.FindAction("CyclePrev", throwIfNotFound: true);
+        m_Player_RotateYawPlus = m_Player.FindAction("RotateYawPlus", throwIfNotFound: true);
+        m_Player_RotateYawMinus = m_Player.FindAction("RotateYawMinus", throwIfNotFound: true);
         // UI
         m_UI = asset.FindActionMap("UI", throwIfNotFound: true);
         m_UI_Navigate = m_UI.FindAction("Navigate", throwIfNotFound: true);
@@ -1315,8 +1304,6 @@ public partial class @InputSystem_Actions: IInputActionCollection2, IDisposable
     private readonly InputAction m_Player_Click;
     private readonly InputAction m_Player_OrbitDelta;
     private readonly InputAction m_Player_OrbitHold;
-    private readonly InputAction m_Player_ZoomIn;
-    private readonly InputAction m_Player_ZoomOut;
     private readonly InputAction m_Player_CancelPlacement;
     private readonly InputAction m_Player_PanHold;
     private readonly InputAction m_Player_PanDelta;
@@ -1332,6 +1319,8 @@ public partial class @InputSystem_Actions: IInputActionCollection2, IDisposable
     private readonly InputAction m_Player_PieceMove;
     private readonly InputAction m_Player_CycleNext;
     private readonly InputAction m_Player_CyclePrev;
+    private readonly InputAction m_Player_RotateYawPlus;
+    private readonly InputAction m_Player_RotateYawMinus;
     /// <summary>
     /// Provides access to input actions defined in input action map "Player".
     /// </summary>
@@ -1359,14 +1348,6 @@ public partial class @InputSystem_Actions: IInputActionCollection2, IDisposable
         /// Provides access to the underlying input action "Player/OrbitHold".
         /// </summary>
         public InputAction @OrbitHold => m_Wrapper.m_Player_OrbitHold;
-        /// <summary>
-        /// Provides access to the underlying input action "Player/ZoomIn".
-        /// </summary>
-        public InputAction @ZoomIn => m_Wrapper.m_Player_ZoomIn;
-        /// <summary>
-        /// Provides access to the underlying input action "Player/ZoomOut".
-        /// </summary>
-        public InputAction @ZoomOut => m_Wrapper.m_Player_ZoomOut;
         /// <summary>
         /// Provides access to the underlying input action "Player/CancelPlacement".
         /// </summary>
@@ -1428,6 +1409,14 @@ public partial class @InputSystem_Actions: IInputActionCollection2, IDisposable
         /// </summary>
         public InputAction @CyclePrev => m_Wrapper.m_Player_CyclePrev;
         /// <summary>
+        /// Provides access to the underlying input action "Player/RotateYawPlus".
+        /// </summary>
+        public InputAction @RotateYawPlus => m_Wrapper.m_Player_RotateYawPlus;
+        /// <summary>
+        /// Provides access to the underlying input action "Player/RotateYawMinus".
+        /// </summary>
+        public InputAction @RotateYawMinus => m_Wrapper.m_Player_RotateYawMinus;
+        /// <summary>
         /// Provides access to the underlying input action map instance.
         /// </summary>
         public InputActionMap Get() { return m_Wrapper.m_Player; }
@@ -1465,12 +1454,6 @@ public partial class @InputSystem_Actions: IInputActionCollection2, IDisposable
             @OrbitHold.started += instance.OnOrbitHold;
             @OrbitHold.performed += instance.OnOrbitHold;
             @OrbitHold.canceled += instance.OnOrbitHold;
-            @ZoomIn.started += instance.OnZoomIn;
-            @ZoomIn.performed += instance.OnZoomIn;
-            @ZoomIn.canceled += instance.OnZoomIn;
-            @ZoomOut.started += instance.OnZoomOut;
-            @ZoomOut.performed += instance.OnZoomOut;
-            @ZoomOut.canceled += instance.OnZoomOut;
             @CancelPlacement.started += instance.OnCancelPlacement;
             @CancelPlacement.performed += instance.OnCancelPlacement;
             @CancelPlacement.canceled += instance.OnCancelPlacement;
@@ -1516,6 +1499,12 @@ public partial class @InputSystem_Actions: IInputActionCollection2, IDisposable
             @CyclePrev.started += instance.OnCyclePrev;
             @CyclePrev.performed += instance.OnCyclePrev;
             @CyclePrev.canceled += instance.OnCyclePrev;
+            @RotateYawPlus.started += instance.OnRotateYawPlus;
+            @RotateYawPlus.performed += instance.OnRotateYawPlus;
+            @RotateYawPlus.canceled += instance.OnRotateYawPlus;
+            @RotateYawMinus.started += instance.OnRotateYawMinus;
+            @RotateYawMinus.performed += instance.OnRotateYawMinus;
+            @RotateYawMinus.canceled += instance.OnRotateYawMinus;
         }
 
         /// <summary>
@@ -1539,12 +1528,6 @@ public partial class @InputSystem_Actions: IInputActionCollection2, IDisposable
             @OrbitHold.started -= instance.OnOrbitHold;
             @OrbitHold.performed -= instance.OnOrbitHold;
             @OrbitHold.canceled -= instance.OnOrbitHold;
-            @ZoomIn.started -= instance.OnZoomIn;
-            @ZoomIn.performed -= instance.OnZoomIn;
-            @ZoomIn.canceled -= instance.OnZoomIn;
-            @ZoomOut.started -= instance.OnZoomOut;
-            @ZoomOut.performed -= instance.OnZoomOut;
-            @ZoomOut.canceled -= instance.OnZoomOut;
             @CancelPlacement.started -= instance.OnCancelPlacement;
             @CancelPlacement.performed -= instance.OnCancelPlacement;
             @CancelPlacement.canceled -= instance.OnCancelPlacement;
@@ -1590,6 +1573,12 @@ public partial class @InputSystem_Actions: IInputActionCollection2, IDisposable
             @CyclePrev.started -= instance.OnCyclePrev;
             @CyclePrev.performed -= instance.OnCyclePrev;
             @CyclePrev.canceled -= instance.OnCyclePrev;
+            @RotateYawPlus.started -= instance.OnRotateYawPlus;
+            @RotateYawPlus.performed -= instance.OnRotateYawPlus;
+            @RotateYawPlus.canceled -= instance.OnRotateYawPlus;
+            @RotateYawMinus.started -= instance.OnRotateYawMinus;
+            @RotateYawMinus.performed -= instance.OnRotateYawMinus;
+            @RotateYawMinus.canceled -= instance.OnRotateYawMinus;
         }
 
         /// <summary>
@@ -1919,20 +1908,6 @@ public partial class @InputSystem_Actions: IInputActionCollection2, IDisposable
         /// <seealso cref="UnityEngine.InputSystem.InputAction.canceled" />
         void OnOrbitHold(InputAction.CallbackContext context);
         /// <summary>
-        /// Method invoked when associated input action "ZoomIn" is either <see cref="UnityEngine.InputSystem.InputAction.started" />, <see cref="UnityEngine.InputSystem.InputAction.performed" /> or <see cref="UnityEngine.InputSystem.InputAction.canceled" />.
-        /// </summary>
-        /// <seealso cref="UnityEngine.InputSystem.InputAction.started" />
-        /// <seealso cref="UnityEngine.InputSystem.InputAction.performed" />
-        /// <seealso cref="UnityEngine.InputSystem.InputAction.canceled" />
-        void OnZoomIn(InputAction.CallbackContext context);
-        /// <summary>
-        /// Method invoked when associated input action "ZoomOut" is either <see cref="UnityEngine.InputSystem.InputAction.started" />, <see cref="UnityEngine.InputSystem.InputAction.performed" /> or <see cref="UnityEngine.InputSystem.InputAction.canceled" />.
-        /// </summary>
-        /// <seealso cref="UnityEngine.InputSystem.InputAction.started" />
-        /// <seealso cref="UnityEngine.InputSystem.InputAction.performed" />
-        /// <seealso cref="UnityEngine.InputSystem.InputAction.canceled" />
-        void OnZoomOut(InputAction.CallbackContext context);
-        /// <summary>
         /// Method invoked when associated input action "CancelPlacement" is either <see cref="UnityEngine.InputSystem.InputAction.started" />, <see cref="UnityEngine.InputSystem.InputAction.performed" /> or <see cref="UnityEngine.InputSystem.InputAction.canceled" />.
         /// </summary>
         /// <seealso cref="UnityEngine.InputSystem.InputAction.started" />
@@ -2037,6 +2012,20 @@ public partial class @InputSystem_Actions: IInputActionCollection2, IDisposable
         /// <seealso cref="UnityEngine.InputSystem.InputAction.performed" />
         /// <seealso cref="UnityEngine.InputSystem.InputAction.canceled" />
         void OnCyclePrev(InputAction.CallbackContext context);
+        /// <summary>
+        /// Method invoked when associated input action "RotateYawPlus" is either <see cref="UnityEngine.InputSystem.InputAction.started" />, <see cref="UnityEngine.InputSystem.InputAction.performed" /> or <see cref="UnityEngine.InputSystem.InputAction.canceled" />.
+        /// </summary>
+        /// <seealso cref="UnityEngine.InputSystem.InputAction.started" />
+        /// <seealso cref="UnityEngine.InputSystem.InputAction.performed" />
+        /// <seealso cref="UnityEngine.InputSystem.InputAction.canceled" />
+        void OnRotateYawPlus(InputAction.CallbackContext context);
+        /// <summary>
+        /// Method invoked when associated input action "RotateYawMinus" is either <see cref="UnityEngine.InputSystem.InputAction.started" />, <see cref="UnityEngine.InputSystem.InputAction.performed" /> or <see cref="UnityEngine.InputSystem.InputAction.canceled" />.
+        /// </summary>
+        /// <seealso cref="UnityEngine.InputSystem.InputAction.started" />
+        /// <seealso cref="UnityEngine.InputSystem.InputAction.performed" />
+        /// <seealso cref="UnityEngine.InputSystem.InputAction.canceled" />
+        void OnRotateYawMinus(InputAction.CallbackContext context);
     }
     /// <summary>
     /// Interface to implement callback methods for all input action callbacks associated with input actions defined by "UI" which allows adding and removing callbacks.
