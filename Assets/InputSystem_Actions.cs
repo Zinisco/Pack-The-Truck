@@ -111,15 +111,6 @@ public partial class @InputSystem_Actions: IInputActionCollection2, IDisposable
                     ""initialStateCheck"": false
                 },
                 {
-                    ""name"": ""Undo"",
-                    ""type"": ""Button"",
-                    ""id"": ""ded1e48a-48da-48ae-81c7-a477d334a607"",
-                    ""expectedControlType"": """",
-                    ""processors"": """",
-                    ""interactions"": """",
-                    ""initialStateCheck"": false
-                },
-                {
                     ""name"": ""OrbitDelta"",
                     ""type"": ""Value"",
                     ""id"": ""98c484ea-e655-4c42-875b-7e484ac4ec87"",
@@ -253,6 +244,42 @@ public partial class @InputSystem_Actions: IInputActionCollection2, IDisposable
                     ""processors"": """",
                     ""interactions"": """",
                     ""initialStateCheck"": false
+                },
+                {
+                    ""name"": ""OrbitStick"",
+                    ""type"": ""PassThrough"",
+                    ""id"": ""b93a5328-0335-427b-bf37-17c985cdc52f"",
+                    ""expectedControlType"": ""Vector2"",
+                    ""processors"": """",
+                    ""interactions"": """",
+                    ""initialStateCheck"": false
+                },
+                {
+                    ""name"": ""PieceMove"",
+                    ""type"": ""Value"",
+                    ""id"": ""f2f3b636-7e35-4f3c-8524-df5c2f6584e4"",
+                    ""expectedControlType"": ""Vector2"",
+                    ""processors"": """",
+                    ""interactions"": """",
+                    ""initialStateCheck"": true
+                },
+                {
+                    ""name"": ""CycleNext"",
+                    ""type"": ""Button"",
+                    ""id"": ""af1f2429-ec13-4f4d-a7cb-a119a933f4f2"",
+                    ""expectedControlType"": """",
+                    ""processors"": """",
+                    ""interactions"": """",
+                    ""initialStateCheck"": false
+                },
+                {
+                    ""name"": ""CyclePrev"",
+                    ""type"": ""Button"",
+                    ""id"": ""72eba026-c176-4510-83c7-e81576c260bf"",
+                    ""expectedControlType"": """",
+                    ""processors"": """",
+                    ""interactions"": """",
+                    ""initialStateCheck"": false
                 }
             ],
             ""bindings"": [
@@ -280,23 +307,12 @@ public partial class @InputSystem_Actions: IInputActionCollection2, IDisposable
                 },
                 {
                     ""name"": """",
-                    ""id"": ""6dc7335c-f6b6-42a2-980f-e58ed8638652"",
-                    ""path"": ""<Keyboard>/backspace"",
+                    ""id"": ""301a336c-e8ca-4ffc-a0f4-b4f854242216"",
+                    ""path"": ""<Gamepad>/buttonSouth"",
                     ""interactions"": """",
                     ""processors"": """",
-                    ""groups"": "";Keyboard&Mouse"",
-                    ""action"": ""Undo"",
-                    ""isComposite"": false,
-                    ""isPartOfComposite"": false
-                },
-                {
-                    ""name"": """",
-                    ""id"": ""bb54af49-17dd-42ad-897a-bda448137d9e"",
-                    ""path"": ""<Keyboard>/u"",
-                    ""interactions"": """",
-                    ""processors"": """",
-                    ""groups"": """",
-                    ""action"": ""Undo"",
+                    ""groups"": "";Gamepad"",
+                    ""action"": ""Click"",
                     ""isComposite"": false,
                     ""isPartOfComposite"": false
                 },
@@ -346,6 +362,17 @@ public partial class @InputSystem_Actions: IInputActionCollection2, IDisposable
                 },
                 {
                     ""name"": """",
+                    ""id"": ""ed0d06b3-0812-49f2-8494-0c8cf35a5de0"",
+                    ""path"": ""<Gamepad>/rightTrigger"",
+                    ""interactions"": """",
+                    ""processors"": """",
+                    ""groups"": "";Gamepad"",
+                    ""action"": ""ZoomIn"",
+                    ""isComposite"": false,
+                    ""isPartOfComposite"": false
+                },
+                {
+                    ""name"": """",
                     ""id"": ""7feefd93-aa21-4f3d-8529-d474050a3249"",
                     ""path"": ""<Keyboard>/minus"",
                     ""interactions"": """",
@@ -368,11 +395,33 @@ public partial class @InputSystem_Actions: IInputActionCollection2, IDisposable
                 },
                 {
                     ""name"": """",
+                    ""id"": ""fe976008-7894-42a0-b9d8-640f2242c048"",
+                    ""path"": ""<Gamepad>/leftTrigger"",
+                    ""interactions"": """",
+                    ""processors"": """",
+                    ""groups"": "";Gamepad"",
+                    ""action"": ""ZoomOut"",
+                    ""isComposite"": false,
+                    ""isPartOfComposite"": false
+                },
+                {
+                    ""name"": """",
                     ""id"": ""e260e559-7277-46e2-baa5-0e506fa19318"",
                     ""path"": ""<Keyboard>/escape"",
                     ""interactions"": """",
                     ""processors"": """",
                     ""groups"": "";Keyboard&Mouse"",
+                    ""action"": ""CancelPlacement"",
+                    ""isComposite"": false,
+                    ""isPartOfComposite"": false
+                },
+                {
+                    ""name"": """",
+                    ""id"": ""4cd72f1e-2ab1-4963-b27b-af9385108cd7"",
+                    ""path"": ""<Gamepad>/buttonEast"",
+                    ""interactions"": """",
+                    ""processors"": """",
+                    ""groups"": "";Gamepad"",
                     ""action"": ""CancelPlacement"",
                     ""isComposite"": false,
                     ""isPartOfComposite"": false
@@ -402,7 +451,7 @@ public partial class @InputSystem_Actions: IInputActionCollection2, IDisposable
                 {
                     ""name"": """",
                     ""id"": ""dffdeb5d-6ded-4fcb-8586-470983b5dc00"",
-                    ""path"": ""<Keyboard>/x"",
+                    ""path"": ""<Keyboard>/s"",
                     ""interactions"": """",
                     ""processors"": """",
                     ""groups"": "";Keyboard&Mouse"",
@@ -413,7 +462,7 @@ public partial class @InputSystem_Actions: IInputActionCollection2, IDisposable
                 {
                     ""name"": """",
                     ""id"": ""559c02a6-aea9-4af4-8309-d989b02117ef"",
-                    ""path"": ""<Keyboard>/c"",
+                    ""path"": ""<Keyboard>/d"",
                     ""interactions"": """",
                     ""processors"": """",
                     ""groups"": "";Keyboard&Mouse"",
@@ -424,7 +473,7 @@ public partial class @InputSystem_Actions: IInputActionCollection2, IDisposable
                 {
                     ""name"": """",
                     ""id"": ""438dbe89-5416-465c-ab55-e26ef78ab25f"",
-                    ""path"": ""<Keyboard>/z"",
+                    ""path"": ""<Keyboard>/a"",
                     ""interactions"": """",
                     ""processors"": """",
                     ""groups"": "";Keyboard&Mouse"",
@@ -456,17 +505,6 @@ public partial class @InputSystem_Actions: IInputActionCollection2, IDisposable
                 },
                 {
                     ""name"": """",
-                    ""id"": ""55a733a0-35e8-460b-b723-91d4caa3296c"",
-                    ""path"": ""<Mouse>/leftButton"",
-                    ""interactions"": """",
-                    ""processors"": """",
-                    ""groups"": "";Keyboard&Mouse"",
-                    ""action"": ""ConfirmPlacement"",
-                    ""isComposite"": false,
-                    ""isPartOfComposite"": false
-                },
-                {
-                    ""name"": """",
                     ""id"": ""58c7f940-6ed1-4715-b3bb-db3bff3c1670"",
                     ""path"": ""<Keyboard>/space"",
                     ""interactions"": """",
@@ -484,6 +522,94 @@ public partial class @InputSystem_Actions: IInputActionCollection2, IDisposable
                     ""processors"": """",
                     ""groups"": "";Keyboard&Mouse"",
                     ""action"": ""LayerScroll"",
+                    ""isComposite"": false,
+                    ""isPartOfComposite"": false
+                },
+                {
+                    ""name"": """",
+                    ""id"": ""ecd712d2-01b5-47e5-b942-cd1504b0a843"",
+                    ""path"": ""<Gamepad>/leftStick/up"",
+                    ""interactions"": """",
+                    ""processors"": """",
+                    ""groups"": """",
+                    ""action"": ""LayerUp"",
+                    ""isComposite"": false,
+                    ""isPartOfComposite"": false
+                },
+                {
+                    ""name"": """",
+                    ""id"": ""43da5ebf-bf23-4976-b718-54fab2ae9cc3"",
+                    ""path"": ""<Gamepad>/leftStick/down"",
+                    ""interactions"": """",
+                    ""processors"": """",
+                    ""groups"": """",
+                    ""action"": ""LayerDown"",
+                    ""isComposite"": false,
+                    ""isPartOfComposite"": false
+                },
+                {
+                    ""name"": """",
+                    ""id"": ""67edd93a-e816-4eda-84de-2b920cadf85c"",
+                    ""path"": ""<Gamepad>/rightStick"",
+                    ""interactions"": """",
+                    ""processors"": """",
+                    ""groups"": "";Gamepad"",
+                    ""action"": ""OrbitStick"",
+                    ""isComposite"": false,
+                    ""isPartOfComposite"": false
+                },
+                {
+                    ""name"": """",
+                    ""id"": ""bc1cad8b-a0ad-48e1-9aff-c5d71b8ab2fe"",
+                    ""path"": ""<Gamepad>/dpad"",
+                    ""interactions"": """",
+                    ""processors"": """",
+                    ""groups"": "";Gamepad"",
+                    ""action"": ""PieceMove"",
+                    ""isComposite"": false,
+                    ""isPartOfComposite"": false
+                },
+                {
+                    ""name"": """",
+                    ""id"": ""587432e2-090a-4a3e-80a8-fa352368d858"",
+                    ""path"": ""<Gamepad>/leftShoulder"",
+                    ""interactions"": """",
+                    ""processors"": """",
+                    ""groups"": "";Gamepad"",
+                    ""action"": ""CycleNext"",
+                    ""isComposite"": false,
+                    ""isPartOfComposite"": false
+                },
+                {
+                    ""name"": """",
+                    ""id"": ""f8798fc4-c6c8-4765-9ecf-47397cae275b"",
+                    ""path"": ""<Keyboard>/q"",
+                    ""interactions"": """",
+                    ""processors"": """",
+                    ""groups"": "";Keyboard&Mouse"",
+                    ""action"": ""CycleNext"",
+                    ""isComposite"": false,
+                    ""isPartOfComposite"": false
+                },
+                {
+                    ""name"": """",
+                    ""id"": ""45a0affc-8bc9-41cc-b93d-3fedd6cce047"",
+                    ""path"": ""<Gamepad>/rightShoulder"",
+                    ""interactions"": """",
+                    ""processors"": """",
+                    ""groups"": "";Gamepad"",
+                    ""action"": ""CyclePrev"",
+                    ""isComposite"": false,
+                    ""isPartOfComposite"": false
+                },
+                {
+                    ""name"": """",
+                    ""id"": ""764860d4-d5e0-46af-abee-f30e2a4087bd"",
+                    ""path"": ""<Keyboard>/e"",
+                    ""interactions"": """",
+                    ""processors"": """",
+                    ""groups"": "";Keyboard&Mouse"",
+                    ""action"": ""CyclePrev"",
                     ""isComposite"": false,
                     ""isPartOfComposite"": false
                 }
@@ -1073,7 +1199,6 @@ public partial class @InputSystem_Actions: IInputActionCollection2, IDisposable
         m_Player = asset.FindActionMap("Player", throwIfNotFound: true);
         m_Player_Point = m_Player.FindAction("Point", throwIfNotFound: true);
         m_Player_Click = m_Player.FindAction("Click", throwIfNotFound: true);
-        m_Player_Undo = m_Player.FindAction("Undo", throwIfNotFound: true);
         m_Player_OrbitDelta = m_Player.FindAction("OrbitDelta", throwIfNotFound: true);
         m_Player_OrbitHold = m_Player.FindAction("OrbitHold", throwIfNotFound: true);
         m_Player_ZoomIn = m_Player.FindAction("ZoomIn", throwIfNotFound: true);
@@ -1089,6 +1214,10 @@ public partial class @InputSystem_Actions: IInputActionCollection2, IDisposable
         m_Player_LayerUp = m_Player.FindAction("LayerUp", throwIfNotFound: true);
         m_Player_LayerDown = m_Player.FindAction("LayerDown", throwIfNotFound: true);
         m_Player_LayerScroll = m_Player.FindAction("LayerScroll", throwIfNotFound: true);
+        m_Player_OrbitStick = m_Player.FindAction("OrbitStick", throwIfNotFound: true);
+        m_Player_PieceMove = m_Player.FindAction("PieceMove", throwIfNotFound: true);
+        m_Player_CycleNext = m_Player.FindAction("CycleNext", throwIfNotFound: true);
+        m_Player_CyclePrev = m_Player.FindAction("CyclePrev", throwIfNotFound: true);
         // UI
         m_UI = asset.FindActionMap("UI", throwIfNotFound: true);
         m_UI_Navigate = m_UI.FindAction("Navigate", throwIfNotFound: true);
@@ -1184,7 +1313,6 @@ public partial class @InputSystem_Actions: IInputActionCollection2, IDisposable
     private List<IPlayerActions> m_PlayerActionsCallbackInterfaces = new List<IPlayerActions>();
     private readonly InputAction m_Player_Point;
     private readonly InputAction m_Player_Click;
-    private readonly InputAction m_Player_Undo;
     private readonly InputAction m_Player_OrbitDelta;
     private readonly InputAction m_Player_OrbitHold;
     private readonly InputAction m_Player_ZoomIn;
@@ -1200,6 +1328,10 @@ public partial class @InputSystem_Actions: IInputActionCollection2, IDisposable
     private readonly InputAction m_Player_LayerUp;
     private readonly InputAction m_Player_LayerDown;
     private readonly InputAction m_Player_LayerScroll;
+    private readonly InputAction m_Player_OrbitStick;
+    private readonly InputAction m_Player_PieceMove;
+    private readonly InputAction m_Player_CycleNext;
+    private readonly InputAction m_Player_CyclePrev;
     /// <summary>
     /// Provides access to input actions defined in input action map "Player".
     /// </summary>
@@ -1219,10 +1351,6 @@ public partial class @InputSystem_Actions: IInputActionCollection2, IDisposable
         /// Provides access to the underlying input action "Player/Click".
         /// </summary>
         public InputAction @Click => m_Wrapper.m_Player_Click;
-        /// <summary>
-        /// Provides access to the underlying input action "Player/Undo".
-        /// </summary>
-        public InputAction @Undo => m_Wrapper.m_Player_Undo;
         /// <summary>
         /// Provides access to the underlying input action "Player/OrbitDelta".
         /// </summary>
@@ -1284,6 +1412,22 @@ public partial class @InputSystem_Actions: IInputActionCollection2, IDisposable
         /// </summary>
         public InputAction @LayerScroll => m_Wrapper.m_Player_LayerScroll;
         /// <summary>
+        /// Provides access to the underlying input action "Player/OrbitStick".
+        /// </summary>
+        public InputAction @OrbitStick => m_Wrapper.m_Player_OrbitStick;
+        /// <summary>
+        /// Provides access to the underlying input action "Player/PieceMove".
+        /// </summary>
+        public InputAction @PieceMove => m_Wrapper.m_Player_PieceMove;
+        /// <summary>
+        /// Provides access to the underlying input action "Player/CycleNext".
+        /// </summary>
+        public InputAction @CycleNext => m_Wrapper.m_Player_CycleNext;
+        /// <summary>
+        /// Provides access to the underlying input action "Player/CyclePrev".
+        /// </summary>
+        public InputAction @CyclePrev => m_Wrapper.m_Player_CyclePrev;
+        /// <summary>
         /// Provides access to the underlying input action map instance.
         /// </summary>
         public InputActionMap Get() { return m_Wrapper.m_Player; }
@@ -1315,9 +1459,6 @@ public partial class @InputSystem_Actions: IInputActionCollection2, IDisposable
             @Click.started += instance.OnClick;
             @Click.performed += instance.OnClick;
             @Click.canceled += instance.OnClick;
-            @Undo.started += instance.OnUndo;
-            @Undo.performed += instance.OnUndo;
-            @Undo.canceled += instance.OnUndo;
             @OrbitDelta.started += instance.OnOrbitDelta;
             @OrbitDelta.performed += instance.OnOrbitDelta;
             @OrbitDelta.canceled += instance.OnOrbitDelta;
@@ -1363,6 +1504,18 @@ public partial class @InputSystem_Actions: IInputActionCollection2, IDisposable
             @LayerScroll.started += instance.OnLayerScroll;
             @LayerScroll.performed += instance.OnLayerScroll;
             @LayerScroll.canceled += instance.OnLayerScroll;
+            @OrbitStick.started += instance.OnOrbitStick;
+            @OrbitStick.performed += instance.OnOrbitStick;
+            @OrbitStick.canceled += instance.OnOrbitStick;
+            @PieceMove.started += instance.OnPieceMove;
+            @PieceMove.performed += instance.OnPieceMove;
+            @PieceMove.canceled += instance.OnPieceMove;
+            @CycleNext.started += instance.OnCycleNext;
+            @CycleNext.performed += instance.OnCycleNext;
+            @CycleNext.canceled += instance.OnCycleNext;
+            @CyclePrev.started += instance.OnCyclePrev;
+            @CyclePrev.performed += instance.OnCyclePrev;
+            @CyclePrev.canceled += instance.OnCyclePrev;
         }
 
         /// <summary>
@@ -1380,9 +1533,6 @@ public partial class @InputSystem_Actions: IInputActionCollection2, IDisposable
             @Click.started -= instance.OnClick;
             @Click.performed -= instance.OnClick;
             @Click.canceled -= instance.OnClick;
-            @Undo.started -= instance.OnUndo;
-            @Undo.performed -= instance.OnUndo;
-            @Undo.canceled -= instance.OnUndo;
             @OrbitDelta.started -= instance.OnOrbitDelta;
             @OrbitDelta.performed -= instance.OnOrbitDelta;
             @OrbitDelta.canceled -= instance.OnOrbitDelta;
@@ -1428,6 +1578,18 @@ public partial class @InputSystem_Actions: IInputActionCollection2, IDisposable
             @LayerScroll.started -= instance.OnLayerScroll;
             @LayerScroll.performed -= instance.OnLayerScroll;
             @LayerScroll.canceled -= instance.OnLayerScroll;
+            @OrbitStick.started -= instance.OnOrbitStick;
+            @OrbitStick.performed -= instance.OnOrbitStick;
+            @OrbitStick.canceled -= instance.OnOrbitStick;
+            @PieceMove.started -= instance.OnPieceMove;
+            @PieceMove.performed -= instance.OnPieceMove;
+            @PieceMove.canceled -= instance.OnPieceMove;
+            @CycleNext.started -= instance.OnCycleNext;
+            @CycleNext.performed -= instance.OnCycleNext;
+            @CycleNext.canceled -= instance.OnCycleNext;
+            @CyclePrev.started -= instance.OnCyclePrev;
+            @CyclePrev.performed -= instance.OnCyclePrev;
+            @CyclePrev.canceled -= instance.OnCyclePrev;
         }
 
         /// <summary>
@@ -1743,13 +1905,6 @@ public partial class @InputSystem_Actions: IInputActionCollection2, IDisposable
         /// <seealso cref="UnityEngine.InputSystem.InputAction.canceled" />
         void OnClick(InputAction.CallbackContext context);
         /// <summary>
-        /// Method invoked when associated input action "Undo" is either <see cref="UnityEngine.InputSystem.InputAction.started" />, <see cref="UnityEngine.InputSystem.InputAction.performed" /> or <see cref="UnityEngine.InputSystem.InputAction.canceled" />.
-        /// </summary>
-        /// <seealso cref="UnityEngine.InputSystem.InputAction.started" />
-        /// <seealso cref="UnityEngine.InputSystem.InputAction.performed" />
-        /// <seealso cref="UnityEngine.InputSystem.InputAction.canceled" />
-        void OnUndo(InputAction.CallbackContext context);
-        /// <summary>
         /// Method invoked when associated input action "OrbitDelta" is either <see cref="UnityEngine.InputSystem.InputAction.started" />, <see cref="UnityEngine.InputSystem.InputAction.performed" /> or <see cref="UnityEngine.InputSystem.InputAction.canceled" />.
         /// </summary>
         /// <seealso cref="UnityEngine.InputSystem.InputAction.started" />
@@ -1854,6 +2009,34 @@ public partial class @InputSystem_Actions: IInputActionCollection2, IDisposable
         /// <seealso cref="UnityEngine.InputSystem.InputAction.performed" />
         /// <seealso cref="UnityEngine.InputSystem.InputAction.canceled" />
         void OnLayerScroll(InputAction.CallbackContext context);
+        /// <summary>
+        /// Method invoked when associated input action "OrbitStick" is either <see cref="UnityEngine.InputSystem.InputAction.started" />, <see cref="UnityEngine.InputSystem.InputAction.performed" /> or <see cref="UnityEngine.InputSystem.InputAction.canceled" />.
+        /// </summary>
+        /// <seealso cref="UnityEngine.InputSystem.InputAction.started" />
+        /// <seealso cref="UnityEngine.InputSystem.InputAction.performed" />
+        /// <seealso cref="UnityEngine.InputSystem.InputAction.canceled" />
+        void OnOrbitStick(InputAction.CallbackContext context);
+        /// <summary>
+        /// Method invoked when associated input action "PieceMove" is either <see cref="UnityEngine.InputSystem.InputAction.started" />, <see cref="UnityEngine.InputSystem.InputAction.performed" /> or <see cref="UnityEngine.InputSystem.InputAction.canceled" />.
+        /// </summary>
+        /// <seealso cref="UnityEngine.InputSystem.InputAction.started" />
+        /// <seealso cref="UnityEngine.InputSystem.InputAction.performed" />
+        /// <seealso cref="UnityEngine.InputSystem.InputAction.canceled" />
+        void OnPieceMove(InputAction.CallbackContext context);
+        /// <summary>
+        /// Method invoked when associated input action "CycleNext" is either <see cref="UnityEngine.InputSystem.InputAction.started" />, <see cref="UnityEngine.InputSystem.InputAction.performed" /> or <see cref="UnityEngine.InputSystem.InputAction.canceled" />.
+        /// </summary>
+        /// <seealso cref="UnityEngine.InputSystem.InputAction.started" />
+        /// <seealso cref="UnityEngine.InputSystem.InputAction.performed" />
+        /// <seealso cref="UnityEngine.InputSystem.InputAction.canceled" />
+        void OnCycleNext(InputAction.CallbackContext context);
+        /// <summary>
+        /// Method invoked when associated input action "CyclePrev" is either <see cref="UnityEngine.InputSystem.InputAction.started" />, <see cref="UnityEngine.InputSystem.InputAction.performed" /> or <see cref="UnityEngine.InputSystem.InputAction.canceled" />.
+        /// </summary>
+        /// <seealso cref="UnityEngine.InputSystem.InputAction.started" />
+        /// <seealso cref="UnityEngine.InputSystem.InputAction.performed" />
+        /// <seealso cref="UnityEngine.InputSystem.InputAction.canceled" />
+        void OnCyclePrev(InputAction.CallbackContext context);
     }
     /// <summary>
     /// Interface to implement callback methods for all input action callbacks associated with input actions defined by "UI" which allows adding and removing callbacks.

@@ -361,4 +361,15 @@ public class GridManager : MonoBehaviour
         if (!IsInside(c)) return false;
         return _occ[c.x, c.y, c.z];
     }
+
+    public bool TryGetPlacedCells(int placedId, List<Vector3Int> outCells)
+    {
+        outCells.Clear();
+
+        if (!_placedCellsById.TryGetValue(placedId, out var cells) || cells == null)
+            return false;
+
+        outCells.AddRange(cells);
+        return true;
+    }
 }

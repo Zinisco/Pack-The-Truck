@@ -26,6 +26,10 @@ public class PlacementController : MonoBehaviour
     [SerializeField] float scrollLayerCooldown = 0.03f; // prevents “free spin” scrolling
     float _nextScrollTime = 0f;
 
+    [Header("Layer Step (Gamepad)")]
+    public float layerRepeatDelay = 0.20f;
+    float _nextLayerStepTime = 0f;
+
     [Header("Ghost Visuals")]
     public Material validMat;
     public Material invalidMat;
@@ -50,6 +54,17 @@ public class PlacementController : MonoBehaviour
     public bool debugDrawUnsupported = true;
     public float debugLineHeight = 0.35f;
 
+    [Header("Gamepad Selection (Cycle)")]
+    public bool enableCycleSelect = true;
+    public float selectionRefreshInterval = 0.35f;   // how often to rebuild list automatically
+    public float maxSelectDistance = 100f;           // ignore super far pieces (optional)
+
+    List<PickupPiece> _targets = new();
+    int _targetIndex = -1;
+    float _nextRefreshTime;
+
+    PickupPiece _selected;
+
     InputSystem_Actions _input;
     InputSystem_Actions.PlayerActions _player;
 
@@ -73,58 +88,112 @@ public class PlacementController : MonoBehaviour
     float _nextMoveTime = 0f;
 
     int _nextPlacedId = 1;
-
-    readonly Stack<int> _undoStack = new();
-    readonly Dictionary<int, GameObject> _placedVisualById = new();
     readonly List<Vector3Int> _tmpWorldCells = new();
 
-    void Awake()
+    // --- Cancel Revert Cache (when picking up an already-placed piece) ---
+    bool _restoreOnCancel = false;
+    int _restoreId = 0;
+    Vector3 _restorePos;
+    Quaternion _restoreRot;
+    Vector3 _restoreScale;
+    bool _restoreWasActive;
+    bool _subscribed;
+    readonly List<Vector3Int> _restoreCells = new();
+
+    bool TryEnsureInput()
     {
-        _input = new InputSystem_Actions();
+        if (_input != null) return true;
+
+        if (InputHub.Instance == null || InputHub.Instance.Actions == null)
+            return false;
+
+        _input = InputHub.Instance.Actions;
         _player = _input.Player;
+        return true;
     }
 
     void OnEnable()
     {
-        _player.Enable();
+        _subscribed = false; // allow re-bind if this component is toggled on/off
+    }
+
+    void OnDisable()
+    {
+        Unsubscribe();
+    }
+
+    void Subscribe()
+    {
+        if (_subscribed) return;
+
         _player.Click.performed += OnClick;
         _player.CancelPlacement.performed += OnCancelPlacement;
         _player.ConfirmPlacement.performed += OnConfirmPlacement;
         _player.LayerUp.performed += OnLayerUp;
         _player.LayerDown.performed += OnLayerDown;
         _player.LayerScroll.performed += OnLayerScroll;
-        _player.Undo.performed += OnUndo;
+        _player.CyclePrev.performed += OnCyclePrev;
+        _player.CycleNext.performed += OnCycleNext;
 
-        RebuildGhost();
+        _subscribed = true;
     }
 
-    void OnDisable()
+    void Unsubscribe()
     {
+        if (!_subscribed) return;
+
         _player.Click.performed -= OnClick;
         _player.CancelPlacement.performed -= OnCancelPlacement;
         _player.ConfirmPlacement.performed -= OnConfirmPlacement;
         _player.LayerUp.performed -= OnLayerUp;
         _player.LayerDown.performed -= OnLayerDown;
         _player.LayerScroll.performed -= OnLayerScroll;
-        _player.Undo.performed -= OnUndo;
+        _player.CyclePrev.performed -= OnCyclePrev;
+        _player.CycleNext.performed -= OnCycleNext;
 
-        _player.Disable();
+        _subscribed = false;
     }
 
     void Update()
     {
+        if (_input == null)
+        {
+            if (!TryEnsureInput()) return;
+        }
+        if (!_subscribed) Subscribe();
+
         if (!cam || !grid) return;
+
+        // --- Cycle selection when NOT placing ---
+        if (!_isPlacing && enableCycleSelect && Time.time >= _nextRefreshTime)
+        {
+            _nextRefreshTime = Time.time + selectionRefreshInterval;
+            RefreshTargets();
+        }
+
+        // Now only proceed with placement logic if placing
         if (!_isPlacing) return;
         if (!currentDef) return;
 
-        if (moveMode == PlacementMoveMode.Mouse)
+        bool usingGamepad = (InputHub.Instance != null && InputHub.Instance.ActiveScheme == ControlSchemeMode.Gamepad);
+
+        // Treat tiny stick noise as zero
+        bool isOrbiting =
+            _player.OrbitHold.IsPressed() ||
+            _player.OrbitStick.ReadValue<Vector2>().sqrMagnitude > (0.2f * 0.2f);
+
+        if (usingGamepad)
         {
-            UpdateAnchorFromMouse();
+            // Gamepad placement = grid step move (left stick)
+            Vector2 move = _player.PieceMove.ReadValue<Vector2>();
+            if (move.sqrMagnitude < 0.15f * 0.15f) move = Vector2.zero;
+            StepMoveXZ(move);
         }
         else
         {
-            // Future controller grid-step mode
-            StepMoveXZ(GetWASD());
+            // Mouse placement = follow mouse, BUT freeze while orbiting
+            if (!isOrbiting)
+                UpdateAnchorFromMouse();
         }
 
         // Rotate (keyboard only)
@@ -169,13 +238,40 @@ public class PlacementController : MonoBehaviour
     void OnLayerUp(InputAction.CallbackContext _)
     {
         if (!_isPlacing) return;
+        if (Time.time < _nextLayerStepTime) return;
+        _nextLayerStepTime = Time.time + layerRepeatDelay;
+
         SetLayer(activeLayerY + 1);
     }
 
     void OnLayerDown(InputAction.CallbackContext _)
     {
         if (!_isPlacing) return;
+        if (Time.time < _nextLayerStepTime) return;
+        _nextLayerStepTime = Time.time + layerRepeatDelay;
+
         SetLayer(activeLayerY - 1);
+    }
+
+    void OnCyclePrev(InputAction.CallbackContext _)
+    {
+        if (_isPlacing) return;
+        if (!enableCycleSelect) return;
+        Cycle(-1);
+    }
+
+    void OnCycleNext(InputAction.CallbackContext _)
+    {
+        if (_isPlacing) return;
+        if (!enableCycleSelect) return;
+        Cycle(+1);
+    }
+
+    static void SetLayerRecursive(GameObject go, int layer)
+    {
+        go.layer = layer;
+        foreach (Transform t in go.transform)
+            SetLayerRecursive(t.gameObject, layer);
     }
 
     void HandleRotationKeys()
@@ -230,23 +326,6 @@ public class PlacementController : MonoBehaviour
             RotateLocal(Vector3.forward, degrees);
     }
 
-    Vector2 GetWASD()
-    {
-        if (Keyboard.current == null) return Vector2.zero;
-
-        float x = 0f;
-        float y = 0f;
-
-        if (Keyboard.current.aKey.isPressed) x -= 1f;
-        if (Keyboard.current.dKey.isPressed) x += 1f;
-        if (Keyboard.current.wKey.isPressed) y += 1f;
-        if (Keyboard.current.sKey.isPressed) y -= 1f;
-
-        Vector2 v = new Vector2(x, y);
-        if (v.sqrMagnitude > 1f) v.Normalize();
-        return v;
-    }
-
     void StepMoveXZ(Vector2 move)
     {
         if (move == Vector2.zero) return;
@@ -254,11 +333,37 @@ public class PlacementController : MonoBehaviour
 
         _nextMoveTime = Time.time + keyRepeatDelay;
 
-        Vector3Int delta = new Vector3Int(
-            Mathf.RoundToInt(move.x),
-            0,
-            Mathf.RoundToInt(move.y)
-        );
+        // --- Build camera-relative axes in GRID-LOCAL space (XZ only) ---
+        Quaternion worldToGrid = Quaternion.Inverse(grid.origin.rotation);
+
+        Vector3 camFwdLocal = worldToGrid * cam.transform.forward;
+        Vector3 camRightLocal = worldToGrid * cam.transform.right;
+
+        camFwdLocal.y = 0f;
+        camRightLocal.y = 0f;
+
+        // Safety: if camera is looking almost straight up/down, fallback to grid axes
+        if (camFwdLocal.sqrMagnitude < 0.0001f) camFwdLocal = Vector3.forward;
+        if (camRightLocal.sqrMagnitude < 0.0001f) camRightLocal = Vector3.right;
+
+        camFwdLocal.Normalize();
+        camRightLocal.Normalize();
+
+        // Convert stick input into a direction in grid-local XZ
+        Vector3 desiredLocal =
+            camRightLocal * move.x +
+            camFwdLocal * move.y;
+
+        // Pick the dominant grid axis step (so we still do clean 1-cell moves)
+        Vector3Int delta;
+        if (Mathf.Abs(desiredLocal.x) > Mathf.Abs(desiredLocal.z))
+        {
+            delta = new Vector3Int(desiredLocal.x >= 0f ? 1 : -1, 0, 0);
+        }
+        else
+        {
+            delta = new Vector3Int(0, 0, desiredLocal.z >= 0f ? 1 : -1);
+        }
 
         Vector3Int next = _anchorCell + delta;
 
@@ -272,10 +377,81 @@ public class PlacementController : MonoBehaviour
 
     void OnClick(InputAction.CallbackContext _)
     {
-        // LMB is ONLY for picking up when not placing.
-        // When placing, Spacebar confirms placement.
-        if (_isPlacing) return;
-        TryPickupFromScene();
+        if (_isPlacing)
+        {
+            TryPlaceHeld();
+            return;
+        }
+
+        // If gamepad + we have a selected target, pick it without raycasting
+        if (InputHub.Instance != null && InputHub.Instance.ActiveScheme == ControlSchemeMode.Gamepad)
+        {
+            if (TryPickupSelected())
+                return;
+        }
+
+        TryPickupFromScene(); // mouse fallback
+    }
+
+    bool TryPickupSelected()
+    {
+        if (_selected == null) return false;
+        if (!_selected.def) return false;
+
+        // mimic your TryPickupFromScene body, but using pickup = _selected
+        var pickup = _selected;
+
+        _holdingExistingPlaced = (pickup.placedId != 0);
+
+        _restoreOnCancel = false;
+        _restoreCells.Clear();
+        _restoreId = 0;
+
+        if (_holdingExistingPlaced)
+        {
+            _restoreOnCancel = true;
+            _restoreId = pickup.placedId;
+
+            _restorePos = pickup.transform.position;
+            _restoreRot = pickup.transform.rotation;
+            _restoreScale = pickup.transform.localScale;
+            _restoreWasActive = pickup.gameObject.activeSelf;
+
+            if (!grid.TryGetPlacedCells(_restoreId, _restoreCells))
+            {
+                _restoreOnCancel = false;
+                _restoreCells.Clear();
+            }
+
+            grid.Remove(_restoreId);
+        }
+
+        _heldPickup = pickup;
+
+        _rot = Quaternion.Inverse(grid.origin.rotation) * _heldPickup.transform.rotation;
+
+        if (TryGetRendererBounds(_heldPickup.gameObject, out var heldWorldBounds))
+            _heldVisualCenterLocal = _heldPickup.transform.InverseTransformPoint(heldWorldBounds.center);
+        else
+            _heldVisualCenterLocal = Vector3.zero;
+
+        currentDef = pickup.def;
+        RebuildGhost();
+
+        grid.placementMode = true;
+        _isPlacing = true;
+
+        _anchorCell.y = activeLayerY;
+
+        if (pickup.hideOnPickup)
+            pickup.gameObject.SetActive(false);
+
+        // selection highlight should be cleared once we pick up
+        ClearSelection();
+        _selected = null;
+        _targetIndex = -1;
+
+        return true;
     }
 
     void OnConfirmPlacement(InputAction.CallbackContext _)
@@ -301,11 +477,31 @@ public class PlacementController : MonoBehaviour
         if (!pickup || !pickup.def) return;
 
         _holdingExistingPlaced = (pickup.placedId != 0);
+
+        _restoreOnCancel = false;
+        _restoreCells.Clear();
+        _restoreId = 0;
+
         if (_holdingExistingPlaced)
         {
-            grid.Remove(pickup.placedId);
-            _placedVisualById.Remove(pickup.placedId);
-            RemoveFromUndoStack(pickup.placedId);
+            // Cache for cancel-revert
+            _restoreOnCancel = true;
+            _restoreId = pickup.placedId;
+
+            _restorePos = pickup.transform.position;
+            _restoreRot = pickup.transform.rotation;
+            _restoreScale = pickup.transform.localScale;
+            _restoreWasActive = pickup.gameObject.activeSelf;
+
+            // IMPORTANT: grab the exact cells before removing
+            if (!grid.TryGetPlacedCells(_restoreId, _restoreCells))
+            {
+                // Failsafe: if we can't restore cells, don't attempt revert
+                _restoreOnCancel = false;
+                _restoreCells.Clear();
+            }
+
+            grid.Remove(_restoreId);
         }
 
         _heldPickup = pickup;
@@ -327,6 +523,11 @@ public class PlacementController : MonoBehaviour
 
         if (pickup.hideOnPickup)
             pickup.gameObject.SetActive(false);
+
+        // If we had a cycled selection highlighted, clear it before picking up via raycast
+        ClearSelection();
+        _selected = null;
+        _targetIndex = -1;
     }
 
     bool TryPlaceHeld()
@@ -354,8 +555,18 @@ public class PlacementController : MonoBehaviour
 
         grid.Place(id, _tmpWorldCells);
 
-        _placedVisualById[id] = placed;
-        _undoStack.Push(id);
+        // pick a layer index that is included in pickupMask (eg "Pickup")
+        int pickUpLayer = LayerMask.NameToLayer("PickUp");
+        if (pickUpLayer == -1)
+        {
+            Debug.LogError("Layer 'PickUp' does not exist (case-sensitive). Add it in Project Settings > Tags and Layers.");
+        }
+        else
+        {
+            SetLayerRecursive(placed, pickUpLayer);
+        }
+
+        Physics.SyncTransforms();
 
         if (!placed.activeSelf)
             placed.SetActive(true);
@@ -367,7 +578,7 @@ public class PlacementController : MonoBehaviour
         return true;
     }
 
-    void ExitPlacementMode()
+    void ExitPlacementMode(bool forceShowHeld = true)
     {
         _isPlacing = false;
         grid.placementMode = false;
@@ -378,38 +589,52 @@ public class PlacementController : MonoBehaviour
 
         if (_heldPickup)
         {
-            _heldPickup.gameObject.SetActive(true);
+            if (forceShowHeld)
+                _heldPickup.gameObject.SetActive(true);
+
             _heldPickup = null;
         }
 
         currentDef = null;
         _rot = Quaternion.identity;
         _holdingExistingPlaced = false;
+
+        // clear cancel cache
+        _restoreOnCancel = false;
+        _restoreId = 0;
+        _restoreCells.Clear();
     }
 
     void OnCancelPlacement(InputAction.CallbackContext _)
     {
         if (!_isPlacing) return;
-        ExitPlacementMode();
-    }
 
-    void OnUndo(InputAction.CallbackContext _)
-    {
-        // Undo anytime (placing or not)
-        DoUndo();
-    }
+        // If we picked up an existing placed piece, revert it.
+        if (_restoreOnCancel && _heldPickup != null)
+        {
+            GameObject go = _heldPickup.gameObject;
 
-    void DoUndo()
-    {
-        if (_undoStack.Count == 0) return;
+            // Restore transform/active state
+            go.transform.position = _restorePos;
+            go.transform.rotation = _restoreRot;
+            go.transform.localScale = _restoreScale;
+            go.SetActive(_restoreWasActive);
 
-        int id = _undoStack.Pop();
-        grid.Remove(id);
+            // Restore grid occupancy
+            if (_restoreCells.Count > 0)
+                grid.Place(_restoreId, _restoreCells);
 
-        if (_placedVisualById.TryGetValue(id, out var go) && go)
-            Destroy(go);
+            _heldPickup.placedId = _restoreId;
+        }
+        else
+        {
+            // Not previously placed; just show it again if it was hidden
+            if (_heldPickup != null && _heldPickup.hideOnPickup)
+                _heldPickup.gameObject.SetActive(true);
+        }
 
-        _placedVisualById.Remove(id);
+        // IMPORTANT: don't force-enable here (we already restored active state)
+        ExitPlacementMode(forceShowHeld: false);
     }
 
     void OnLayerScroll(InputAction.CallbackContext ctx)
@@ -558,18 +783,44 @@ public class PlacementController : MonoBehaviour
         return has;
     }
 
-    void RemoveFromUndoStack(int id)
+    void Cycle(int dir)
     {
-        if (_undoStack.Count == 0) return;
-
-        var temp = new Stack<int>();
-        while (_undoStack.Count > 0)
+        if (_targets.Count == 0)
         {
-            int v = _undoStack.Pop();
-            if (v != id) temp.Push(v);
+            RefreshTargets();
+            if (_targets.Count == 0) return;
         }
-        while (temp.Count > 0)
-            _undoStack.Push(temp.Pop());
+
+        _targetIndex = (_targetIndex < 0) ? 0 : _targetIndex;
+
+        _targetIndex += dir;
+        if (_targetIndex < 0) _targetIndex = _targets.Count - 1;
+        if (_targetIndex >= _targets.Count) _targetIndex = 0;
+
+        SelectIndex(_targetIndex);
+    }
+
+    void SelectIndex(int idx)
+    {
+        ClearSelection();
+
+        if (idx < 0 || idx >= _targets.Count)
+        {
+            _selected = null;
+            return;
+        }
+
+        _selected = _targets[idx];
+        if (!_selected) return;
+
+        // Turn highlight ON (no material swapping)
+        _selected.GetComponent<PieceHighlighter>()?.SetHighlight(true);
+    }
+
+    void ClearSelection()
+    {
+        if (_selected != null)
+            _selected.GetComponent<PieceHighlighter>()?.SetHighlight(false);
     }
 
     void PlayPlaceSfx()
@@ -619,6 +870,82 @@ public class PlacementController : MonoBehaviour
     }
 
     // --- rules / debug unchanged ---
+
+    void RefreshTargets()
+    {
+        _targets.Clear();
+
+        var all = Object.FindObjectsByType<PickupPiece>(FindObjectsInactive.Include, FindObjectsSortMode.None);
+
+        Vector3 camPos = cam.transform.position;
+        Vector3 camFwd = cam.transform.forward;
+
+        for (int i = 0; i < all.Length; i++)
+        {
+            var p = all[i];
+            if (!p || !p.def) continue;
+
+            float dist = Vector3.Distance(camPos, p.transform.position);
+            if (dist > maxSelectDistance) continue;
+
+            _targets.Add(p);
+        }
+
+        // Sort by "best to select"
+        _targets.Sort((a, b) => ScoreTarget(b).CompareTo(ScoreTarget(a)));
+
+        // Keep current selection if possible
+        if (_selected != null)
+        {
+            int idx = _targets.IndexOf(_selected);
+            if (idx >= 0) { _targetIndex = idx; return; }
+        }
+
+        _targetIndex = (_targets.Count > 0) ? 0 : -1;
+        SelectIndex(_targetIndex);
+    }
+
+    // Higher score = better
+    float ScoreTarget(PickupPiece p)
+    {
+        Vector3 camPos = cam.transform.position;
+        Vector3 camFwd = cam.transform.forward;
+
+        Vector3 to = (p.transform.position - camPos);
+        float dist = to.magnitude;
+        if (dist < 0.001f) dist = 0.001f;
+        Vector3 dir = to / dist;
+
+        // Prefer in front of camera
+        float forwardDot = Vector3.Dot(camFwd, dir); // -1..1
+
+        // Prefer closer
+        float closeScore = 1f / dist;
+
+        // Prefer visible (optional raycast check)
+        float visScore = HasLineOfSight(p) ? 1f : 0f;
+
+        // Weighting: tweak to taste
+        return (forwardDot * 2.0f) + (closeScore * 4.0f) + (visScore * 1.0f);
+    }
+
+    bool HasLineOfSight(PickupPiece p)
+    {
+        // If you have a dedicated occlusion layer mask, use it.
+        // For now, raycast against everything and see if we hit that piece first.
+        Vector3 origin = cam.transform.position;
+        Vector3 target = p.transform.position;
+        Vector3 dir = (target - origin);
+        float dist = dir.magnitude;
+        if (dist < 0.001f) return true;
+        dir /= dist;
+
+        if (Physics.Raycast(origin, dir, out RaycastHit hit, dist))
+        {
+            return hit.collider && hit.collider.GetComponentInParent<PickupPiece>() == p;
+        }
+        return true;
+    }
 
     bool HasAnySupportBelow(IReadOnlyList<Vector3Int> cells, out Vector3Int supportedCell, out Vector3Int supportBelow)
     {

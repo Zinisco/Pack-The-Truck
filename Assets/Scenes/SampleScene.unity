@@ -471,11 +471,9 @@ MonoBehaviour:
   grid: {fileID: 389146661}
   currentDef: {fileID: 0}
   keyRepeatDelay: 0.18
+  moveMode: 0
   activeLayerY: 0
-  layerUpKey: 32
-  layerDownKey: 20
-  confirmKey: 1
-  undoKey: 65
+  scrollLayerCooldown: 0.03
   validMat: {fileID: 2100000, guid: acdfc25e8bb92274f882d047a9a42689, type: 2}
   invalidMat: {fileID: 2100000, guid: a10b9d598eb416c4da140db0355939da, type: 2}
   pickupMask:
@@ -641,19 +639,15 @@ MonoBehaviour:
   pitch: 25
   pitchMin: -89
   pitchMax: 89
-  orbitSpeed: 0.12
+  mouseOrbitSpeed: 0.12
+  stickOrbitSpeed: 120
   rotateSmooth: 12
   distance: 9
   minDistance: 2
   maxDistance: 14
-  scrollZoomStep: 1.2
-  scrollDeadZone: 0.01
+  zoomStep: 1.2
+  zoomRepeatDelay: 0.06
   zoomSmoothTime: 0.12
-  enablePan: 1
-  panSpeed: 0.012
-  panSmooth: 18
-  panOnlyWhenPlacing: 0
-  placement: {fileID: 477040258}
 --- !u!4 &670327017
 Transform:
   m_ObjectHideFlags: 0
@@ -807,6 +801,52 @@ PrefabInstance:
     m_AddedGameObjects: []
     m_AddedComponents: []
   m_SourcePrefab: {fileID: 100100000, guid: 29f3fd8c634173345b05f7a67b5d7b43, type: 3}
+--- !u!1 &1870650366
+GameObject:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  serializedVersion: 6
+  m_Component:
+  - component: {fileID: 1870650368}
+  - component: {fileID: 1870650367}
+  m_Layer: 0
+  m_Name: InputHub
+  m_TagString: Untagged
+  m_Icon: {fileID: 0}
+  m_NavMeshLayer: 0
+  m_StaticEditorFlags: 0
+  m_IsActive: 1
+--- !u!114 &1870650367
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 1870650366}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 9ca6a2fa88de2ee4dbd49df023e4daa8, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: Assembly-CSharp::InputHub
+  mode: 0
+  mouseMoveThreshold: 0.5
+--- !u!4 &1870650368
+Transform:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 1870650366}
+  serializedVersion: 2
+  m_LocalRotation: {x: 0, y: 0, z: 0, w: 1}
+  m_LocalPosition: {x: 0, y: 0, z: 0}
+  m_LocalScale: {x: 1, y: 1, z: 1}
+  m_ConstrainProportionsScale: 0
+  m_Children: []
+  m_Father: {fileID: 0}
+  m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
 --- !u!1001 &2098795331950491991
 PrefabInstance:
   m_ObjectHideFlags: 0
@@ -933,3 +973,4 @@ SceneRoots:
   - {fileID: 3624234573935802542}
   - {fileID: 1830513126}
   - {fileID: 2098795331950491991}
+  - {fileID: 1870650368}
