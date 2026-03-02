@@ -92,6 +92,7 @@ public class PlacementController : MonoBehaviour
     int _nextPlacedId = 1;
     readonly List<Vector3Int> _tmpWorldCells = new();
     readonly Dictionary<int, bool> _placedFragile = new Dictionary<int, bool>();
+    readonly Dictionary<int, PieceWeight> _placedWeight = new Dictionary<int, PieceWeight>();
 
     // --- Cancel Revert Cache (when picking up an already-placed piece) ---
     bool _restoreOnCancel = false;
@@ -236,13 +237,19 @@ public class PlacementController : MonoBehaviour
         bool standingOk = !currentDef.mustBeStanding || (computed && IsStandingFootprint(currentDef, _tmpWorldCells));
         bool uprightOk = PassesUprightRule(currentDef, _rot);
 
-        bool canPlace = computed && hasSpace && hasSupport && fragileOk && standingOk && uprightOk;
+        bool weightOk = true;
+        string weightReason = null;
+        if (computed)
+            weightOk = PassesWeightSupportRule(currentDef, _tmpWorldCells, out weightReason);
+
+        bool canPlace = computed && hasSpace && hasSupport && fragileOk && weightOk && standingOk && uprightOk;
 
         _placementWarning = null;
         if (!computed) _placementWarning = "Invalid shape / rotation.";
         else if (!hasSpace) _placementWarning = "Blocked: space is occupied.";
         else if (!hasSupport) _placementWarning = "Needs support below.";
         else if (!fragileOk) _placementWarning = "Fragile: nothing can be directly on top.";
+        else if (!weightOk) _placementWarning = weightReason ?? "Not enough support for weight.";
         else if (!standingOk) _placementWarning = "Must be standing upright.";
         else if (!uprightOk) _placementWarning = "Can't place upside down.";
 
@@ -571,6 +578,7 @@ public class PlacementController : MonoBehaviour
         if (!ComputeWorldCells(currentDef, _anchorCell, _rot, _tmpWorldCells)) return false;
         if (!grid.CanPlaceCells(_tmpWorldCells)) return false;
         if (!HasAnySupportBelow(_tmpWorldCells, out _, out _)) return false;
+        if (!PassesWeightSupportRule(currentDef, _tmpWorldCells, out _)) return false;
         if (!PassesFragileTopRule(currentDef, _tmpWorldCells)) return false;
         if (currentDef.mustBeStanding && !IsStandingFootprint(currentDef, _tmpWorldCells)) return false;
         if (!PassesUprightRule(currentDef, _rot)) return false;
@@ -589,8 +597,8 @@ public class PlacementController : MonoBehaviour
 
         grid.Place(id, _tmpWorldCells);
 
-        // record fragile flag by placed id
         _placedFragile[id] = (currentDef != null && currentDef.fragileTop);
+        _placedWeight[id] = (currentDef != null) ? currentDef.weight : PieceWeight.Normal;
 
         // pick a layer index that is included in pickupMask (eg "Pickup")
         int pickUpLayer = LayerMask.NameToLayer("PickUp");
@@ -661,6 +669,7 @@ public class PlacementController : MonoBehaviour
             if (_restoreCells.Count > 0)
                 grid.Place(_restoreId, _restoreCells);
             _placedFragile[_restoreId] = (_heldPickup != null && _heldPickup.def != null && _heldPickup.def.fragileTop);
+            _placedWeight[_restoreId] = (_heldPickup != null && _heldPickup.def != null) ? _heldPickup.def.weight : PieceWeight.Normal;
 
             _heldPickup.placedId = _restoreId;
         }
@@ -1099,6 +1108,92 @@ public class PlacementController : MonoBehaviour
         if (!def || !def.forbidUpsideDown) return true;
         Vector3 up = rotLocal * Vector3.up;
         return Vector3.Dot(up, Vector3.up) > 0.0f;
+    }
+
+    int RequiredSupportCapacity(PieceWeight w)
+    {
+        switch (w)
+        {
+            case PieceWeight.Light: return 1;
+            case PieceWeight.Normal: return 2;
+            case PieceWeight.Heavy: return 3;
+            default: return 2;
+        }
+    }
+
+    int SupportCapacityProvidedBy(PieceWeight w)
+    {
+        switch (w)
+        {
+            case PieceWeight.Light: return 1;
+            case PieceWeight.Normal: return 2;
+            case PieceWeight.Heavy: return 3;
+            default: return 2;
+        }
+    }
+
+    // Checks if the piece's bottom cells are supported with enough total capacity.
+    // IMPORTANT: fragile pieces below do NOT count as support (keeps your fragile-overhang rule intact).
+    // Capacity is counted by DISTINCT supporting pieces (unique placedId), not by number of cells.
+
+    bool PassesWeightSupportRule(PieceDefinition def, IReadOnlyList<Vector3Int> cells, out string reason)
+    {
+        reason = null;
+        if (def == null || cells == null || cells.Count == 0) return false;
+
+        // On the floor -> always supported
+        int minY = int.MaxValue;
+        for (int i = 0; i < cells.Count; i++)
+            if (cells[i].y < minY) minY = cells[i].y;
+
+        if (minY == 0) return true;
+
+        // Collect DISTINCT supporting piece IDs under bottom-layer cells
+        HashSet<int> supportIds = new HashSet<int>();
+
+        for (int i = 0; i < cells.Count; i++)
+        {
+            var c = cells[i];
+            if (c.y != minY) continue;
+
+            Vector3Int below = c + Vector3Int.down;
+            if (!grid.IsInside(below)) continue;
+
+            int occId = grid.GetOccupantId(below);
+            if (occId == 0) continue;
+
+            // If the thing below is fragile-top, it cannot be used as support (overhang still allowed)
+            if (_placedFragile.TryGetValue(occId, out bool isFragile) && isFragile)
+                continue;
+
+            supportIds.Add(occId);
+        }
+
+        if (supportIds.Count == 0)
+        {
+            reason = "Needs non-fragile support below.";
+            return false;
+        }
+
+        // Sum capacity from DISTINCT supports
+        int capacity = 0;
+        foreach (int id in supportIds)
+        {
+            PieceWeight w = PieceWeight.Normal;
+            if (_placedWeight.TryGetValue(id, out var stored)) w = stored;
+
+            capacity += SupportCapacityProvidedBy(w);
+        }
+
+        int needed = RequiredSupportCapacity(def.weight);
+
+        if (capacity < needed)
+        {
+            reason = $"Too heavy: needs support capacity {needed} (has {capacity}).";
+            return false;
+        }
+
+        return true;
     }
 
     static Quaternion Normalize(Quaternion q)

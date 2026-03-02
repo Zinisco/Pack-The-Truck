@@ -19,9 +19,11 @@ MonoBehaviour:
   - {x: 1, y: 0, z: 0}
   - {x: -1, y: 0, z: 0}
   pivotLocal: {x: 0, y: 0, z: 0}
+  standingBounds: {x: 1, y: 2, z: 1}
   fragileTop: 0
   mustBeStanding: 0
   forbidUpsideDown: 0
+  weight: 2
   placeClipOverride: {fileID: 8300000, guid: e94311be1d08c02468160fe3ad4c680d, type: 3}
   placeVolume: 1
   placePitchRange: {x: 0.95, y: 1.05}
