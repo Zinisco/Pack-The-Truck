@@ -68,6 +68,8 @@ public class PlacementController : MonoBehaviour
     InputSystem_Actions _input;
     InputSystem_Actions.PlayerActions _player;
 
+    ControlSchemeMode _lastScheme = ControlSchemeMode.KeyboardMouse;
+
     bool _isPlacing = false;
     public bool IsPlacing => _isPlacing;
 
@@ -89,6 +91,7 @@ public class PlacementController : MonoBehaviour
 
     int _nextPlacedId = 1;
     readonly List<Vector3Int> _tmpWorldCells = new();
+    readonly Dictionary<int, bool> _placedFragile = new Dictionary<int, bool>();
 
     // --- Cancel Revert Cache (when picking up an already-placed piece) ---
     bool _restoreOnCancel = false;
@@ -164,6 +167,17 @@ public class PlacementController : MonoBehaviour
 
         if (!cam || !grid) return;
 
+        var scheme = (InputHub.Instance != null) ? InputHub.Instance.ActiveScheme : ControlSchemeMode.KeyboardMouse;
+
+        // If we just switched away from gamepad, kill any highlight immediately.
+        if (_lastScheme != scheme)
+        {
+            if (scheme == ControlSchemeMode.KeyboardMouse)
+                ClearSelection();
+
+            _lastScheme = scheme;
+        }
+
         // --- Cycle selection when NOT placing ---
         if (!_isPlacing && enableCycleSelect && Time.time >= _nextRefreshTime)
         {
@@ -219,7 +233,7 @@ public class PlacementController : MonoBehaviour
         if (computed) hasSupport = HasAnySupportBelow(_tmpWorldCells, out supportedCell, out supportBelow);
 
         bool fragileOk = computed && PassesFragileTopRule(currentDef, _tmpWorldCells);
-        bool standingOk = !currentDef.mustBeStanding || (computed && IsStandingFootprint(_tmpWorldCells));
+        bool standingOk = !currentDef.mustBeStanding || (computed && IsStandingFootprint(currentDef, _tmpWorldCells));
         bool uprightOk = PassesUprightRule(currentDef, _rot);
 
         bool canPlace = computed && hasSpace && hasSupport && fragileOk && standingOk && uprightOk;
@@ -558,7 +572,7 @@ public class PlacementController : MonoBehaviour
         if (!grid.CanPlaceCells(_tmpWorldCells)) return false;
         if (!HasAnySupportBelow(_tmpWorldCells, out _, out _)) return false;
         if (!PassesFragileTopRule(currentDef, _tmpWorldCells)) return false;
-        if (currentDef.mustBeStanding && !IsStandingFootprint(_tmpWorldCells)) return false;
+        if (currentDef.mustBeStanding && !IsStandingFootprint(currentDef, _tmpWorldCells)) return false;
         if (!PassesUprightRule(currentDef, _rot)) return false;
 
         int id = (_heldPickup.placedId != 0) ? _heldPickup.placedId : _nextPlacedId++;
@@ -574,6 +588,9 @@ public class PlacementController : MonoBehaviour
         placed.transform.position = targetCenterWorld - (placed.transform.rotation * _heldVisualCenterLocal);
 
         grid.Place(id, _tmpWorldCells);
+
+        // record fragile flag by placed id
+        _placedFragile[id] = (currentDef != null && currentDef.fragileTop);
 
         // pick a layer index that is included in pickupMask (eg "Pickup")
         int pickUpLayer = LayerMask.NameToLayer("PickUp");
@@ -643,6 +660,7 @@ public class PlacementController : MonoBehaviour
             // Restore grid occupancy
             if (_restoreCells.Count > 0)
                 grid.Place(_restoreId, _restoreCells);
+            _placedFragile[_restoreId] = (_heldPickup != null && _heldPickup.def != null && _heldPickup.def.fragileTop);
 
             _heldPickup.placedId = _restoreId;
         }
@@ -833,8 +851,10 @@ public class PlacementController : MonoBehaviour
         _selected = _targets[idx];
         if (!_selected) return;
 
-        // Turn highlight ON (no material swapping)
-        _selected.GetComponent<PieceHighlighter>()?.SetHighlight(true);
+        // Only show highlight on Gamepad
+        bool usingGamepad = (InputHub.Instance != null && InputHub.Instance.ActiveScheme == ControlSchemeMode.Gamepad);
+        if (usingGamepad)
+            _selected.GetComponent<PieceHighlighter>()?.SetHighlight(true);
     }
 
     void ClearSelection()
@@ -996,12 +1016,14 @@ public class PlacementController : MonoBehaviour
         for (int i = 0; i < cells.Count; i++)
             if (cells[i].y < minY) minY = cells[i].y;
 
+        // touching floor is always supported
         if (minY == 0) return true;
 
         for (int i = 0; i < cells.Count; i++)
         {
             Vector3Int below = cells[i] + Vector3Int.down;
 
+            // ignore self-support (stacked cells within the same piece)
             bool belowIsSelf = false;
             for (int j = 0; j < cells.Count; j++)
             {
@@ -1009,12 +1031,18 @@ public class PlacementController : MonoBehaviour
             }
             if (belowIsSelf) continue;
 
-            if (grid.IsOccupied(below))
-            {
-                supportedCell = cells[i];
-                supportBelow = below;
-                return true;
-            }
+            if (!grid.IsInside(below)) continue;
+            if (!grid.IsOccupied(below)) continue;
+
+            int occId = grid.GetOccupantId(below);
+
+            // If the thing below is fragile-top, it cannot be used as support.
+            if (occId != 0 && _placedFragile.TryGetValue(occId, out bool isFragile) && isFragile)
+                continue;
+
+            supportedCell = cells[i];
+            supportBelow = below;
+            return true;
         }
 
         return false;
@@ -1033,9 +1061,9 @@ public class PlacementController : MonoBehaviour
         return true;
     }
 
-    bool IsStandingFootprint(IReadOnlyList<Vector3Int> cells)
+    bool IsStandingFootprint(PieceDefinition def, IReadOnlyList<Vector3Int> cells)
     {
-        if (cells == null || cells.Count == 0) return false;
+        if (def == null || cells == null || cells.Count == 0) return false;
 
         int minX = int.MaxValue, maxX = int.MinValue;
         int minY = int.MaxValue, maxY = int.MinValue;
@@ -1053,7 +1081,17 @@ public class PlacementController : MonoBehaviour
         int sizeY = (maxY - minY) + 1;
         int sizeZ = (maxZ - minZ) + 1;
 
-        return sizeX == 1 && sizeY == 2 && sizeZ == 1;
+        Vector3Int actual = new Vector3Int(sizeX, sizeY, sizeZ);
+        Vector3Int want = def.standingBounds;
+
+        // exact match
+        if (actual == want) return true;
+
+        // allow yaw swap of X/Z (common case)
+        if (actual.x == want.z && actual.y == want.y && actual.z == want.x)
+            return true;
+
+        return false;
     }
 
     bool PassesUprightRule(PieceDefinition def, Quaternion rotLocal)

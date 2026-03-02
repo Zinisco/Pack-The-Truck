@@ -36,12 +36,12 @@ public class GridManager : MonoBehaviour
     [Header("View")]
     public GridViewMode viewMode = GridViewMode.Perspective;
 
-    bool[,,] _occ;
+    int[,,] _occ; // 0 = empty, otherwise placedId
     readonly Dictionary<int, List<Vector3Int>> _placedCellsById = new();
 
     void Awake()
     {
-        _occ = new bool[size.x, size.y, size.z];
+        _occ = new int[size.x, size.y, size.z];
         if (!origin) origin = transform;
     }
 
@@ -218,7 +218,7 @@ public class GridManager : MonoBehaviour
         => c.x >= 0 && c.y >= 0 && c.z >= 0 && c.x < size.x && c.y < size.y && c.z < size.z;
 
     public bool IsFree(Vector3Int c)
-        => IsInside(c) && !_occ[c.x, c.y, c.z];
+    => IsInside(c) && _occ[c.x, c.y, c.z] == 0;
 
     public Vector3 CellToWorldCenter(Vector3Int c)
     {
@@ -284,7 +284,7 @@ public class GridManager : MonoBehaviour
         {
             var c = cells[i];
             if (!IsInside(c)) return false;
-            if (_occ[c.x, c.y, c.z]) return false;
+            if (_occ[c.x, c.y, c.z] != 0) return false;
         }
         return true;
     }
@@ -295,7 +295,7 @@ public class GridManager : MonoBehaviour
         for (int i = 0; i < cells.Count; i++)
         {
             var c = cells[i];
-            _occ[c.x, c.y, c.z] = true;
+            _occ[c.x, c.y, c.z] = placedId;
             list.Add(c);
         }
         _placedCellsById[placedId] = list;
@@ -308,7 +308,8 @@ public class GridManager : MonoBehaviour
         for (int i = 0; i < cells.Count; i++)
         {
             var c = cells[i];
-            if (IsInside(c)) _occ[c.x, c.y, c.z] = false;
+            if (IsInside(c) && _occ[c.x, c.y, c.z] == placedId)
+                _occ[c.x, c.y, c.z] = 0;
         }
 
         _placedCellsById.Remove(placedId);
@@ -359,7 +360,7 @@ public class GridManager : MonoBehaviour
     public bool IsOccupied(Vector3Int c)
     {
         if (!IsInside(c)) return false;
-        return _occ[c.x, c.y, c.z];
+        return _occ[c.x, c.y, c.z] != 0;
     }
 
     public bool TryGetPlacedCells(int placedId, List<Vector3Int> outCells)
@@ -371,5 +372,11 @@ public class GridManager : MonoBehaviour
 
         outCells.AddRange(cells);
         return true;
+    }
+
+    public int GetOccupantId(Vector3Int c)
+    {
+        if (!IsInside(c)) return 0;
+        return _occ[c.x, c.y, c.z];
     }
 }

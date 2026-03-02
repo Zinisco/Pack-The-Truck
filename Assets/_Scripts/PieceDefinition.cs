@@ -7,6 +7,7 @@ public class PieceDefinition : ScriptableObject
     public GameObject visualPrefab;
     public Vector3Int[] occupiedCellsLocal;
     public Vector3Int pivotLocal = Vector3Int.zero; // choose which local cell is the anchor/pivot
+    public Vector3Int standingBounds = new Vector3Int(1, 2, 1);
 
     [Header("Rules")]
     public bool fragileTop = false;
