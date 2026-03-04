@@ -49,6 +49,13 @@ public class PlacementController : MonoBehaviour
     public float popUpScale = 1.08f;
     public float popDownScale = 0.98f;
 
+    [Header("Rotation Smoothing")]
+    public bool smoothRotation = true;
+    public float rotateSpeed = 18f; // higher = snappier (degrees-ish feel)
+
+    Quaternion _rotTarget = Quaternion.identity;
+    Quaternion _rotVisual = Quaternion.identity;
+
     [Header("Support Debug")]
     public bool debugDrawSupport = true;
     public bool debugDrawUnsupported = true;
@@ -58,6 +65,13 @@ public class PlacementController : MonoBehaviour
     public bool enableCycleSelect = true;
     public float selectionRefreshInterval = 0.35f;   // how often to rebuild list automatically
     public float maxSelectDistance = 100f;           // ignore super far pieces (optional)
+    public System.Action<PieceDefinition, int> OnPlaced;
+
+    [Header("UI Spawn")]
+    public bool spawnOnSelect = true;
+    public Transform spawnedPiecesParent; // optional: keeps hierarchy tidy (e.g. "PlacedPieces")
+
+    bool _spawnedFromUI = false;
 
     List<PickupPiece> _targets = new();
     int _targetIndex = -1;
@@ -78,7 +92,6 @@ public class PlacementController : MonoBehaviour
     GameObject _ghost;
     Renderer[] _ghostRenderers;
 
-    Quaternion _rot = Quaternion.identity;
     Vector3Int _anchorCell;
 
     Vector3 _ghostVisualCenterLocal;
@@ -225,8 +238,19 @@ public class PlacementController : MonoBehaviour
             RotateYaw(-90f);
         }
 
+        if (smoothRotation)
+        {
+            // exponential smoothing that feels consistent regardless of framerate
+            float t = 1f - Mathf.Exp(-rotateSpeed * Time.deltaTime);
+            _rotVisual = Quaternion.Slerp(_rotVisual, _rotTarget, t);
+        }
+        else
+        {
+            _rotVisual = _rotTarget;
+        }
+
         // --- VALIDATION ---
-        bool computed = ComputeWorldCells(currentDef, _anchorCell, _rot, _tmpWorldCells);
+        bool computed = ComputeWorldCells(currentDef, _anchorCell, _rotTarget, _tmpWorldCells);
         bool hasSpace = computed && grid.CanPlaceCells(_tmpWorldCells);
 
         bool hasSupport = false;
@@ -235,7 +259,7 @@ public class PlacementController : MonoBehaviour
 
         bool fragileOk = computed && PassesFragileTopRule(currentDef, _tmpWorldCells);
         bool standingOk = !currentDef.mustBeStanding || (computed && IsStandingFootprint(currentDef, _tmpWorldCells));
-        bool uprightOk = PassesUprightRule(currentDef, _rot);
+        bool uprightOk = PassesUprightRule(currentDef, _rotTarget);
 
         bool weightOk = true;
         string weightReason = null;
@@ -302,8 +326,8 @@ public class PlacementController : MonoBehaviour
     void RotateYaw(float delta)
     {
         // Yaw in *grid-local* space (same space as _rot)
-        _rot = Quaternion.AngleAxis(delta, Vector3.up) * _rot;
-        _rot = Normalize(_rot);
+        _rotTarget = Quaternion.AngleAxis(delta, Vector3.up) * _rotTarget;
+        _rotTarget = Normalize(_rotTarget);
     }
 
     static void SetLayerRecursive(GameObject go, int layer)
@@ -340,8 +364,8 @@ public class PlacementController : MonoBehaviour
 
     void RotateLocal(Vector3 axis, float degrees)
     {
-        _rot = Quaternion.AngleAxis(degrees, axis) * _rot;
-        _rot = Normalize(_rot);
+        _rotTarget = Quaternion.AngleAxis(degrees, axis) * _rotTarget;
+        _rotTarget = Normalize(_rotTarget);
     }
 
     void HandleRotationInputActions()
@@ -467,7 +491,7 @@ public class PlacementController : MonoBehaviour
 
         _heldPickup = pickup;
 
-        _rot = Quaternion.Inverse(grid.origin.rotation) * _heldPickup.transform.rotation;
+        _rotTarget = Quaternion.Inverse(grid.origin.rotation) * _heldPickup.transform.rotation;
 
         if (TryGetRendererBounds(_heldPickup.gameObject, out var heldWorldBounds))
             _heldVisualCenterLocal = _heldPickup.transform.InverseTransformPoint(heldWorldBounds.center);
@@ -547,7 +571,9 @@ public class PlacementController : MonoBehaviour
 
         SnapAnchorToPickup(pickup);
 
-        _rot = Quaternion.Inverse(grid.origin.rotation) * _heldPickup.transform.rotation;
+        _rotTarget = Quaternion.Inverse(grid.origin.rotation) * _heldPickup.transform.rotation;
+        _rotTarget = Normalize(_rotTarget);
+        _rotVisual = _rotTarget;
 
         if (TryGetRendererBounds(_heldPickup.gameObject, out var heldWorldBounds))
             _heldVisualCenterLocal = _heldPickup.transform.InverseTransformPoint(heldWorldBounds.center);
@@ -575,51 +601,49 @@ public class PlacementController : MonoBehaviour
     {
         if (!currentDef || _heldPickup == null) return false;
 
-        if (!ComputeWorldCells(currentDef, _anchorCell, _rot, _tmpWorldCells)) return false;
+        if (!ComputeWorldCells(currentDef, _anchorCell, _rotTarget, _tmpWorldCells)) return false;
         if (!grid.CanPlaceCells(_tmpWorldCells)) return false;
         if (!HasAnySupportBelow(_tmpWorldCells, out _, out _)) return false;
         if (!PassesWeightSupportRule(currentDef, _tmpWorldCells, out _)) return false;
         if (!PassesFragileTopRule(currentDef, _tmpWorldCells)) return false;
         if (currentDef.mustBeStanding && !IsStandingFootprint(currentDef, _tmpWorldCells)) return false;
-        if (!PassesUprightRule(currentDef, _rot)) return false;
+        if (!PassesUprightRule(currentDef, _rotTarget)) return false;
+
+        bool isNewFromUI = _spawnedFromUI;
+        PieceDefinition placedDef = currentDef;
 
         int id = (_heldPickup.placedId != 0) ? _heldPickup.placedId : _nextPlacedId++;
-
         GameObject placed = _heldPickup.gameObject;
 
-        _heldPickup.def = currentDef;
+        _heldPickup.def = placedDef;
         _heldPickup.placedId = id;
 
-        placed.transform.rotation = grid.origin.rotation * _rot;
+        placed.transform.rotation = grid.origin.rotation * _rotTarget;
 
         Vector3 targetCenterWorld = ComputeWorldBoundsCenter(_tmpWorldCells);
         placed.transform.position = targetCenterWorld - (placed.transform.rotation * _heldVisualCenterLocal);
 
         grid.Place(id, _tmpWorldCells);
 
-        _placedFragile[id] = (currentDef != null && currentDef.fragileTop);
-        _placedWeight[id] = (currentDef != null) ? currentDef.weight : PieceWeight.Normal;
+        _placedFragile[id] = placedDef.fragileTop;
+        _placedWeight[id] = placedDef.weight;
 
-        // pick a layer index that is included in pickupMask (eg "Pickup")
         int pickUpLayer = LayerMask.NameToLayer("PickUp");
-        if (pickUpLayer == -1)
-        {
-            Debug.LogError("Layer 'PickUp' does not exist (case-sensitive). Add it in Project Settings > Tags and Layers.");
-        }
-        else
-        {
-            SetLayerRecursive(placed, pickUpLayer);
-        }
+        if (pickUpLayer != -1) SetLayerRecursive(placed, pickUpLayer);
 
         Physics.SyncTransforms();
-
-        if (!placed.activeSelf)
-            placed.SetActive(true);
+        if (!placed.activeSelf) placed.SetActive(true);
 
         PlayPlaceSfx();
         StartCoroutine(PopScale(placed));
 
+        // Exit placement FIRST so auto-advance won't cancel/destroy the placed piece
         ExitPlacementMode();
+
+        // UI can auto-advance and start the next placement
+        if (isNewFromUI)
+            OnPlaced?.Invoke(placedDef, id);
+
         return true;
     }
 
@@ -640,8 +664,9 @@ public class PlacementController : MonoBehaviour
             _heldPickup = null;
         }
 
+        _spawnedFromUI = false;
         currentDef = null;
-        _rot = Quaternion.identity;
+        _rotTarget = Quaternion.identity;
         _holdingExistingPlaced = false;
 
         // clear cancel cache
@@ -653,35 +678,7 @@ public class PlacementController : MonoBehaviour
     void OnCancelPlacement(InputAction.CallbackContext _)
     {
         if (!_isPlacing) return;
-
-        // If we picked up an existing placed piece, revert it.
-        if (_restoreOnCancel && _heldPickup != null)
-        {
-            GameObject go = _heldPickup.gameObject;
-
-            // Restore transform/active state
-            go.transform.position = _restorePos;
-            go.transform.rotation = _restoreRot;
-            go.transform.localScale = _restoreScale;
-            go.SetActive(_restoreWasActive);
-
-            // Restore grid occupancy
-            if (_restoreCells.Count > 0)
-                grid.Place(_restoreId, _restoreCells);
-            _placedFragile[_restoreId] = (_heldPickup != null && _heldPickup.def != null && _heldPickup.def.fragileTop);
-            _placedWeight[_restoreId] = (_heldPickup != null && _heldPickup.def != null) ? _heldPickup.def.weight : PieceWeight.Normal;
-
-            _heldPickup.placedId = _restoreId;
-        }
-        else
-        {
-            // Not previously placed; just show it again if it was hidden
-            if (_heldPickup != null && _heldPickup.hideOnPickup)
-                _heldPickup.gameObject.SetActive(true);
-        }
-
-        // IMPORTANT: don't force-enable here (we already restored active state)
-        ExitPlacementMode(forceShowHeld: false);
+        CancelCurrentPlacementInternal();
     }
 
     void OnLayerScroll(InputAction.CallbackContext ctx)
@@ -762,7 +759,7 @@ public class PlacementController : MonoBehaviour
     {
         if (!_ghost) return;
 
-        _ghost.transform.rotation = grid.origin.rotation * _rot;
+        _ghost.transform.rotation = grid.origin.rotation * _rotVisual;
 
         Vector3 targetCenterWorld =
             (_tmpWorldCells.Count > 0) ? ComputeWorldBoundsCenter(_tmpWorldCells)
@@ -888,21 +885,150 @@ public class PlacementController : MonoBehaviour
         sfxSource.PlayOneShot(clip, vol);
     }
 
+    public void SetCurrentPiece(PieceDefinition def)
+    {
+        currentDef = def;
+
+        // Reset rotation
+        _rotTarget = Quaternion.identity;
+
+        if (_isPlacing)
+            RebuildGhost();
+    }
+
+    public bool BeginPlaceFromUI(PieceDefinition def)
+    {
+        if (!def || !def.visualPrefab) return false;
+        if (!cam || !grid) return false;
+
+        // If we're already placing something, cancel it first
+        if (_isPlacing)
+        {
+            // Simulate a cancel: destroy spawned temp piece if needed, exit placement
+            CancelCurrentPlacementInternal();
+        }
+
+        // Spawn a new pickup object (hidden while placing)
+        _heldPickup = SpawnPickupForDef(def);
+        if (_heldPickup == null) return false;
+
+        _spawnedFromUI = true;
+        _holdingExistingPlaced = false;
+
+        currentDef = def;
+
+        // Reset rotation
+        _rotTarget = Quaternion.identity;
+        _rotVisual = _rotTarget;
+
+        // Start placement mode
+        grid.placementMode = true;
+        _isPlacing = true;
+
+        // Pick a reasonable starting anchor (center-ish of current layer)
+        Vector3 centerWorld = grid.GetWorldLayerCenter(activeLayerY, useCellCenter: true);
+        Vector3Int cell = grid.WorldToCell(centerWorld);
+        cell.x = Mathf.Clamp(cell.x, 0, grid.size.x - 1);
+        cell.z = Mathf.Clamp(cell.z, 0, grid.size.z - 1);
+        cell.y = Mathf.Clamp(activeLayerY, 0, grid.size.y - 1);
+        _anchorCell = cell;
+
+        // Compute held visual center (used for final placement position)
+        if (TryGetRendererBounds(_heldPickup.gameObject, out var heldWorldBounds))
+            _heldVisualCenterLocal = _heldPickup.transform.InverseTransformPoint(heldWorldBounds.center);
+        else
+            _heldVisualCenterLocal = Vector3.zero;
+
+        // Build ghost
+        RebuildGhost();
+
+        // Ensure layer is correct for later pickup
+        int pickUpLayer = LayerMask.NameToLayer("PickUp");
+        if (pickUpLayer != -1)
+            SetLayerRecursive(_heldPickup.gameObject, pickUpLayer);
+
+        return true;
+    }
+
+    PickupPiece SpawnPickupForDef(PieceDefinition def)
+    {
+        GameObject root = new GameObject($"Piece_{def.pieceName}");
+        if (spawnedPiecesParent) root.transform.SetParent(spawnedPiecesParent, true);
+
+        var pickup = root.AddComponent<PickupPiece>();
+        pickup.def = def;
+        pickup.placedId = 0;
+        pickup.hideOnPickup = true;
+
+        GameObject visual = Instantiate(def.visualPrefab, root.transform);
+        visual.name = "Visual";
+
+        // Strip any accidental PickupPiece components in the visual hierarchy
+        var extras = visual.GetComponentsInChildren<PickupPiece>(true);
+        for (int i = 0; i < extras.Length; i++)
+            Destroy(extras[i]);
+
+        root.SetActive(false);
+        return pickup;
+    }
+
+    void CancelCurrentPlacementInternal()
+    {
+        // If it was a UI-spawned piece, destroy it on cancel
+        if (_heldPickup != null && _spawnedFromUI)
+        {
+            Destroy(_heldPickup.gameObject);
+        }
+        else
+        {
+            // Otherwise behave like your normal cancel path (restore / show)
+            if (_restoreOnCancel && _heldPickup != null)
+            {
+                GameObject go = _heldPickup.gameObject;
+
+                go.transform.position = _restorePos;
+                go.transform.rotation = _restoreRot;
+                go.transform.localScale = _restoreScale;
+                go.SetActive(_restoreWasActive);
+
+                if (_restoreCells.Count > 0)
+                    grid.Place(_restoreId, _restoreCells);
+
+                _placedFragile[_restoreId] = (_heldPickup.def != null && _heldPickup.def.fragileTop);
+                _placedWeight[_restoreId] = (_heldPickup.def != null) ? _heldPickup.def.weight : PieceWeight.Normal;
+
+                _heldPickup.placedId = _restoreId;
+            }
+            else
+            {
+                if (_heldPickup != null && _heldPickup.hideOnPickup)
+                    _heldPickup.gameObject.SetActive(true);
+            }
+        }
+
+        // exit placement without forcing show (we already handled it)
+        ExitPlacementMode(forceShowHeld: false);
+
+        _spawnedFromUI = false;
+    }
+
     void SnapAnchorToPickup(PickupPiece pickup)
     {
         Vector3 worldPoint = pickup.transform.position;
+
         if (TryGetRendererBounds(pickup.gameObject, out var b))
-            worldPoint = b.center;
+        {
+            // Use bottom of the object so we select the correct layer (prevents Y jumping)
+            worldPoint = new Vector3(b.center.x, b.min.y + 0.01f, b.center.z);
+        }
 
         Vector3Int cell = grid.WorldToCell(worldPoint);
 
-        // Clamp XZ only
         cell.x = Mathf.Clamp(cell.x, 0, grid.size.x - 1);
+        cell.y = Mathf.Clamp(cell.y, 0, grid.size.y - 1);
         cell.z = Mathf.Clamp(cell.z, 0, grid.size.z - 1);
 
-        // KEEP current layer
-        cell.y = Mathf.Clamp(activeLayerY, 0, grid.size.y - 1);
-
+        activeLayerY = cell.y;
         _anchorCell = cell;
     }
 
@@ -918,6 +1044,7 @@ public class PlacementController : MonoBehaviour
         float t01 = 0f;
         while (t01 < 1f)
         {
+            if (!t) yield break; 
             t01 += Time.deltaTime / half;
             float s = Mathf.Lerp(1f, popUpScale, t01);
             t.localScale = baseScale * s;
@@ -927,13 +1054,14 @@ public class PlacementController : MonoBehaviour
         t01 = 0f;
         while (t01 < 1f)
         {
+            if (!t) yield break; 
             t01 += Time.deltaTime / half;
             float s = Mathf.Lerp(popUpScale, popDownScale, t01);
             t.localScale = baseScale * s;
             yield return null;
         }
 
-        t.localScale = baseScale;
+        if (t) t.localScale = baseScale; 
     }
 
     // --- rules / debug unchanged ---

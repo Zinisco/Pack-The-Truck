@@ -10,7 +10,12 @@ public enum PieceWeight
 [CreateAssetMenu(menuName = "TruckPacker/Piece Definition")]
 public class PieceDefinition : ScriptableObject
 {
+    [Header("Identity")]
     public string pieceName;
+    public Sprite icon;
+    public PieceWeight weight = PieceWeight.Normal;
+
+    [Header("Visual")]
     public GameObject visualPrefab;
     public Vector3Int[] occupiedCellsLocal;
     public Vector3Int pivotLocal = Vector3Int.zero;
@@ -20,9 +25,6 @@ public class PieceDefinition : ScriptableObject
     public bool fragileTop = false;
     public bool mustBeStanding = false;
     public bool forbidUpsideDown = false;
-
-    [Header("Weight")]
-    public PieceWeight weight = PieceWeight.Normal;
 
     [Header("Audio")]
     public AudioClip placeClipOverride;

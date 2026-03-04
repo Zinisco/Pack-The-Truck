@@ -291,6 +291,17 @@ public class GridManager : MonoBehaviour
 
     public void Place(int placedId, IReadOnlyList<Vector3Int> cells)
     {
+        // If this ID was already placed before, clear its old occupied cells first.
+        if (_placedCellsById.TryGetValue(placedId, out var oldCells) && oldCells != null)
+        {
+            for (int i = 0; i < oldCells.Count; i++)
+            {
+                var c = oldCells[i];
+                if (IsInside(c) && _occ[c.x, c.y, c.z] == placedId)
+                    _occ[c.x, c.y, c.z] = 0;
+            }
+        }
+
         var list = new List<Vector3Int>(cells.Count);
         for (int i = 0; i < cells.Count; i++)
         {
@@ -298,6 +309,7 @@ public class GridManager : MonoBehaviour
             _occ[c.x, c.y, c.z] = placedId;
             list.Add(c);
         }
+
         _placedCellsById[placedId] = list;
     }
 
