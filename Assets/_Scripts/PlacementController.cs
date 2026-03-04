@@ -21,15 +21,6 @@ public class PlacementController : MonoBehaviour
     [Header("Placement Move Mode")]
     public PlacementMoveMode moveMode = PlacementMoveMode.Mouse;
 
-    [Header("Layer")]
-    [Range(0, 20)] public int activeLayerY = 0;
-    [SerializeField] float scrollLayerCooldown = 0.03f; // prevents “free spin” scrolling
-    float _nextScrollTime = 0f;
-
-    [Header("Layer Step (Gamepad)")]
-    public float layerRepeatDelay = 0.20f;
-    float _nextLayerStepTime = 0f;
-
     [Header("Ghost Visuals")]
     public Material validMat;
     public Material invalidMat;
@@ -75,6 +66,7 @@ public class PlacementController : MonoBehaviour
     [Header("UI Spawn")]
     public bool spawnOnSelect = true;
     public Transform spawnedPiecesParent; // optional: keeps hierarchy tidy (e.g. "PlacedPieces")
+    private int activeLayerY = 0;
 
     bool _spawnedFromUI = false;
 
@@ -149,7 +141,6 @@ public class PlacementController : MonoBehaviour
         if (_subscribed) return;
 
         _player.Click.performed += OnClick;
-        _player.CancelPlacement.performed += OnCancelPlacement;
         _player.ConfirmPlacement.performed += OnConfirmPlacement;
         _player.CyclePrev.performed += OnCyclePrev;
         _player.CycleNext.performed += OnCycleNext;
@@ -162,7 +153,6 @@ public class PlacementController : MonoBehaviour
         if (!_subscribed) return;
 
         _player.Click.performed -= OnClick;
-        _player.CancelPlacement.performed -= OnCancelPlacement;
         _player.ConfirmPlacement.performed -= OnConfirmPlacement;
         _player.CyclePrev.performed -= OnCyclePrev;
         _player.CycleNext.performed -= OnCycleNext;
@@ -289,30 +279,6 @@ public class PlacementController : MonoBehaviour
         DebugDrawCells(_tmpWorldCells);
         UpdateGhostTransform();
         SetGhostMaterial(canPlace ? validMat : invalidMat);
-    }
-
-    void SetLayer(int y)
-    {
-        activeLayerY = Mathf.Clamp(y, 0, grid.size.y - 1);
-        _anchorCell.y = activeLayerY;
-    }
-
-    void OnLayerUp(InputAction.CallbackContext _)
-    {
-        if (!_isPlacing) return;
-        if (Time.time < _nextLayerStepTime) return;
-        _nextLayerStepTime = Time.time + layerRepeatDelay;
-
-        SetLayer(activeLayerY + 1);
-    }
-
-    void OnLayerDown(InputAction.CallbackContext _)
-    {
-        if (!_isPlacing) return;
-        if (Time.time < _nextLayerStepTime) return;
-        _nextLayerStepTime = Time.time + layerRepeatDelay;
-
-        SetLayer(activeLayerY - 1);
     }
 
     void OnCyclePrev(InputAction.CallbackContext _)
@@ -689,34 +655,10 @@ public class PlacementController : MonoBehaviour
         _restoreCells.Clear();
     }
 
-    void OnCancelPlacement(InputAction.CallbackContext _)
+    public void CancelPlacement()
     {
         if (!_isPlacing) return;
         CancelCurrentPlacementInternal();
-    }
-
-    void OnLayerScroll(InputAction.CallbackContext ctx)
-    {
-        if (!_isPlacing) return;
-        if (Time.time < _nextScrollTime) return;
-
-        Vector2 scroll = ctx.ReadValue<Vector2>();
-
-        // Mouse wheel is usually in Y (up/down)
-        float dy = scroll.y;
-        if (Mathf.Abs(dy) < 0.01f) return;
-
-        // Some mice report +/-120 per notch, some smaller.
-        // Convert to “steps” robustly.
-        int steps = Mathf.RoundToInt(dy / 120f);
-        if (steps == 0) steps = (dy > 0f) ? 1 : -1;
-
-        // Optional: clamp how many layers one event can jump
-        steps = Mathf.Clamp(steps, -3, 3);
-
-        SetLayer(activeLayerY + steps);
-
-        _nextScrollTime = Time.time + scrollLayerCooldown;
     }
 
     void UpdateAnchorXZFromMouse()
