@@ -201,33 +201,6 @@ public partial class @InputSystem_Actions: IInputActionCollection2, IDisposable
                     ""initialStateCheck"": false
                 },
                 {
-                    ""name"": ""LayerUp"",
-                    ""type"": ""Button"",
-                    ""id"": ""fa3b56f3-2e4f-4846-a4a1-f3c1e8c93a43"",
-                    ""expectedControlType"": """",
-                    ""processors"": """",
-                    ""interactions"": """",
-                    ""initialStateCheck"": false
-                },
-                {
-                    ""name"": ""LayerDown"",
-                    ""type"": ""Button"",
-                    ""id"": ""c60ad1da-6831-4458-a467-f452526a5870"",
-                    ""expectedControlType"": """",
-                    ""processors"": """",
-                    ""interactions"": """",
-                    ""initialStateCheck"": false
-                },
-                {
-                    ""name"": ""LayerScroll"",
-                    ""type"": ""PassThrough"",
-                    ""id"": ""c9f44dc0-3734-44c8-81ab-af23e96d3349"",
-                    ""expectedControlType"": ""Vector2"",
-                    ""processors"": """",
-                    ""interactions"": """",
-                    ""initialStateCheck"": false
-                },
-                {
                     ""name"": ""OrbitStick"",
                     ""type"": ""PassThrough"",
                     ""id"": ""b93a5328-0335-427b-bf37-17c985cdc52f"",
@@ -492,39 +465,6 @@ public partial class @InputSystem_Actions: IInputActionCollection2, IDisposable
                 },
                 {
                     ""name"": """",
-                    ""id"": ""1ea977a6-2dc7-408d-9a0e-b230bff31def"",
-                    ""path"": ""<Mouse>/scroll"",
-                    ""interactions"": """",
-                    ""processors"": """",
-                    ""groups"": "";Keyboard&Mouse"",
-                    ""action"": ""LayerScroll"",
-                    ""isComposite"": false,
-                    ""isPartOfComposite"": false
-                },
-                {
-                    ""name"": """",
-                    ""id"": ""ecd712d2-01b5-47e5-b942-cd1504b0a843"",
-                    ""path"": ""<Gamepad>/leftStick/up"",
-                    ""interactions"": """",
-                    ""processors"": """",
-                    ""groups"": """",
-                    ""action"": ""LayerUp"",
-                    ""isComposite"": false,
-                    ""isPartOfComposite"": false
-                },
-                {
-                    ""name"": """",
-                    ""id"": ""43da5ebf-bf23-4976-b718-54fab2ae9cc3"",
-                    ""path"": ""<Gamepad>/leftStick/down"",
-                    ""interactions"": """",
-                    ""processors"": """",
-                    ""groups"": """",
-                    ""action"": ""LayerDown"",
-                    ""isComposite"": false,
-                    ""isPartOfComposite"": false
-                },
-                {
-                    ""name"": """",
                     ""id"": ""67edd93a-e816-4eda-84de-2b920cadf85c"",
                     ""path"": ""<Gamepad>/rightStick"",
                     ""interactions"": """",
@@ -538,6 +478,17 @@ public partial class @InputSystem_Actions: IInputActionCollection2, IDisposable
                     ""name"": """",
                     ""id"": ""bc1cad8b-a0ad-48e1-9aff-c5d71b8ab2fe"",
                     ""path"": ""<Gamepad>/dpad"",
+                    ""interactions"": """",
+                    ""processors"": """",
+                    ""groups"": "";Gamepad"",
+                    ""action"": ""PieceMove"",
+                    ""isComposite"": false,
+                    ""isPartOfComposite"": false
+                },
+                {
+                    ""name"": """",
+                    ""id"": ""6646f388-86ec-4a92-aa3c-033d6742d2ef"",
+                    ""path"": ""<Gamepad>/leftStick"",
                     ""interactions"": """",
                     ""processors"": """",
                     ""groups"": "";Gamepad"",
@@ -1174,9 +1125,6 @@ public partial class @InputSystem_Actions: IInputActionCollection2, IDisposable
         m_Player_RotateZ = m_Player.FindAction("RotateZ", throwIfNotFound: true);
         m_Player_RotationModifier = m_Player.FindAction("RotationModifier", throwIfNotFound: true);
         m_Player_ConfirmPlacement = m_Player.FindAction("ConfirmPlacement", throwIfNotFound: true);
-        m_Player_LayerUp = m_Player.FindAction("LayerUp", throwIfNotFound: true);
-        m_Player_LayerDown = m_Player.FindAction("LayerDown", throwIfNotFound: true);
-        m_Player_LayerScroll = m_Player.FindAction("LayerScroll", throwIfNotFound: true);
         m_Player_OrbitStick = m_Player.FindAction("OrbitStick", throwIfNotFound: true);
         m_Player_PieceMove = m_Player.FindAction("PieceMove", throwIfNotFound: true);
         m_Player_CycleNext = m_Player.FindAction("CycleNext", throwIfNotFound: true);
@@ -1289,9 +1237,6 @@ public partial class @InputSystem_Actions: IInputActionCollection2, IDisposable
     private readonly InputAction m_Player_RotateZ;
     private readonly InputAction m_Player_RotationModifier;
     private readonly InputAction m_Player_ConfirmPlacement;
-    private readonly InputAction m_Player_LayerUp;
-    private readonly InputAction m_Player_LayerDown;
-    private readonly InputAction m_Player_LayerScroll;
     private readonly InputAction m_Player_OrbitStick;
     private readonly InputAction m_Player_PieceMove;
     private readonly InputAction m_Player_CycleNext;
@@ -1358,18 +1303,6 @@ public partial class @InputSystem_Actions: IInputActionCollection2, IDisposable
         /// Provides access to the underlying input action "Player/ConfirmPlacement".
         /// </summary>
         public InputAction @ConfirmPlacement => m_Wrapper.m_Player_ConfirmPlacement;
-        /// <summary>
-        /// Provides access to the underlying input action "Player/LayerUp".
-        /// </summary>
-        public InputAction @LayerUp => m_Wrapper.m_Player_LayerUp;
-        /// <summary>
-        /// Provides access to the underlying input action "Player/LayerDown".
-        /// </summary>
-        public InputAction @LayerDown => m_Wrapper.m_Player_LayerDown;
-        /// <summary>
-        /// Provides access to the underlying input action "Player/LayerScroll".
-        /// </summary>
-        public InputAction @LayerScroll => m_Wrapper.m_Player_LayerScroll;
         /// <summary>
         /// Provides access to the underlying input action "Player/OrbitStick".
         /// </summary>
@@ -1460,15 +1393,6 @@ public partial class @InputSystem_Actions: IInputActionCollection2, IDisposable
             @ConfirmPlacement.started += instance.OnConfirmPlacement;
             @ConfirmPlacement.performed += instance.OnConfirmPlacement;
             @ConfirmPlacement.canceled += instance.OnConfirmPlacement;
-            @LayerUp.started += instance.OnLayerUp;
-            @LayerUp.performed += instance.OnLayerUp;
-            @LayerUp.canceled += instance.OnLayerUp;
-            @LayerDown.started += instance.OnLayerDown;
-            @LayerDown.performed += instance.OnLayerDown;
-            @LayerDown.canceled += instance.OnLayerDown;
-            @LayerScroll.started += instance.OnLayerScroll;
-            @LayerScroll.performed += instance.OnLayerScroll;
-            @LayerScroll.canceled += instance.OnLayerScroll;
             @OrbitStick.started += instance.OnOrbitStick;
             @OrbitStick.performed += instance.OnOrbitStick;
             @OrbitStick.canceled += instance.OnOrbitStick;
@@ -1537,15 +1461,6 @@ public partial class @InputSystem_Actions: IInputActionCollection2, IDisposable
             @ConfirmPlacement.started -= instance.OnConfirmPlacement;
             @ConfirmPlacement.performed -= instance.OnConfirmPlacement;
             @ConfirmPlacement.canceled -= instance.OnConfirmPlacement;
-            @LayerUp.started -= instance.OnLayerUp;
-            @LayerUp.performed -= instance.OnLayerUp;
-            @LayerUp.canceled -= instance.OnLayerUp;
-            @LayerDown.started -= instance.OnLayerDown;
-            @LayerDown.performed -= instance.OnLayerDown;
-            @LayerDown.canceled -= instance.OnLayerDown;
-            @LayerScroll.started -= instance.OnLayerScroll;
-            @LayerScroll.performed -= instance.OnLayerScroll;
-            @LayerScroll.canceled -= instance.OnLayerScroll;
             @OrbitStick.started -= instance.OnOrbitStick;
             @OrbitStick.performed -= instance.OnOrbitStick;
             @OrbitStick.canceled -= instance.OnOrbitStick;
@@ -1951,27 +1866,6 @@ public partial class @InputSystem_Actions: IInputActionCollection2, IDisposable
         /// <seealso cref="UnityEngine.InputSystem.InputAction.performed" />
         /// <seealso cref="UnityEngine.InputSystem.InputAction.canceled" />
         void OnConfirmPlacement(InputAction.CallbackContext context);
-        /// <summary>
-        /// Method invoked when associated input action "LayerUp" is either <see cref="UnityEngine.InputSystem.InputAction.started" />, <see cref="UnityEngine.InputSystem.InputAction.performed" /> or <see cref="UnityEngine.InputSystem.InputAction.canceled" />.
-        /// </summary>
-        /// <seealso cref="UnityEngine.InputSystem.InputAction.started" />
-        /// <seealso cref="UnityEngine.InputSystem.InputAction.performed" />
-        /// <seealso cref="UnityEngine.InputSystem.InputAction.canceled" />
-        void OnLayerUp(InputAction.CallbackContext context);
-        /// <summary>
-        /// Method invoked when associated input action "LayerDown" is either <see cref="UnityEngine.InputSystem.InputAction.started" />, <see cref="UnityEngine.InputSystem.InputAction.performed" /> or <see cref="UnityEngine.InputSystem.InputAction.canceled" />.
-        /// </summary>
-        /// <seealso cref="UnityEngine.InputSystem.InputAction.started" />
-        /// <seealso cref="UnityEngine.InputSystem.InputAction.performed" />
-        /// <seealso cref="UnityEngine.InputSystem.InputAction.canceled" />
-        void OnLayerDown(InputAction.CallbackContext context);
-        /// <summary>
-        /// Method invoked when associated input action "LayerScroll" is either <see cref="UnityEngine.InputSystem.InputAction.started" />, <see cref="UnityEngine.InputSystem.InputAction.performed" /> or <see cref="UnityEngine.InputSystem.InputAction.canceled" />.
-        /// </summary>
-        /// <seealso cref="UnityEngine.InputSystem.InputAction.started" />
-        /// <seealso cref="UnityEngine.InputSystem.InputAction.performed" />
-        /// <seealso cref="UnityEngine.InputSystem.InputAction.canceled" />
-        void OnLayerScroll(InputAction.CallbackContext context);
         /// <summary>
         /// Method invoked when associated input action "OrbitStick" is either <see cref="UnityEngine.InputSystem.InputAction.started" />, <see cref="UnityEngine.InputSystem.InputAction.performed" /> or <see cref="UnityEngine.InputSystem.InputAction.canceled" />.
         /// </summary>

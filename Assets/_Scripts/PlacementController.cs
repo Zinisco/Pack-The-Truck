@@ -44,6 +44,11 @@ public class PlacementController : MonoBehaviour
     [Range(0f, 1f)] public float placeVolume = 0.9f;
     public Vector2 placePitchRange = new Vector2(0.95f, 1.05f);
 
+    [Header("Auto Drop (Tetris-style)")]
+    public bool autoDropY = true;
+    public bool dropFromTop = true;      // true = drop starting from top of grid, false = from current y
+    public int dropSearchPadding = 1;    // optional, lets you search slightly above current y for stability
+
     [Header("Pop Animation")]
     public float popDuration = 0.12f;
     public float popUpScale = 1.08f;
@@ -146,9 +151,6 @@ public class PlacementController : MonoBehaviour
         _player.Click.performed += OnClick;
         _player.CancelPlacement.performed += OnCancelPlacement;
         _player.ConfirmPlacement.performed += OnConfirmPlacement;
-        _player.LayerUp.performed += OnLayerUp;
-        _player.LayerDown.performed += OnLayerDown;
-        _player.LayerScroll.performed += OnLayerScroll;
         _player.CyclePrev.performed += OnCyclePrev;
         _player.CycleNext.performed += OnCycleNext;
 
@@ -162,9 +164,6 @@ public class PlacementController : MonoBehaviour
         _player.Click.performed -= OnClick;
         _player.CancelPlacement.performed -= OnCancelPlacement;
         _player.ConfirmPlacement.performed -= OnConfirmPlacement;
-        _player.LayerUp.performed -= OnLayerUp;
-        _player.LayerDown.performed -= OnLayerDown;
-        _player.LayerScroll.performed -= OnLayerScroll;
         _player.CyclePrev.performed -= OnCyclePrev;
         _player.CycleNext.performed -= OnCycleNext;
 
@@ -212,16 +211,23 @@ public class PlacementController : MonoBehaviour
 
         if (usingGamepad)
         {
-            // Gamepad placement = grid step move (left stick)
             Vector2 move = _player.PieceMove.ReadValue<Vector2>();
             if (move.sqrMagnitude < 0.15f * 0.15f) move = Vector2.zero;
+
+            // Step in XZ only
             StepMoveXZ(move);
+
+            // After XZ change, drop to rest
+            if (autoDropY) SnapToDropY();
         }
         else
         {
-            // Mouse placement = follow mouse, BUT freeze while orbiting
+            // Mouse controls XZ, then auto-drop decides Y
             if (!isOrbiting)
-                UpdateAnchorFromMouse();
+            {
+                UpdateAnchorXZFromMouse();
+                if (autoDropY) SnapToDropY();
+            }
         }
 
         // Rotate (keyboard only)
@@ -433,8 +439,8 @@ public class PlacementController : MonoBehaviour
         next.y = Mathf.Clamp(next.y, 0, grid.size.y - 1);
         next.z = Mathf.Clamp(next.z, 0, grid.size.z - 1);
 
-        _anchorCell = next;
-        activeLayerY = _anchorCell.y;
+        _anchorCell.x = next.x;
+        _anchorCell.z = next.z;
     }
 
     void OnClick(InputAction.CallbackContext _)
@@ -547,7 +553,6 @@ public class PlacementController : MonoBehaviour
 
         if (_holdingExistingPlaced)
         {
-            // Cache for cancel-revert
             _restoreOnCancel = true;
             _restoreId = pickup.placedId;
 
@@ -556,12 +561,21 @@ public class PlacementController : MonoBehaviour
             _restoreScale = pickup.transform.localScale;
             _restoreWasActive = pickup.gameObject.activeSelf;
 
-            // IMPORTANT: grab the exact cells before removing
             if (!grid.TryGetPlacedCells(_restoreId, _restoreCells))
             {
-                // Failsafe: if we can't restore cells, don't attempt revert
                 _restoreOnCancel = false;
                 _restoreCells.Clear();
+            }
+            else
+            {
+                // Block moving if this piece is supporting something above it
+                if (IsSupportingOtherPiece(_restoreId, _restoreCells, out int aboveId, out _, out _))
+                {
+                    _placementWarning = $"Can't move: piece is supporting another piece (ID {aboveId}).";
+                    _restoreOnCancel = false;
+                    _restoreCells.Clear();
+                    return; // do not pick up
+                }
             }
 
             grid.Remove(_restoreId);
@@ -705,12 +719,12 @@ public class PlacementController : MonoBehaviour
         _nextScrollTime = Time.time + scrollLayerCooldown;
     }
 
-    void UpdateAnchorFromMouse()
+    void UpdateAnchorXZFromMouse()
     {
         Vector2 screen = _player.Point.ReadValue<Vector2>();
         Ray ray = cam.ScreenPointToRay(screen);
 
-        // Fixed plane (layer 0 / floor) so XZ doesn't change when you change layers
+        // Use a plane at the grid’s “floor” height
         float baseYWorld = grid.CellToWorldCenter(new Vector3Int(0, 0, 0)).y;
         Plane plane = new Plane(Vector3.up, new Vector3(0f, baseYWorld, 0f));
 
@@ -718,17 +732,14 @@ public class PlacementController : MonoBehaviour
             return;
 
         Vector3 hit = ray.GetPoint(enter);
-
         Vector3Int cell = grid.WorldToCell(hit);
 
-        // Clamp XZ
         cell.x = Mathf.Clamp(cell.x, 0, grid.size.x - 1);
         cell.z = Mathf.Clamp(cell.z, 0, grid.size.z - 1);
 
-        // Elevator: only Y changes with layer
-        cell.y = Mathf.Clamp(activeLayerY, 0, grid.size.y - 1);
-
-        _anchorCell = cell;
+        // DO NOT set Y here (auto drop will)
+        _anchorCell.x = cell.x;
+        _anchorCell.z = cell.z;
     }
 
     // --- Ghost ---
@@ -810,6 +821,61 @@ public class PlacementController : MonoBehaviour
         }
 
         return (min + max) * 0.5f;
+    }
+
+    void SnapToDropY()
+    {
+        if (!currentDef) return;
+
+        int startY;
+        if (dropFromTop)
+            startY = grid.size.y - 1;
+        else
+            startY = Mathf.Clamp(_anchorCell.y + dropSearchPadding, 0, grid.size.y - 1);
+
+        // We’ll search downward for the first valid “resting” placement
+        for (int y = startY; y >= 0; y--)
+        {
+            var testAnchor = new Vector3Int(_anchorCell.x, y, _anchorCell.z);
+
+            // must produce cells
+            if (!ComputeWorldCells(currentDef, testAnchor, _rotTarget, _tmpWorldCells))
+                continue;
+
+            // must be inside bounds
+            if (!AllInside(_tmpWorldCells))
+                continue;
+
+            // must not overlap
+            if (!grid.CanPlaceCells(_tmpWorldCells))
+                continue;
+
+            // must obey “must be standing” / upright rule here too (so drop respects it)
+            if (currentDef.mustBeStanding && !IsStandingFootprint(currentDef, _tmpWorldCells))
+                continue;
+
+            if (!PassesUprightRule(currentDef, _rotTarget))
+                continue;
+
+            // must be supported (or touch floor)
+            if (!HasAnySupportBelow(_tmpWorldCells, out _, out _))
+                continue;
+
+            // Found the resting Y
+            _anchorCell.y = y;
+            return;
+        }
+
+        // If nothing works, keep current Y (or clamp)
+        _anchorCell.y = Mathf.Clamp(_anchorCell.y, 0, grid.size.y - 1);
+    }
+
+    bool AllInside(IReadOnlyList<Vector3Int> cells)
+    {
+        for (int i = 0; i < cells.Count; i++)
+            if (!grid.IsInside(cells[i]))
+                return false;
+        return true;
     }
 
     static bool TryGetRendererBounds(GameObject go, out Bounds b)
@@ -1324,6 +1390,36 @@ public class PlacementController : MonoBehaviour
         return true;
     }
 
+    bool IsSupportingOtherPiece(int myPlacedId, IReadOnlyList<Vector3Int> myCells,
+    out int aboveId, out Vector3Int myCell, out Vector3Int aboveCell)
+    {
+        aboveId = 0;
+        myCell = default;
+        aboveCell = default;
+
+        if (myPlacedId == 0 || myCells == null || myCells.Count == 0) return false;
+
+        for (int i = 0; i < myCells.Count; i++)
+        {
+            Vector3Int c = myCells[i];
+            Vector3Int up = c + Vector3Int.up;
+
+            if (!grid.IsInside(up)) continue;
+            if (!grid.IsOccupied(up)) continue;
+
+            int occ = grid.GetOccupantId(up);
+
+            // if something above is a different placed piece, we're supporting it
+            if (occ != 0 && occ != myPlacedId)
+            {
+                aboveId = occ;
+                myCell = c;
+                aboveCell = up;
+                return true;
+            }
+        }
+        return false;
+    }
     static Quaternion Normalize(Quaternion q)
     {
         float mag = Mathf.Sqrt(q.x * q.x + q.y * q.y + q.z * q.z + q.w * q.w);
