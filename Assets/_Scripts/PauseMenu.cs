@@ -5,15 +5,15 @@ using UnityEngine.EventSystems;
 public class PauseMenu : MonoBehaviour
 {
     [Header("UI")]
-    [SerializeField] private GameObject pauseRoot;              // the panel/root you enable/disable
-    [SerializeField] private GameObject firstSelectedWhenOpen;  // optional: first button to highlight
-    [SerializeField] private GameObject firstSelectedWhenClose; // optional: gameplay-selected object (can be null)
+    [SerializeField] private GameObject pauseRoot;
+    [SerializeField] private GameObject firstSelectedWhenOpen;
+    [SerializeField] private GameObject firstSelectedWhenClose;
 
     [SerializeField] private GameObject packUI;
 
     [Header("Behavior")]
     [SerializeField] private bool pauseTimeScale = true;
-    [SerializeField] private bool pauseAudioListener = false;   // optional
+    [SerializeField] private bool pauseAudioListener = false;
 
     public bool IsPaused { get; private set; }
 
@@ -42,7 +42,8 @@ public class PauseMenu : MonoBehaviour
         IsPaused = true;
 
         pauseRoot.SetActive(true);
-        packUI.SetActive(false); // hide pack UI when pausing
+
+        if (packUI) packUI.SetActive(false);
 
         if (pauseTimeScale)
         {
@@ -53,7 +54,6 @@ public class PauseMenu : MonoBehaviour
         if (pauseAudioListener)
             AudioListener.pause = true;
 
-        // UI focus (gamepad friendly)
         if (EventSystem.current != null)
         {
             EventSystem.current.SetSelectedGameObject(null);
@@ -74,7 +74,8 @@ public class PauseMenu : MonoBehaviour
             AudioListener.pause = false;
 
         pauseRoot.SetActive(false);
-        packUI.SetActive(true);
+
+        if (packUI) packUI.SetActive(true);
 
         if (EventSystem.current != null)
         {
@@ -84,10 +85,9 @@ public class PauseMenu : MonoBehaviour
         }
     }
 
-    // --- Button methods ---
     public void Restart()
     {
-        Resume(); // restore timescale before reload
+        Resume();
         var scene = SceneManager.GetActiveScene();
         SceneManager.LoadScene(scene.buildIndex);
     }
@@ -95,7 +95,6 @@ public class PauseMenu : MonoBehaviour
     public void MainMenu()
     {
         Resume();
-        // Change this to your menu scene name or build index
         SceneManager.LoadScene("MainMenu");
     }
 
@@ -108,10 +107,15 @@ public class PauseMenu : MonoBehaviour
 #endif
     }
 
-    // If you have a settings panel, you can open it here.
+    void OnApplicationQuit()
+    {
+        GameSettings.SaveAll();
+    }
+
     public void OpenSettingsPanel(GameObject settingsPanel)
     {
         if (!settingsPanel) return;
+
         settingsPanel.SetActive(true);
         pauseRoot.SetActive(false);
     }
@@ -119,10 +123,13 @@ public class PauseMenu : MonoBehaviour
     public void CloseSettingsPanel(GameObject settingsPanel)
     {
         if (!settingsPanel) return;
+
+        // Save settings only when closing the settings menu
+        GameSettings.SaveAll();
+
         settingsPanel.SetActive(false);
         pauseRoot.SetActive(true);
 
-        // Re-select the first pause button again
         if (EventSystem.current != null && firstSelectedWhenOpen != null)
         {
             EventSystem.current.SetSelectedGameObject(null);
