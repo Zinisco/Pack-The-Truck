@@ -391,4 +391,31 @@ public class GridManager : MonoBehaviour
         if (!IsInside(c)) return 0;
         return _occ[c.x, c.y, c.z];
     }
+
+    public int TotalCellCount => size.x * size.y * size.z;
+
+    public int OccupiedCellCount
+    {
+        get
+        {
+            int count = 0;
+            for (int x = 0; x < size.x; x++)
+            {
+                for (int y = 0; y < size.y; y++)
+                {
+                    for (int z = 0; z < size.z; z++)
+                    {
+                        if (_occ[x, y, z] != 0)
+                            count++;
+                    }
+                }
+            }
+            return count;
+        }
+    }
+
+    public bool AreAllCellsOccupied()
+    {
+        return OccupiedCellCount == TotalCellCount;
+    }
 }

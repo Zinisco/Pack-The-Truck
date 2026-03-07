@@ -8,6 +8,9 @@ public class PlacementController : MonoBehaviour
 {
     public enum PlacementMoveMode { Mouse, GridStep }
 
+    [Header("Puzzle")]
+    [SerializeField] private PackPuzzleValidator puzzleValidator;
+
     [Header("Refs")]
     public Camera cam;
     public GridManager grid;
@@ -103,6 +106,7 @@ public class PlacementController : MonoBehaviour
     readonly List<Vector3Int> _tmpWorldCells = new();
     readonly Dictionary<int, bool> _placedFragile = new Dictionary<int, bool>();
     readonly Dictionary<int, PieceWeight> _placedWeight = new Dictionary<int, PieceWeight>();
+    readonly Dictionary<int, PieceDefinition> _placedDefs = new Dictionary<int, PieceDefinition>();
 
     // --- Cancel Revert Cache (when picking up an already-placed piece) ---
     bool _restoreOnCancel = false;
@@ -457,13 +461,28 @@ public class PlacementController : MonoBehaviour
                 _restoreOnCancel = false;
                 _restoreCells.Clear();
             }
+            else
+            {
+                if (IsSupportingOtherPiece(_restoreId, _restoreCells, out int aboveId, out _, out _))
+                {
+                    _placementWarning = $"Can't move: piece is supporting another piece (ID {aboveId}).";
+                    _restoreOnCancel = false;
+                    _restoreCells.Clear();
+                    return false;
+                }
+            }
 
             grid.Remove(_restoreId);
+            _placedDefs.Remove(_restoreId);
+            _placedFragile.Remove(_restoreId);
+            _placedWeight.Remove(_restoreId);
         }
 
         _heldPickup = pickup;
 
         _rotTarget = Quaternion.Inverse(grid.origin.rotation) * _heldPickup.transform.rotation;
+        _rotTarget = Normalize(_rotTarget);
+        _rotVisual = _rotTarget;
 
         if (TryGetRendererBounds(_heldPickup.gameObject, out var heldWorldBounds))
             _heldVisualCenterLocal = _heldPickup.transform.InverseTransformPoint(heldWorldBounds.center);
@@ -545,6 +564,9 @@ public class PlacementController : MonoBehaviour
             }
 
             grid.Remove(_restoreId);
+            _placedDefs.Remove(_restoreId);
+            _placedFragile.Remove(_restoreId);
+            _placedWeight.Remove(_restoreId);
         }
 
         _heldPickup = pickup;
@@ -607,6 +629,7 @@ public class PlacementController : MonoBehaviour
 
         _placedFragile[id] = placedDef.fragileTop;
         _placedWeight[id] = placedDef.weight;
+        _placedDefs[id] = placedDef;
 
         int pickUpLayer = LayerMask.NameToLayer("PickUp");
         if (pickUpLayer != -1) SetLayerRecursive(placed, pickUpLayer);
@@ -623,6 +646,11 @@ public class PlacementController : MonoBehaviour
         // UI can auto-advance and start the next placement
         if (isNewFromUI)
             OnPlaced?.Invoke(placedDef, id);
+
+        if (puzzleValidator != null && puzzleValidator.IsSolved())
+        {
+            Debug.Log("YOU WIN");
+        }
 
         return true;
     }
@@ -1004,6 +1032,7 @@ public class PlacementController : MonoBehaviour
 
                 _placedFragile[_restoreId] = (_heldPickup.def != null && _heldPickup.def.fragileTop);
                 _placedWeight[_restoreId] = (_heldPickup.def != null) ? _heldPickup.def.weight : PieceWeight.Normal;
+                _placedDefs[_restoreId] = _heldPickup.def;
 
                 _heldPickup.placedId = _restoreId;
             }
@@ -1148,6 +1177,37 @@ public class PlacementController : MonoBehaviour
             return hit.collider && hit.collider.GetComponentInParent<PickupPiece>() == p;
         }
         return true;
+    }
+
+    public int GetPlacedCount(PieceDefinition def)
+    {
+        if (def == null) return 0;
+
+        int count = 0;
+        foreach (var kvp in _placedDefs)
+        {
+            if (kvp.Value == def)
+                count++;
+        }
+        return count;
+    }
+
+    public Dictionary<PieceDefinition, int> GetPlacedCounts()
+    {
+        Dictionary<PieceDefinition, int> counts = new Dictionary<PieceDefinition, int>();
+
+        foreach (var kvp in _placedDefs)
+        {
+            PieceDefinition def = kvp.Value;
+            if (def == null) continue;
+
+            if (!counts.ContainsKey(def))
+                counts[def] = 0;
+
+            counts[def]++;
+        }
+
+        return counts;
     }
 
     bool HasAnySupportBelow(IReadOnlyList<Vector3Int> cells, out Vector3Int supportedCell, out Vector3Int supportBelow)
