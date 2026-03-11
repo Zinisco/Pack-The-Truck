@@ -1,30 +1,16 @@
 using UnityEngine;
 
-public enum PieceWeight
-{
-    Light,
-    Normal,
-    Heavy
-}
-
-[CreateAssetMenu(menuName = "TruckPacker/Piece Definition")]
+[CreateAssetMenu(menuName = "3D Tetris/Piece Definition")]
 public class PieceDefinition : ScriptableObject
 {
     [Header("Identity")]
     public string pieceName;
     public Sprite icon;
-    public PieceWeight weight = PieceWeight.Normal;
 
     [Header("Visual")]
     public GameObject visualPrefab;
     public Vector3Int[] occupiedCellsLocal;
     public Vector3Int pivotLocal = Vector3Int.zero;
-    public Vector3Int standingBounds = new Vector3Int(1, 2, 1);
-
-    [Header("Rules")]
-    public bool fragileTop = false;
-    public bool mustBeStanding = false;
-    public bool forbidUpsideDown = false;
 
     [Header("Audio")]
     public AudioClip placeClipOverride;

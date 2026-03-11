@@ -9,7 +9,7 @@ public class PackRequirement
     [Min(1)] public int count = 1;
 }
 
-[CreateAssetMenu(menuName = "TruckPacker/Pack Manifest")]
+[CreateAssetMenu(menuName = "3D Tetris/Pack Manifest")]
 public class PackManifest : ScriptableObject
 {
     public List<PackRequirement> required = new List<PackRequirement>();

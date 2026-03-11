@@ -237,24 +237,6 @@ public partial class @InputSystem_Actions: IInputActionCollection2, IDisposable
                     ""initialStateCheck"": false
                 },
                 {
-                    ""name"": ""RotateYawPlus"",
-                    ""type"": ""Button"",
-                    ""id"": ""72b99b40-9df4-450b-b6c2-f87ee0a16f54"",
-                    ""expectedControlType"": """",
-                    ""processors"": """",
-                    ""interactions"": """",
-                    ""initialStateCheck"": false
-                },
-                {
-                    ""name"": ""RotateYawMinus"",
-                    ""type"": ""Button"",
-                    ""id"": ""fee7ad1d-b583-4e20-ae05-85c310dd9780"",
-                    ""expectedControlType"": """",
-                    ""processors"": """",
-                    ""interactions"": """",
-                    ""initialStateCheck"": false
-                },
-                {
                     ""name"": ""TogglePackUI"",
                     ""type"": ""Button"",
                     ""id"": ""feed0322-62ce-4da7-a4eb-af9a168aad89"",
@@ -271,6 +253,24 @@ public partial class @InputSystem_Actions: IInputActionCollection2, IDisposable
                     ""processors"": """",
                     ""interactions"": """",
                     ""initialStateCheck"": false
+                },
+                {
+                    ""name"": ""DeletePiece"",
+                    ""type"": ""Button"",
+                    ""id"": ""79764ee8-d315-4650-8261-2e23cfb7cc70"",
+                    ""expectedControlType"": """",
+                    ""processors"": """",
+                    ""interactions"": """",
+                    ""initialStateCheck"": false
+                },
+                {
+                    ""name"": ""ChangeYLayer"",
+                    ""type"": ""Value"",
+                    ""id"": ""aa33ef95-afac-4bd0-80c8-e00d7e8aeef4"",
+                    ""expectedControlType"": ""Axis"",
+                    ""processors"": """",
+                    ""interactions"": """",
+                    ""initialStateCheck"": true
                 }
             ],
             ""bindings"": [
@@ -431,7 +431,7 @@ public partial class @InputSystem_Actions: IInputActionCollection2, IDisposable
                 {
                     ""name"": """",
                     ""id"": ""249f01de-44d4-4d2a-ad2c-b71c1e60856c"",
-                    ""path"": ""<Gamepad>/buttonNorth"",
+                    ""path"": ""<Gamepad>/leftTrigger"",
                     ""interactions"": """",
                     ""processors"": """",
                     ""groups"": "";Gamepad"",
@@ -480,17 +480,6 @@ public partial class @InputSystem_Actions: IInputActionCollection2, IDisposable
                     ""processors"": """",
                     ""groups"": "";Gamepad"",
                     ""action"": ""OrbitStick"",
-                    ""isComposite"": false,
-                    ""isPartOfComposite"": false
-                },
-                {
-                    ""name"": """",
-                    ""id"": ""bc1cad8b-a0ad-48e1-9aff-c5d71b8ab2fe"",
-                    ""path"": ""<Gamepad>/dpad"",
-                    ""interactions"": """",
-                    ""processors"": """",
-                    ""groups"": "";Gamepad"",
-                    ""action"": ""PieceMove"",
                     ""isComposite"": false,
                     ""isPartOfComposite"": false
                 },
@@ -551,28 +540,6 @@ public partial class @InputSystem_Actions: IInputActionCollection2, IDisposable
                 },
                 {
                     ""name"": """",
-                    ""id"": ""9d4cc84d-dfed-4b00-92c3-f801cc27978c"",
-                    ""path"": ""<Gamepad>/rightTrigger"",
-                    ""interactions"": """",
-                    ""processors"": """",
-                    ""groups"": "";Gamepad"",
-                    ""action"": ""RotateYawPlus"",
-                    ""isComposite"": false,
-                    ""isPartOfComposite"": false
-                },
-                {
-                    ""name"": """",
-                    ""id"": ""36c65cd5-1d63-4e79-815c-1a70b041ed04"",
-                    ""path"": ""<Gamepad>/leftTrigger"",
-                    ""interactions"": """",
-                    ""processors"": """",
-                    ""groups"": "";Gamepad"",
-                    ""action"": ""RotateYawMinus"",
-                    ""isComposite"": false,
-                    ""isPartOfComposite"": false
-                },
-                {
-                    ""name"": """",
                     ""id"": ""e4c5aacc-4f6a-478c-8956-3e468f1b457a"",
                     ""path"": ""<Keyboard>/tab"",
                     ""interactions"": """",
@@ -603,6 +570,94 @@ public partial class @InputSystem_Actions: IInputActionCollection2, IDisposable
                     ""action"": ""Pause"",
                     ""isComposite"": false,
                     ""isPartOfComposite"": false
+                },
+                {
+                    ""name"": """",
+                    ""id"": ""c7919131-63c8-46a7-b53c-173f77bdcf50"",
+                    ""path"": ""<Keyboard>/x"",
+                    ""interactions"": """",
+                    ""processors"": """",
+                    ""groups"": "";Keyboard&Mouse"",
+                    ""action"": ""DeletePiece"",
+                    ""isComposite"": false,
+                    ""isPartOfComposite"": false
+                },
+                {
+                    ""name"": """",
+                    ""id"": ""d8738d01-2574-4656-8c10-39d57021a18d"",
+                    ""path"": ""<Gamepad>/buttonNorth"",
+                    ""interactions"": """",
+                    ""processors"": """",
+                    ""groups"": "";Gamepad"",
+                    ""action"": ""DeletePiece"",
+                    ""isComposite"": false,
+                    ""isPartOfComposite"": false
+                },
+                {
+                    ""name"": """",
+                    ""id"": ""8934461d-cce3-45f0-a6a3-ceef30f588c9"",
+                    ""path"": ""<Keyboard>/delete"",
+                    ""interactions"": """",
+                    ""processors"": """",
+                    ""groups"": "";Keyboard&Mouse"",
+                    ""action"": ""DeletePiece"",
+                    ""isComposite"": false,
+                    ""isPartOfComposite"": false
+                },
+                {
+                    ""name"": """",
+                    ""id"": ""09b82e78-77cc-4fb1-acd8-5d73219eabd7"",
+                    ""path"": ""<Keyboard>/backspace"",
+                    ""interactions"": """",
+                    ""processors"": """",
+                    ""groups"": "";Keyboard&Mouse"",
+                    ""action"": ""DeletePiece"",
+                    ""isComposite"": false,
+                    ""isPartOfComposite"": false
+                },
+                {
+                    ""name"": """",
+                    ""id"": ""59f5ce6c-2110-460b-a25e-66f6cee871e1"",
+                    ""path"": ""<Mouse>/scroll/y"",
+                    ""interactions"": """",
+                    ""processors"": """",
+                    ""groups"": "";Keyboard&Mouse"",
+                    ""action"": ""ChangeYLayer"",
+                    ""isComposite"": false,
+                    ""isPartOfComposite"": false
+                },
+                {
+                    ""name"": ""1D Axis"",
+                    ""id"": ""652e747e-f657-4e2a-aa9b-f981690c3a07"",
+                    ""path"": ""1DAxis"",
+                    ""interactions"": """",
+                    ""processors"": """",
+                    ""groups"": """",
+                    ""action"": ""ChangeYLayer"",
+                    ""isComposite"": true,
+                    ""isPartOfComposite"": false
+                },
+                {
+                    ""name"": ""negative"",
+                    ""id"": ""4305fa4d-2341-4597-b8e2-dc9ad9e68aef"",
+                    ""path"": ""<Gamepad>/dpad/down"",
+                    ""interactions"": """",
+                    ""processors"": """",
+                    ""groups"": """",
+                    ""action"": ""ChangeYLayer"",
+                    ""isComposite"": false,
+                    ""isPartOfComposite"": true
+                },
+                {
+                    ""name"": ""positive"",
+                    ""id"": ""08144fa0-028a-42c9-8130-3a63e72dff05"",
+                    ""path"": ""<Gamepad>/dpad/up"",
+                    ""interactions"": """",
+                    ""processors"": """",
+                    ""groups"": """",
+                    ""action"": ""ChangeYLayer"",
+                    ""isComposite"": false,
+                    ""isPartOfComposite"": true
                 }
             ]
         },
@@ -1149,10 +1204,10 @@ public partial class @InputSystem_Actions: IInputActionCollection2, IDisposable
         m_Player_PieceMove = m_Player.FindAction("PieceMove", throwIfNotFound: true);
         m_Player_CycleNext = m_Player.FindAction("CycleNext", throwIfNotFound: true);
         m_Player_CyclePrev = m_Player.FindAction("CyclePrev", throwIfNotFound: true);
-        m_Player_RotateYawPlus = m_Player.FindAction("RotateYawPlus", throwIfNotFound: true);
-        m_Player_RotateYawMinus = m_Player.FindAction("RotateYawMinus", throwIfNotFound: true);
         m_Player_TogglePackUI = m_Player.FindAction("TogglePackUI", throwIfNotFound: true);
         m_Player_Pause = m_Player.FindAction("Pause", throwIfNotFound: true);
+        m_Player_DeletePiece = m_Player.FindAction("DeletePiece", throwIfNotFound: true);
+        m_Player_ChangeYLayer = m_Player.FindAction("ChangeYLayer", throwIfNotFound: true);
         // UI
         m_UI = asset.FindActionMap("UI", throwIfNotFound: true);
         m_UI_Navigate = m_UI.FindAction("Navigate", throwIfNotFound: true);
@@ -1262,10 +1317,10 @@ public partial class @InputSystem_Actions: IInputActionCollection2, IDisposable
     private readonly InputAction m_Player_PieceMove;
     private readonly InputAction m_Player_CycleNext;
     private readonly InputAction m_Player_CyclePrev;
-    private readonly InputAction m_Player_RotateYawPlus;
-    private readonly InputAction m_Player_RotateYawMinus;
     private readonly InputAction m_Player_TogglePackUI;
     private readonly InputAction m_Player_Pause;
+    private readonly InputAction m_Player_DeletePiece;
+    private readonly InputAction m_Player_ChangeYLayer;
     /// <summary>
     /// Provides access to input actions defined in input action map "Player".
     /// </summary>
@@ -1342,14 +1397,6 @@ public partial class @InputSystem_Actions: IInputActionCollection2, IDisposable
         /// </summary>
         public InputAction @CyclePrev => m_Wrapper.m_Player_CyclePrev;
         /// <summary>
-        /// Provides access to the underlying input action "Player/RotateYawPlus".
-        /// </summary>
-        public InputAction @RotateYawPlus => m_Wrapper.m_Player_RotateYawPlus;
-        /// <summary>
-        /// Provides access to the underlying input action "Player/RotateYawMinus".
-        /// </summary>
-        public InputAction @RotateYawMinus => m_Wrapper.m_Player_RotateYawMinus;
-        /// <summary>
         /// Provides access to the underlying input action "Player/TogglePackUI".
         /// </summary>
         public InputAction @TogglePackUI => m_Wrapper.m_Player_TogglePackUI;
@@ -1357,6 +1404,14 @@ public partial class @InputSystem_Actions: IInputActionCollection2, IDisposable
         /// Provides access to the underlying input action "Player/Pause".
         /// </summary>
         public InputAction @Pause => m_Wrapper.m_Player_Pause;
+        /// <summary>
+        /// Provides access to the underlying input action "Player/DeletePiece".
+        /// </summary>
+        public InputAction @DeletePiece => m_Wrapper.m_Player_DeletePiece;
+        /// <summary>
+        /// Provides access to the underlying input action "Player/ChangeYLayer".
+        /// </summary>
+        public InputAction @ChangeYLayer => m_Wrapper.m_Player_ChangeYLayer;
         /// <summary>
         /// Provides access to the underlying input action map instance.
         /// </summary>
@@ -1431,18 +1486,18 @@ public partial class @InputSystem_Actions: IInputActionCollection2, IDisposable
             @CyclePrev.started += instance.OnCyclePrev;
             @CyclePrev.performed += instance.OnCyclePrev;
             @CyclePrev.canceled += instance.OnCyclePrev;
-            @RotateYawPlus.started += instance.OnRotateYawPlus;
-            @RotateYawPlus.performed += instance.OnRotateYawPlus;
-            @RotateYawPlus.canceled += instance.OnRotateYawPlus;
-            @RotateYawMinus.started += instance.OnRotateYawMinus;
-            @RotateYawMinus.performed += instance.OnRotateYawMinus;
-            @RotateYawMinus.canceled += instance.OnRotateYawMinus;
             @TogglePackUI.started += instance.OnTogglePackUI;
             @TogglePackUI.performed += instance.OnTogglePackUI;
             @TogglePackUI.canceled += instance.OnTogglePackUI;
             @Pause.started += instance.OnPause;
             @Pause.performed += instance.OnPause;
             @Pause.canceled += instance.OnPause;
+            @DeletePiece.started += instance.OnDeletePiece;
+            @DeletePiece.performed += instance.OnDeletePiece;
+            @DeletePiece.canceled += instance.OnDeletePiece;
+            @ChangeYLayer.started += instance.OnChangeYLayer;
+            @ChangeYLayer.performed += instance.OnChangeYLayer;
+            @ChangeYLayer.canceled += instance.OnChangeYLayer;
         }
 
         /// <summary>
@@ -1502,18 +1557,18 @@ public partial class @InputSystem_Actions: IInputActionCollection2, IDisposable
             @CyclePrev.started -= instance.OnCyclePrev;
             @CyclePrev.performed -= instance.OnCyclePrev;
             @CyclePrev.canceled -= instance.OnCyclePrev;
-            @RotateYawPlus.started -= instance.OnRotateYawPlus;
-            @RotateYawPlus.performed -= instance.OnRotateYawPlus;
-            @RotateYawPlus.canceled -= instance.OnRotateYawPlus;
-            @RotateYawMinus.started -= instance.OnRotateYawMinus;
-            @RotateYawMinus.performed -= instance.OnRotateYawMinus;
-            @RotateYawMinus.canceled -= instance.OnRotateYawMinus;
             @TogglePackUI.started -= instance.OnTogglePackUI;
             @TogglePackUI.performed -= instance.OnTogglePackUI;
             @TogglePackUI.canceled -= instance.OnTogglePackUI;
             @Pause.started -= instance.OnPause;
             @Pause.performed -= instance.OnPause;
             @Pause.canceled -= instance.OnPause;
+            @DeletePiece.started -= instance.OnDeletePiece;
+            @DeletePiece.performed -= instance.OnDeletePiece;
+            @DeletePiece.canceled -= instance.OnDeletePiece;
+            @ChangeYLayer.started -= instance.OnChangeYLayer;
+            @ChangeYLayer.performed -= instance.OnChangeYLayer;
+            @ChangeYLayer.canceled -= instance.OnChangeYLayer;
         }
 
         /// <summary>
@@ -1927,20 +1982,6 @@ public partial class @InputSystem_Actions: IInputActionCollection2, IDisposable
         /// <seealso cref="UnityEngine.InputSystem.InputAction.canceled" />
         void OnCyclePrev(InputAction.CallbackContext context);
         /// <summary>
-        /// Method invoked when associated input action "RotateYawPlus" is either <see cref="UnityEngine.InputSystem.InputAction.started" />, <see cref="UnityEngine.InputSystem.InputAction.performed" /> or <see cref="UnityEngine.InputSystem.InputAction.canceled" />.
-        /// </summary>
-        /// <seealso cref="UnityEngine.InputSystem.InputAction.started" />
-        /// <seealso cref="UnityEngine.InputSystem.InputAction.performed" />
-        /// <seealso cref="UnityEngine.InputSystem.InputAction.canceled" />
-        void OnRotateYawPlus(InputAction.CallbackContext context);
-        /// <summary>
-        /// Method invoked when associated input action "RotateYawMinus" is either <see cref="UnityEngine.InputSystem.InputAction.started" />, <see cref="UnityEngine.InputSystem.InputAction.performed" /> or <see cref="UnityEngine.InputSystem.InputAction.canceled" />.
-        /// </summary>
-        /// <seealso cref="UnityEngine.InputSystem.InputAction.started" />
-        /// <seealso cref="UnityEngine.InputSystem.InputAction.performed" />
-        /// <seealso cref="UnityEngine.InputSystem.InputAction.canceled" />
-        void OnRotateYawMinus(InputAction.CallbackContext context);
-        /// <summary>
         /// Method invoked when associated input action "TogglePackUI" is either <see cref="UnityEngine.InputSystem.InputAction.started" />, <see cref="UnityEngine.InputSystem.InputAction.performed" /> or <see cref="UnityEngine.InputSystem.InputAction.canceled" />.
         /// </summary>
         /// <seealso cref="UnityEngine.InputSystem.InputAction.started" />
@@ -1954,6 +1995,20 @@ public partial class @InputSystem_Actions: IInputActionCollection2, IDisposable
         /// <seealso cref="UnityEngine.InputSystem.InputAction.performed" />
         /// <seealso cref="UnityEngine.InputSystem.InputAction.canceled" />
         void OnPause(InputAction.CallbackContext context);
+        /// <summary>
+        /// Method invoked when associated input action "DeletePiece" is either <see cref="UnityEngine.InputSystem.InputAction.started" />, <see cref="UnityEngine.InputSystem.InputAction.performed" /> or <see cref="UnityEngine.InputSystem.InputAction.canceled" />.
+        /// </summary>
+        /// <seealso cref="UnityEngine.InputSystem.InputAction.started" />
+        /// <seealso cref="UnityEngine.InputSystem.InputAction.performed" />
+        /// <seealso cref="UnityEngine.InputSystem.InputAction.canceled" />
+        void OnDeletePiece(InputAction.CallbackContext context);
+        /// <summary>
+        /// Method invoked when associated input action "ChangeYLayer" is either <see cref="UnityEngine.InputSystem.InputAction.started" />, <see cref="UnityEngine.InputSystem.InputAction.performed" /> or <see cref="UnityEngine.InputSystem.InputAction.canceled" />.
+        /// </summary>
+        /// <seealso cref="UnityEngine.InputSystem.InputAction.started" />
+        /// <seealso cref="UnityEngine.InputSystem.InputAction.performed" />
+        /// <seealso cref="UnityEngine.InputSystem.InputAction.canceled" />
+        void OnChangeYLayer(InputAction.CallbackContext context);
     }
     /// <summary>
     /// Interface to implement callback methods for all input action callbacks associated with input actions defined by "UI" which allows adding and removing callbacks.

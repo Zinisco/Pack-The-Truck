@@ -367,7 +367,7 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: b2d96531bf39e8948b4eff0a23974ad1, type: 3}
   m_Name: 
   m_EditorClassIdentifier: Assembly-CSharp::PackUIController
-  manifest: {fileID: 11400000, guid: ab3123b0866113745bff9f18d805cdb7, type: 2}
+  manifest: {fileID: 11400000, guid: 433935905cb7a454dac63dad42d83468, type: 2}
   placement: {fileID: 477040258}
   contentRoot: {fileID: 1356140802}
   cardPrefab: {fileID: 1620601887219193216, guid: d6c6460062a2d7d46b6479b24bd39759, type: 3}
@@ -418,7 +418,7 @@ MonoBehaviour:
   m_Name: 
   m_EditorClassIdentifier: Assembly-CSharp::PauseMenuInput
   pauseMenu: {fileID: 141768157}
-  placement: {fileID: 0}
+  placement: {fileID: 477040258}
 --- !u!1 &330585543
 GameObject:
   m_ObjectHideFlags: 0
@@ -772,6 +772,7 @@ MonoBehaviour:
   grid: {fileID: 389146661}
   currentDef: {fileID: 0}
   keyRepeatDelay: 0.18
+  yLayerRepeatDelay: 0.15
   moveMode: 0
   validMat: {fileID: 2100000, guid: acdfc25e8bb92274f882d047a9a42689, type: 2}
   invalidMat: {fileID: 2100000, guid: a10b9d598eb416c4da140db0355939da, type: 2}
@@ -783,17 +784,11 @@ MonoBehaviour:
   placeClip: {fileID: 8300000, guid: 13f52ee0088ca1e4b9818dcd6796a0bd, type: 3}
   placeVolume: 0.9
   placePitchRange: {x: 0.95, y: 1.05}
-  autoDropY: 1
-  dropFromTop: 1
-  dropSearchPadding: 1
   popDuration: 0.12
   popUpScale: 1.08
   popDownScale: 0.98
   smoothRotation: 1
   rotateSpeed: 18
-  debugDrawSupport: 1
-  debugDrawUnsupported: 1
-  debugLineHeight: 0.35
   enableCycleSelect: 1
   selectionRefreshInterval: 0.35
   maxSelectDistance: 100
@@ -942,7 +937,7 @@ MonoBehaviour:
   m_EditorClassIdentifier: Assembly-CSharp::PackPuzzleValidator
   grid: {fileID: 389146661}
   placement: {fileID: 477040258}
-  manifest: {fileID: 11400000, guid: ab3123b0866113745bff9f18d805cdb7, type: 2}
+  manifest: {fileID: 11400000, guid: 433935905cb7a454dac63dad42d83468, type: 2}
   logChecks: 1
 --- !u!4 &512700192
 Transform:
@@ -1416,7 +1411,7 @@ MonoBehaviour:
     m_Top: 5
     m_Bottom: 0
   m_ChildAlignment: 0
-  m_Spacing: -480
+  m_Spacing: -160
   m_ChildForceExpandWidth: 1
   m_ChildForceExpandHeight: 1
   m_ChildControlWidth: 0
@@ -1424,6 +1419,56 @@ MonoBehaviour:
   m_ChildScaleWidth: 0
   m_ChildScaleHeight: 0
   m_ReverseArrangement: 0
+--- !u!1 &1608462816
+GameObject:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  serializedVersion: 6
+  m_Component:
+  - component: {fileID: 1608462818}
+  - component: {fileID: 1608462817}
+  m_Layer: 0
+  m_Name: TruckLayoutGenerator
+  m_TagString: Untagged
+  m_Icon: {fileID: 0}
+  m_NavMeshLayer: 0
+  m_StaticEditorFlags: 0
+  m_IsActive: 1
+--- !u!114 &1608462817
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 1608462816}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 6f6cb430eccb2814db883a090353ee84, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: Assembly-CSharp::TruckLayoutGenerator
+  grid: {fileID: 389146661}
+  pieceLibrary: {fileID: 11400000, guid: 9818a16c07558d24d83888120d54fe80, type: 2}
+  maxAttempts: 200
+  randomizePieceOrder: 1
+  manifestAssetName: GeneratedPackManifest
+  manifestSaveFolder: Assets/_GameData/GeneratedManifests
+--- !u!4 &1608462818
+Transform:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 1608462816}
+  serializedVersion: 2
+  m_LocalRotation: {x: 0, y: 0, z: 0, w: 1}
+  m_LocalPosition: {x: 0.23495, y: 0, z: -0.30484}
+  m_LocalScale: {x: 1, y: 1, z: 1}
+  m_ConstrainProportionsScale: 0
+  m_Children: []
+  m_Father: {fileID: 0}
+  m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
 --- !u!1 &1844672457
 GameObject:
   m_ObjectHideFlags: 0
@@ -20155,3 +20200,4 @@ SceneRoots:
   - {fileID: 514060095}
   - {fileID: 54085882}
   - {fileID: 512700192}
+  - {fileID: 1608462818}

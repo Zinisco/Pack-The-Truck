@@ -21,6 +21,10 @@ public class PlacementController : MonoBehaviour
     [Header("Movement")]
     public float keyRepeatDelay = 0.18f;
 
+    [Header("Y Layer")]
+    public float yLayerRepeatDelay = 0.15f;
+    private float _nextYLayerMoveTime = 0f;
+
     [Header("Placement Move Mode")]
     public PlacementMoveMode moveMode = PlacementMoveMode.Mouse;
 
@@ -38,11 +42,6 @@ public class PlacementController : MonoBehaviour
     [Range(0f, 1f)] public float placeVolume = 0.9f;
     public Vector2 placePitchRange = new Vector2(0.95f, 1.05f);
 
-    [Header("Auto Drop (Tetris-style)")]
-    public bool autoDropY = true;
-    public bool dropFromTop = true;      // true = drop starting from top of grid, false = from current y
-    public int dropSearchPadding = 1;    // optional, lets you search slightly above current y for stability
-
     [Header("Pop Animation")]
     public float popDuration = 0.12f;
     public float popUpScale = 1.08f;
@@ -55,16 +54,12 @@ public class PlacementController : MonoBehaviour
     Quaternion _rotTarget = Quaternion.identity;
     Quaternion _rotVisual = Quaternion.identity;
 
-    [Header("Support Debug")]
-    public bool debugDrawSupport = true;
-    public bool debugDrawUnsupported = true;
-    public float debugLineHeight = 0.35f;
-
     [Header("Gamepad Selection (Cycle)")]
     public bool enableCycleSelect = true;
     public float selectionRefreshInterval = 0.35f;   // how often to rebuild list automatically
     public float maxSelectDistance = 100f;           // ignore super far pieces (optional)
     public System.Action<PieceDefinition, int> OnPlaced;
+    public System.Action<PieceDefinition, int> OnReturned;
 
     [Header("UI Spawn")]
     public bool spawnOnSelect = true;
@@ -81,6 +76,7 @@ public class PlacementController : MonoBehaviour
 
     InputSystem_Actions _input;
     InputSystem_Actions.PlayerActions _player;
+
 
     ControlSchemeMode _lastScheme = ControlSchemeMode.KeyboardMouse;
 
@@ -104,8 +100,6 @@ public class PlacementController : MonoBehaviour
 
     int _nextPlacedId = 1;
     readonly List<Vector3Int> _tmpWorldCells = new();
-    readonly Dictionary<int, bool> _placedFragile = new Dictionary<int, bool>();
-    readonly Dictionary<int, PieceWeight> _placedWeight = new Dictionary<int, PieceWeight>();
     readonly Dictionary<int, PieceDefinition> _placedDefs = new Dictionary<int, PieceDefinition>();
 
     // --- Cancel Revert Cache (when picking up an already-placed piece) ---
@@ -148,6 +142,8 @@ public class PlacementController : MonoBehaviour
         _player.ConfirmPlacement.performed += OnConfirmPlacement;
         _player.CyclePrev.performed += OnCyclePrev;
         _player.CycleNext.performed += OnCycleNext;
+        _player.DeletePiece.performed += OnDeletePiece;
+        _player.ChangeYLayer.performed += OnChangeYLayer;
 
         _subscribed = true;
     }
@@ -160,6 +156,8 @@ public class PlacementController : MonoBehaviour
         _player.ConfirmPlacement.performed -= OnConfirmPlacement;
         _player.CyclePrev.performed -= OnCyclePrev;
         _player.CycleNext.performed -= OnCycleNext;
+        _player.DeletePiece.performed -= OnDeletePiece;
+        _player.ChangeYLayer.performed -= OnChangeYLayer;
 
         _subscribed = false;
     }
@@ -208,35 +206,21 @@ public class PlacementController : MonoBehaviour
             Vector2 move = _player.PieceMove.ReadValue<Vector2>();
             if (move.sqrMagnitude < 0.15f * 0.15f) move = Vector2.zero;
 
-            // Step in XZ only
             StepMoveXZ(move);
-
-            // After XZ change, drop to rest
-            if (autoDropY) SnapToDropY();
         }
         else
         {
-            // Mouse controls XZ, then auto-drop decides Y
             if (!isOrbiting)
             {
                 UpdateAnchorXZFromMouse();
-                if (autoDropY) SnapToDropY();
             }
         }
 
-        // Rotate (keyboard only)
+        // always use manual Y layer
+        _anchorCell.y = Mathf.Clamp(activeLayerY, 0, grid.size.y - 1);
+
+        // Rotate
         HandleRotationInputActions();
-
-        // Snap yaw
-        if (_player.RotateYawPlus.WasPressedThisFrame())
-        {
-            RotateYaw(+90f);
-        }
-
-        if (_player.RotateYawMinus.WasPressedThisFrame())
-        {
-            RotateYaw(-90f);
-        }
 
         if (smoothRotation)
         {
@@ -251,34 +235,11 @@ public class PlacementController : MonoBehaviour
 
         // --- VALIDATION ---
         bool computed = ComputeWorldCells(currentDef, _anchorCell, _rotTarget, _tmpWorldCells);
-        bool hasSpace = computed && grid.CanPlaceCells(_tmpWorldCells);
-
-        bool hasSupport = false;
-        Vector3Int supportedCell = default, supportBelow = default;
-        if (computed) hasSupport = HasAnySupportBelow(_tmpWorldCells, out supportedCell, out supportBelow);
-
-        bool fragileOk = computed && PassesFragileTopRule(currentDef, _tmpWorldCells);
-        bool standingOk = !currentDef.mustBeStanding || (computed && IsStandingFootprint(currentDef, _tmpWorldCells));
-        bool uprightOk = PassesUprightRule(currentDef, _rotTarget);
-
-        bool weightOk = true;
-        string weightReason = null;
-        if (computed)
-            weightOk = PassesWeightSupportRule(currentDef, _tmpWorldCells, out weightReason);
-
-        bool canPlace = computed && hasSpace && hasSupport && fragileOk && weightOk && standingOk && uprightOk;
+        bool canPlace = computed && grid.CanPlaceCells(_tmpWorldCells);
 
         _placementWarning = null;
         if (!computed) _placementWarning = "Invalid shape / rotation.";
-        else if (!hasSpace) _placementWarning = "Blocked: space is occupied.";
-        else if (!hasSupport) _placementWarning = "Needs support below.";
-        else if (!fragileOk) _placementWarning = "Fragile: nothing can be directly on top.";
-        else if (!weightOk) _placementWarning = weightReason ?? "Not enough support for weight.";
-        else if (!standingOk) _placementWarning = "Must be standing upright.";
-        else if (!uprightOk) _placementWarning = "Can't place upside down.";
-
-        if (computed && debugDrawSupport)
-            DebugDrawSupport(_tmpWorldCells, hasSupport, supportedCell, supportBelow);
+        else if (!canPlace) _placementWarning = "Blocked: space is occupied.";
 
         DebugDrawCells(_tmpWorldCells);
         UpdateGhostTransform();
@@ -299,43 +260,11 @@ public class PlacementController : MonoBehaviour
         Cycle(+1);
     }
 
-    void RotateYaw(float delta)
-    {
-        // Yaw in *grid-local* space (same space as _rot)
-        _rotTarget = Quaternion.AngleAxis(delta, Vector3.up) * _rotTarget;
-        _rotTarget = Normalize(_rotTarget);
-    }
-
     static void SetLayerRecursive(GameObject go, int layer)
     {
         go.layer = layer;
         foreach (Transform t in go.transform)
             SetLayerRecursive(t.gameObject, layer);
-    }
-
-    void HandleRotationKeys()
-    {
-        if (Keyboard.current == null) return;
-
-        bool shift =
-            Keyboard.current.leftShiftKey.isPressed ||
-            Keyboard.current.rightShiftKey.isPressed;
-
-        float degrees = shift ? -90f : 90f;
-
-        // One tap = one 90° step (Shift reverses direction)
-        if (Keyboard.current.xKey.wasPressedThisFrame)
-        {
-            RotateLocal(Vector3.right, degrees);
-        }
-        else if (Keyboard.current.yKey.wasPressedThisFrame)
-        {
-            RotateLocal(Vector3.up, degrees);
-        }
-        else if (Keyboard.current.zKey.wasPressedThisFrame)
-        {
-            RotateLocal(Vector3.forward, degrees);
-        }
     }
 
     void RotateLocal(Vector3 axis, float degrees)
@@ -356,7 +285,6 @@ public class PlacementController : MonoBehaviour
         if (_player.RotateX.WasPressedThisFrame())
             RotateLocal(Vector3.right, degrees);
 
-        // Only allow RotateY from keyboard/mouse scheme
         if (!usingGamepad && _player.RotateY.WasPressedThisFrame())
             RotateLocal(Vector3.up, degrees);
 
@@ -406,7 +334,6 @@ public class PlacementController : MonoBehaviour
         Vector3Int next = _anchorCell + delta;
 
         next.x = Mathf.Clamp(next.x, 0, grid.size.x - 1);
-        next.y = Mathf.Clamp(next.y, 0, grid.size.y - 1);
         next.z = Mathf.Clamp(next.z, 0, grid.size.z - 1);
 
         _anchorCell.x = next.x;
@@ -429,6 +356,34 @@ public class PlacementController : MonoBehaviour
         }
 
         TryPickupFromScene(); // mouse fallback
+    }
+
+    void OnChangeYLayer(InputAction.CallbackContext ctx)
+    {
+        if (!_isPlacing) return;
+
+        float value = ctx.ReadValue<float>();
+        if (Mathf.Abs(value) < 0.01f) return;
+
+        bool usingGamepad = (InputHub.Instance != null && InputHub.Instance.ActiveScheme == ControlSchemeMode.Gamepad);
+
+        if (usingGamepad)
+        {
+            // prevent super-fast repeats from held d-pad
+            if (Time.time < _nextYLayerMoveTime) return;
+            _nextYLayerMoveTime = Time.time + yLayerRepeatDelay;
+        }
+
+        int delta = value > 0f ? 1 : -1;
+
+        activeLayerY = Mathf.Clamp(activeLayerY + delta, 0, grid.size.y - 1);
+        _anchorCell.y = activeLayerY;
+    }
+
+    void OnDeletePiece(InputAction.CallbackContext _)
+    {
+        if (_isPlacing) return; // don't delete while actively placing/moving a piece
+        TryReturnSelectedPieceToUI();
     }
 
     bool TryPickupSelected()
@@ -461,21 +416,9 @@ public class PlacementController : MonoBehaviour
                 _restoreOnCancel = false;
                 _restoreCells.Clear();
             }
-            else
-            {
-                if (IsSupportingOtherPiece(_restoreId, _restoreCells, out int aboveId, out _, out _))
-                {
-                    _placementWarning = $"Can't move: piece is supporting another piece (ID {aboveId}).";
-                    _restoreOnCancel = false;
-                    _restoreCells.Clear();
-                    return false;
-                }
-            }
 
             grid.Remove(_restoreId);
             _placedDefs.Remove(_restoreId);
-            _placedFragile.Remove(_restoreId);
-            _placedWeight.Remove(_restoreId);
         }
 
         _heldPickup = pickup;
@@ -494,6 +437,7 @@ public class PlacementController : MonoBehaviour
 
         grid.placementMode = true;
         _isPlacing = true;
+        _nextYLayerMoveTime = 0f;
 
         _anchorCell.y = activeLayerY;
 
@@ -551,22 +495,9 @@ public class PlacementController : MonoBehaviour
                 _restoreOnCancel = false;
                 _restoreCells.Clear();
             }
-            else
-            {
-                // Block moving if this piece is supporting something above it
-                if (IsSupportingOtherPiece(_restoreId, _restoreCells, out int aboveId, out _, out _))
-                {
-                    _placementWarning = $"Can't move: piece is supporting another piece (ID {aboveId}).";
-                    _restoreOnCancel = false;
-                    _restoreCells.Clear();
-                    return; // do not pick up
-                }
-            }
 
             grid.Remove(_restoreId);
             _placedDefs.Remove(_restoreId);
-            _placedFragile.Remove(_restoreId);
-            _placedWeight.Remove(_restoreId);
         }
 
         _heldPickup = pickup;
@@ -588,6 +519,7 @@ public class PlacementController : MonoBehaviour
         grid.placementMode = true;
         _isPlacing = true;
 
+        _nextYLayerMoveTime = 0f;
         _anchorCell.y = activeLayerY;
 
         if (pickup.hideOnPickup)
@@ -605,11 +537,6 @@ public class PlacementController : MonoBehaviour
 
         if (!ComputeWorldCells(currentDef, _anchorCell, _rotTarget, _tmpWorldCells)) return false;
         if (!grid.CanPlaceCells(_tmpWorldCells)) return false;
-        if (!HasAnySupportBelow(_tmpWorldCells, out _, out _)) return false;
-        if (!PassesWeightSupportRule(currentDef, _tmpWorldCells, out _)) return false;
-        if (!PassesFragileTopRule(currentDef, _tmpWorldCells)) return false;
-        if (currentDef.mustBeStanding && !IsStandingFootprint(currentDef, _tmpWorldCells)) return false;
-        if (!PassesUprightRule(currentDef, _rotTarget)) return false;
 
         bool isNewFromUI = _spawnedFromUI;
         PieceDefinition placedDef = currentDef;
@@ -626,9 +553,6 @@ public class PlacementController : MonoBehaviour
         placed.transform.position = targetCenterWorld - (placed.transform.rotation * _heldVisualCenterLocal);
 
         grid.Place(id, _tmpWorldCells);
-
-        _placedFragile[id] = placedDef.fragileTop;
-        _placedWeight[id] = placedDef.weight;
         _placedDefs[id] = placedDef;
 
         int pickUpLayer = LayerMask.NameToLayer("PickUp");
@@ -707,7 +631,6 @@ public class PlacementController : MonoBehaviour
         cell.x = Mathf.Clamp(cell.x, 0, grid.size.x - 1);
         cell.z = Mathf.Clamp(cell.z, 0, grid.size.z - 1);
 
-        // DO NOT set Y here (auto drop will)
         _anchorCell.x = cell.x;
         _anchorCell.z = cell.z;
     }
@@ -791,53 +714,6 @@ public class PlacementController : MonoBehaviour
         }
 
         return (min + max) * 0.5f;
-    }
-
-    void SnapToDropY()
-    {
-        if (!currentDef) return;
-
-        int startY;
-        if (dropFromTop)
-            startY = grid.size.y - 1;
-        else
-            startY = Mathf.Clamp(_anchorCell.y + dropSearchPadding, 0, grid.size.y - 1);
-
-        // We’ll search downward for the first valid “resting” placement
-        for (int y = startY; y >= 0; y--)
-        {
-            var testAnchor = new Vector3Int(_anchorCell.x, y, _anchorCell.z);
-
-            // must produce cells
-            if (!ComputeWorldCells(currentDef, testAnchor, _rotTarget, _tmpWorldCells))
-                continue;
-
-            // must be inside bounds
-            if (!AllInside(_tmpWorldCells))
-                continue;
-
-            // must not overlap
-            if (!grid.CanPlaceCells(_tmpWorldCells))
-                continue;
-
-            // must obey “must be standing” / upright rule here too (so drop respects it)
-            if (currentDef.mustBeStanding && !IsStandingFootprint(currentDef, _tmpWorldCells))
-                continue;
-
-            if (!PassesUprightRule(currentDef, _rotTarget))
-                continue;
-
-            // must be supported (or touch floor)
-            if (!HasAnySupportBelow(_tmpWorldCells, out _, out _))
-                continue;
-
-            // Found the resting Y
-            _anchorCell.y = y;
-            return;
-        }
-
-        // If nothing works, keep current Y (or clamp)
-        _anchorCell.y = Mathf.Clamp(_anchorCell.y, 0, grid.size.y - 1);
     }
 
     bool AllInside(IReadOnlyList<Vector3Int> cells)
@@ -960,6 +836,7 @@ public class PlacementController : MonoBehaviour
         // Start placement mode
         grid.placementMode = true;
         _isPlacing = true;
+        _nextYLayerMoveTime = 0f;
 
         // Pick a reasonable starting anchor (center-ish of current layer)
         Vector3 centerWorld = grid.GetWorldLayerCenter(activeLayerY, useCellCenter: true);
@@ -1030,8 +907,6 @@ public class PlacementController : MonoBehaviour
                 if (_restoreCells.Count > 0)
                     grid.Place(_restoreId, _restoreCells);
 
-                _placedFragile[_restoreId] = (_heldPickup.def != null && _heldPickup.def.fragileTop);
-                _placedWeight[_restoreId] = (_heldPickup.def != null) ? _heldPickup.def.weight : PieceWeight.Normal;
                 _placedDefs[_restoreId] = _heldPickup.def;
 
                 _heldPickup.placedId = _restoreId;
@@ -1101,6 +976,50 @@ public class PlacementController : MonoBehaviour
         if (t) t.localScale = baseScale; 
     }
 
+    public bool TryReturnSelectedPieceToUI()
+    {
+        PickupPiece pickup = null;
+
+        bool usingGamepad = (InputHub.Instance != null && InputHub.Instance.ActiveScheme == ControlSchemeMode.Gamepad);
+
+        if (usingGamepad)
+        {
+            pickup = _selected;
+        }
+        else
+        {
+            Vector2 screen = _player.Point.ReadValue<Vector2>();
+            Ray r = cam.ScreenPointToRay(screen);
+
+            if (Physics.Raycast(r, out RaycastHit hit, pickupMaxDistance, pickupMask))
+                pickup = hit.collider.GetComponentInParent<PickupPiece>();
+        }
+
+        if (!pickup || !pickup.def) return false;
+        if (pickup.placedId == 0) return false; // only already-placed pieces can be returned
+
+        int placedId = pickup.placedId;
+        PieceDefinition def = pickup.def;
+
+        _restoreCells.Clear();
+        if (!grid.TryGetPlacedCells(placedId, _restoreCells))
+            return false;
+
+        grid.Remove(placedId);
+        _placedDefs.Remove(placedId);
+
+        if (_selected == pickup)
+        {
+            ClearSelection();
+            _selected = null;
+            _targetIndex = -1;
+        }
+
+        Destroy(pickup.gameObject);
+
+        OnReturned?.Invoke(def, placedId);
+        return true;
+    }
     // --- rules / debug unchanged ---
 
     void RefreshTargets()
@@ -1210,218 +1129,7 @@ public class PlacementController : MonoBehaviour
         return counts;
     }
 
-    bool HasAnySupportBelow(IReadOnlyList<Vector3Int> cells, out Vector3Int supportedCell, out Vector3Int supportBelow)
-    {
-        supportedCell = default;
-        supportBelow = default;
 
-        if (cells == null || cells.Count == 0) return false;
-
-        int minY = int.MaxValue;
-        for (int i = 0; i < cells.Count; i++)
-            if (cells[i].y < minY) minY = cells[i].y;
-
-        // touching floor is always supported
-        if (minY == 0) return true;
-
-        for (int i = 0; i < cells.Count; i++)
-        {
-            Vector3Int below = cells[i] + Vector3Int.down;
-
-            // ignore self-support (stacked cells within the same piece)
-            bool belowIsSelf = false;
-            for (int j = 0; j < cells.Count; j++)
-            {
-                if (cells[j] == below) { belowIsSelf = true; break; }
-            }
-            if (belowIsSelf) continue;
-
-            if (!grid.IsInside(below)) continue;
-            if (!grid.IsOccupied(below)) continue;
-
-            int occId = grid.GetOccupantId(below);
-
-            // If the thing below is fragile-top, it cannot be used as support.
-            if (occId != 0 && _placedFragile.TryGetValue(occId, out bool isFragile) && isFragile)
-                continue;
-
-            supportedCell = cells[i];
-            supportBelow = below;
-            return true;
-        }
-
-        return false;
-    }
-
-    bool PassesFragileTopRule(PieceDefinition def, IReadOnlyList<Vector3Int> cells)
-    {
-        if (def == null || !def.fragileTop) return true;
-
-        for (int i = 0; i < cells.Count; i++)
-        {
-            Vector3Int above = cells[i] + Vector3Int.up;
-            if (grid.IsInside(above) && grid.IsOccupied(above))
-                return false;
-        }
-        return true;
-    }
-
-    bool IsStandingFootprint(PieceDefinition def, IReadOnlyList<Vector3Int> cells)
-    {
-        if (def == null || cells == null || cells.Count == 0) return false;
-
-        int minX = int.MaxValue, maxX = int.MinValue;
-        int minY = int.MaxValue, maxY = int.MinValue;
-        int minZ = int.MaxValue, maxZ = int.MinValue;
-
-        for (int i = 0; i < cells.Count; i++)
-        {
-            var c = cells[i];
-            if (c.x < minX) minX = c.x; if (c.x > maxX) maxX = c.x;
-            if (c.y < minY) minY = c.y; if (c.y > maxY) maxY = c.y;
-            if (c.z < minZ) minZ = c.z; if (c.z > maxZ) maxZ = c.z;
-        }
-
-        int sizeX = (maxX - minX) + 1;
-        int sizeY = (maxY - minY) + 1;
-        int sizeZ = (maxZ - minZ) + 1;
-
-        Vector3Int actual = new Vector3Int(sizeX, sizeY, sizeZ);
-        Vector3Int want = def.standingBounds;
-
-        // exact match
-        if (actual == want) return true;
-
-        // allow yaw swap of X/Z (common case)
-        if (actual.x == want.z && actual.y == want.y && actual.z == want.x)
-            return true;
-
-        return false;
-    }
-
-    bool PassesUprightRule(PieceDefinition def, Quaternion rotLocal)
-    {
-        if (!def || !def.forbidUpsideDown) return true;
-        Vector3 up = rotLocal * Vector3.up;
-        return Vector3.Dot(up, Vector3.up) > 0.0f;
-    }
-
-    int RequiredSupportCapacity(PieceWeight w)
-    {
-        switch (w)
-        {
-            case PieceWeight.Light: return 1;
-            case PieceWeight.Normal: return 2;
-            case PieceWeight.Heavy: return 3;
-            default: return 2;
-        }
-    }
-
-    int SupportCapacityProvidedBy(PieceWeight w)
-    {
-        switch (w)
-        {
-            case PieceWeight.Light: return 1;
-            case PieceWeight.Normal: return 2;
-            case PieceWeight.Heavy: return 3;
-            default: return 2;
-        }
-    }
-
-    // Checks if the piece's bottom cells are supported with enough total capacity.
-    // IMPORTANT: fragile pieces below do NOT count as support (keeps your fragile-overhang rule intact).
-    // Capacity is counted by DISTINCT supporting pieces (unique placedId), not by number of cells.
-
-    bool PassesWeightSupportRule(PieceDefinition def, IReadOnlyList<Vector3Int> cells, out string reason)
-    {
-        reason = null;
-        if (def == null || cells == null || cells.Count == 0) return false;
-
-        // On the floor -> always supported
-        int minY = int.MaxValue;
-        for (int i = 0; i < cells.Count; i++)
-            if (cells[i].y < minY) minY = cells[i].y;
-
-        if (minY == 0) return true;
-
-        // Collect DISTINCT supporting piece IDs under bottom-layer cells
-        HashSet<int> supportIds = new HashSet<int>();
-
-        for (int i = 0; i < cells.Count; i++)
-        {
-            var c = cells[i];
-            if (c.y != minY) continue;
-
-            Vector3Int below = c + Vector3Int.down;
-            if (!grid.IsInside(below)) continue;
-
-            int occId = grid.GetOccupantId(below);
-            if (occId == 0) continue;
-
-            // If the thing below is fragile-top, it cannot be used as support (overhang still allowed)
-            if (_placedFragile.TryGetValue(occId, out bool isFragile) && isFragile)
-                continue;
-
-            supportIds.Add(occId);
-        }
-
-        if (supportIds.Count == 0)
-        {
-            reason = "Needs non-fragile support below.";
-            return false;
-        }
-
-        // Sum capacity from DISTINCT supports
-        int capacity = 0;
-        foreach (int id in supportIds)
-        {
-            PieceWeight w = PieceWeight.Normal;
-            if (_placedWeight.TryGetValue(id, out var stored)) w = stored;
-
-            capacity += SupportCapacityProvidedBy(w);
-        }
-
-        int needed = RequiredSupportCapacity(def.weight);
-
-        if (capacity < needed)
-        {
-            reason = $"Too heavy: needs support capacity {needed} (has {capacity}).";
-            return false;
-        }
-
-        return true;
-    }
-
-    bool IsSupportingOtherPiece(int myPlacedId, IReadOnlyList<Vector3Int> myCells,
-    out int aboveId, out Vector3Int myCell, out Vector3Int aboveCell)
-    {
-        aboveId = 0;
-        myCell = default;
-        aboveCell = default;
-
-        if (myPlacedId == 0 || myCells == null || myCells.Count == 0) return false;
-
-        for (int i = 0; i < myCells.Count; i++)
-        {
-            Vector3Int c = myCells[i];
-            Vector3Int up = c + Vector3Int.up;
-
-            if (!grid.IsInside(up)) continue;
-            if (!grid.IsOccupied(up)) continue;
-
-            int occ = grid.GetOccupantId(up);
-
-            // if something above is a different placed piece, we're supporting it
-            if (occ != 0 && occ != myPlacedId)
-            {
-                aboveId = occ;
-                myCell = c;
-                aboveCell = up;
-                return true;
-            }
-        }
-        return false;
-    }
     static Quaternion Normalize(Quaternion q)
     {
         float mag = Mathf.Sqrt(q.x * q.x + q.y * q.y + q.z * q.z + q.w * q.w);
@@ -1446,18 +1154,17 @@ public class PlacementController : MonoBehaviour
         }
     }
 
-    void DebugDrawSupport(IReadOnlyList<Vector3Int> cells, bool hasSupport, Vector3Int supportedCell, Vector3Int supportBelow)
-    {
-        // keep your existing implementation here if you want the nice debug lines
-        // (omitted for brevity since unchanged)
-    }
-
     void OnGUI()
     {
         if (!_isPlacing) return;
-        if (string.IsNullOrEmpty(_placementWarning)) return;
 
-        GUI.color = Color.yellow;
-        GUI.Label(new Rect(12, 12, 600, 24), _placementWarning);
+        GUI.color = Color.white;
+        GUI.Label(new Rect(12, 12, 200, 24), $"Layer Y: {activeLayerY}");
+
+        if (!string.IsNullOrEmpty(_placementWarning))
+        {
+            GUI.color = Color.yellow;
+            GUI.Label(new Rect(12, 36, 600, 24), _placementWarning);
+        }
     }
 }

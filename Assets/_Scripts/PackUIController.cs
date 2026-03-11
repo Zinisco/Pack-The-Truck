@@ -348,13 +348,19 @@ public class PackUIController : MonoBehaviour
     void OnEnable()
     {
         if (placement != null)
+        {
             placement.OnPlaced += HandlePlaced;
+            placement.OnReturned += HandleReturned;
+        }
     }
 
     void OnDisable()
     {
         if (placement != null)
+        {
             placement.OnPlaced -= HandlePlaced;
+            placement.OnReturned -= HandleReturned;
+        }
     }
 
     public void Rebuild()
@@ -430,6 +436,29 @@ public class PackUIController : MonoBehaviour
         // Kick auto-advance after placement (works even if panel was already open)
         StopCoroutine(nameof(AutoAdvanceAfterPlaced));
         StartCoroutine(AutoAdvanceAfterPlaced());
+    }
+
+    void HandleReturned(PieceDefinition def, int placedId)
+    {
+        if (!def) return;
+
+        if (_packed.ContainsKey(def))
+            _packed[def] = Mathf.Max(0, _packed[def] - 1);
+        else
+            _packed[def] = 0;
+
+        for (int i = 0; i < _flat.Count; i++)
+        {
+            var (d, required) = _flat[i];
+            int packed = _packed.TryGetValue(d, out var p) ? p : 0;
+            _cards[i].Bind(d, packed, required, OnCardClicked);
+        }
+
+        // if current selection was null or completed before, pick something valid again
+        if (_selected == null)
+            SelectFirstAvailable(spawn: false);
+        else
+            RefreshSelectionVisuals();
     }
 
     void SelectFirstAvailable(bool spawn)
